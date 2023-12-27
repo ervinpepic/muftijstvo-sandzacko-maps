@@ -1,5 +1,15 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+
+
+#DB ignore
+
+/src/app/database/database-seed.ts
+/src/app/polygons/sandzak/*.ts
+/src/environments/*.ts
+/src/assets/images/land-images
+/src/assets/images/mosque-images
+
 # Compiled output
 /dist
 /tmp

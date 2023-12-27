@@ -1,0 +1,76 @@
+/* Navbar Styles */
+.navbar-color-override {
+  background-color: #52a77a;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.navbar-brand-override {
+  margin-left: -15px !important;
+}
+
+.navbar-light .navbar-toggler {
+  color: #b6a37c !important;
+  border-color: #b6a37c !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(182, 163, 124)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Form Styles */
+.form-select:disabled {
+  background-color: #d2d3d5;
+}
+
+/* Search Suggestions */
+.search-suggestions {
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border-top: none;
+  overflow-y: auto;
+  height: 200px;
+  scrollbar-color: #86b7fe;
+}
+
+/* General Styling */
+.input-group-append {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-group-text {
+  background-color: transparent;
+  border: none;
+  font-size: 1.3rem;
+}
+
+.input-group.m-1:not(.has-validation)> :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating) {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+/* Hover Effect */
+.hover-effect:hover {
+  color: #fff;
+  cursor: pointer;
+  background-color: #86b7fe;
+  border-color: #86b7fe;
+  outline: 0;
+}
+
+.hover-effect:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}

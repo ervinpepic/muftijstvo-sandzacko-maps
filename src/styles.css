@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+@import url('@ng-select/ng-select/themes/default.theme.css');
+body {
+  background-image: url("./assets/images/info-window-background.png");
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: auto;
+  background-repeat: repeat;
+  font-family: 'Raleway', sans-serif;
+}
+
+img {
+  border-radius: 15px;
+}
+
+.infowindow {
+  max-height: max-content;
+  max-width: max-content;
+}
+
+.ng-select.custom {
+  border:0px;
+  min-height: 0px;
+  width: 100%;
+  border-radius: 5px;
+}
+.ng-select.custom .ng-select-container  {            
+  min-height: 0px;
+  border-radius: 5px;
+  width: 100%;
+
+}
