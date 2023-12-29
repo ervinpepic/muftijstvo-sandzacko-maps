@@ -1,28 +1,16 @@
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { CustomMarker } from '../Marker';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class GenerateSuggestionsService {
-  searchControl: FormControl = new FormControl();
-
-  constructor() {}
-
-  /**
-   * Generate search suggestions based on the input value and visible markers.
-   *
-   * @param inputValue The search input value.
-   * @param visibleMarkers The currently visible markers to filter suggestions from.
-   * @returns An array of search suggestions.
-   */
+export class SearchService {
+  
   generateSearchSuggestions(
     inputValue: string,
     visibleMarkers: CustomMarker[]
   ): string[] {
     try {
-      // Check if there are visible markers to generate suggestions from
       if (!Array.isArray(visibleMarkers) || visibleMarkers.length === 0) {
         return [];
       }

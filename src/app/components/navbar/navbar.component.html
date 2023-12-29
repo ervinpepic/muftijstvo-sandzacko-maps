@@ -1,87 +1,50 @@
-<nav class="navbar navbar-expand-md navbar-light navbar-color-override">
-
+<nav class="navbar navbar-expand-lg navbar-color-override">
   <div class="container-fluid">
-
     <a class="navbar-brand">
-      <img 
-        src="../assets/images/logo_muftijstvo.svg" 
-        alt="logo-muftijstva" 
-        width="30" 
-        height="30" 
+      <img
+        src="../assets/images/logo_muftijstvo.svg"
+        alt="logo-muftijstva"
+        width="30"
+        height="30"
       />
     </a>
-    <button 
-      class="navbar-toggler" 
-      type="button" 
-      data-bs-toggle="collapse" 
-      data-bs-target="#navItems"
-      aria-controls="navItems" 
-      aria-expanded="false" 
-      aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navItemsContent"
+      aria-controls="navItemsContent"
+      aria-expanded="false"
+      aria-label="Toggle menu"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse justify-content-between" id="navItems">
-      
+    <div class="collapse navbar-collapse" id="navItemsContent">
       <!-- Input search form start -->
-      <div class="col-md-4 col">
-        <div class="input-group m-1">
-
-          <input 
-            class="form-control" 
-            type="search" 
-            name="searchTerm" 
-            aria-label="Search"
-            placeholder="Naziv | br. parcele" 
-            [(ngModel)]="searchQuery"
-            (input)="updateMarkersVisibility(); handleSearchInput($event)" 
-          />
-          <span class="input-group-append">
-            <span class="input-group-text" *ngIf="searchQuery.length === 0">
-              <i 
-                class="fas-sharp fa-solid fa-magnifying-glass-location fa-lg me-2" 
-                style="color: #27a27a">
-              </i>
-            </span>
-          </span>
-          <ul class="list-group search-suggestions" *ngIf="showSearchSuggestions">
-            <li 
-              class="list-group-item" 
-              style="color: #ccc;"
-              *ngIf="searchSuggestions.length === 0">
-              Nema vakufa za unijeti naziv | parcelu
-            </li>
-            <li 
-              class="list-group-item hover-effect"
-              tabindex="{{ searchSuggestions }}"
-              *ngFor="let suggestion of searchSuggestions" 
-              (click)="selectSearchSuggestion(suggestion)"
-            >
-              <span [innerHTML]="suggestion | highlightSearchTerm : searchQuery!">
-              </span>
-            </li>
-          </ul>
-        </div>
+      <div class="col-lg-5 col">
+        <app-search
+          [searchQuery]="searchQuery"
+          [selectedCity]="selectedCity"
+          [selectedVakufType]="selectedVakufType"
+          [selectedVakufNames]="selectedVakufNames"
+        ></app-search>
       </div>
       <!-- Input search form end -->
 
       <!-- Select forms start -->
-      <div class="col-md-6 col">
+      <div class="d-flex-md ms-md-auto">
         <div class="navbar-nav">
-          <div *ngIf="errorMessage" class="alert alert-danger">
-            {{ errorMessage }}
-          </div>
-
           <ng-select
             class="custom m-1"
-            name="vakufType" 
+            name="vakufType"
             aria-label="Vakuf Type"
             placeholder="Izaberi tip vakufa"
             [(ngModel)]="selectedVakufType"
             (change)="filterMarkers(); onVakufTypeChange()"
           >
-            <ng-option 
-              class="hover-effect" 
+            <ng-option
+              class="hover-effect"
               *ngFor="let vakufType of vakufObjectTypes$ | async"
               [value]="vakufType"
             >
@@ -89,17 +52,17 @@
             </ng-option>
           </ng-select>
 
-          <ng-select 
-            #citySelect
+          <ng-select
+            #openCities
             class="custom m-1"
             name="selectedCity"
             aria-label="City"
             placeholder="Izaberi grad"
-            [(ngModel)]="selectedCity" 
+            [(ngModel)]="selectedCity"
             (change)="filterMarkers(); onCityChange()"
           >
-            <ng-option 
-              class="hover-effect" 
+            <ng-option
+              class="hover-effect"
               *ngFor="let cityName of vakufCities$ | async"
               [value]="cityName"
             >
@@ -107,28 +70,26 @@
             </ng-option>
           </ng-select>
 
-          <ng-select 
-            #filteredVakufNamesSelect 
-            class="custom m-1" 
+          <ng-select
+            #openVakufNames
+            class="custom m-1"
             name="filteredVakufNames"
             aria-label="Vakuf name"
-            placeholder="Izaberi vakuf"
-            [(ngModel)]="filteredVakufNames"
+            placeholder="Izaberi naziv vakufa"
+            [(ngModel)]="selectedVakufNames"
             (change)="updateMarkersVisibility()"
           >
-            <ng-option  
+            <ng-option
               class="hover-effect"
-              *ngFor="let name of selectedMarkerNames"
+              *ngFor="let name of selectFilteredMarkerNames"
               [value]="name"
             >
               {{ name | ellipsis : 25 }}
             </ng-option>
-            
           </ng-select>
-          
-        </div>   
+        </div>
       </div>
-      <!-- Select forms end -->
     </div>
+    <!-- Select forms end -->
   </div>
 </nav>

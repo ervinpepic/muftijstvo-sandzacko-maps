@@ -1,0 +1,45 @@
+
+    <div class="input-group m-1">
+      <input
+        class="form-control mt-sm-0 mt-2"
+        type="search"
+        name="searchTerm"
+        aria-label="Search"
+        placeholder="Naziv | br. parcele"
+        [(ngModel)]="searchQuery"
+        (input)="updateMarkersVisibility(); handleSearchInput($event)"
+      />
+      <span class="input-group-append">
+        <span class="input-group-text" *ngIf="searchQuery.length === 0">
+          <i
+            class="fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2"
+            style="color: #27a27a"
+          >
+          </i>
+        </span>
+      </span>
+      <ul
+        class="list-group search-suggestions"
+        *ngIf="showSearchSuggestions"
+      >
+        <li
+          class="list-group-item"
+          style="color: #ccc"
+          *ngIf="searchSuggestionsList.length === 0"
+        >
+          Nema vakufa za unijeti naziv | parcelu
+        </li>
+        <li
+          class="list-group-item hover-effect"
+          tabindex="{{ searchSuggestionsList }}"
+          *ngFor="let suggestion of searchSuggestionsList"
+          (click)="selectSearchSuggestion(suggestion)"
+        >
+          <span
+            [innerHTML]="suggestion | highlightSearchTerm : searchQuery!"
+          >
+          </span>
+        </li>
+      </ul>
+    </div>
+  

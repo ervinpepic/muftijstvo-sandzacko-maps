@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { PolygonsBoundaries } from './polygons/map-polygons';
 import { environment } from '../environments/environment.development';
 import { Loader } from '@googlemaps/js-api-loader';
-import { mapStyle } from './style/map/map-style';
+import { mapStyle } from './styles/map/map-style';
 import { MarkerService } from './services/marker.service';
 import { NavbarComponent } from "./components/navbar/navbar.component";
 

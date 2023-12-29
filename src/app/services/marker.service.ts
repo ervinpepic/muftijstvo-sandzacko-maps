@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, lastValueFrom, of } from 'rxjs';
 
-import { VakufData } from '../database/database-seed';
-import { sandzakCity } from '../database/sandzak-cities';
-import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../Marker';
+import { VakufData } from '../database/database-seed';
 
 import { MarkerEvent } from '../events/marker-events';
-import { MarkerStyle } from '../style/marker/styling/marker-style';
+import { MarkerStyle } from '../styles/marker/marker-style';
+import { vakufObjecType } from '../database/vakuf-types';
+import { sandzakCity } from '../database/sandzak-cities';
 
 @Injectable({
   providedIn: 'root',
@@ -23,16 +23,16 @@ export class MarkerService {
 
   constructor() {}
 
-  getMarkers(): Observable<CustomMarker[]> {
-    return of(VakufData);
-  }
-
   getVakufObjectTypes(): Observable<string[]> {
     return of(Object.values(vakufObjecType));
   }
 
   getVakufCities(): Observable<string[]> {
     return of(Object.values(sandzakCity));
+  }
+
+  getMarkers(): Observable<CustomMarker[]> {
+    return of(VakufData);
   }
 
   async createMarkers(map: google.maps.Map): Promise<void> {
@@ -62,5 +62,11 @@ export class MarkerService {
 
     marker.setMap(map); // Set the map
     return marker;
+  }
+
+  updateMarkersVisibility(filteredMarkers: any[]): void {
+    this.markers.forEach((marker) => {
+      marker.setVisible(filteredMarkers.includes(marker));
+    });
   }
 }

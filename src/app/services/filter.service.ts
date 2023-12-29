@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { replaceSerbianLatinChars } from '../functions/latin-chars';
+import { replaceSerbianLatinChars } from '../utils/latin-chars';
 import { CustomMarker } from '../Marker';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MarkerFilterService {
+export class FilterService {
 
   filterMarkers(
     markers: any[],

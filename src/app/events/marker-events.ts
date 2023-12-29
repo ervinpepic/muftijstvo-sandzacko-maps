@@ -1,6 +1,6 @@
 import { CustomMarker } from '../Marker';
-import { infoWindowStyle } from '../style/marker/info-window/info-window-style';
-import { MarkerStyle } from '../style/marker/styling/marker-style';
+import { infoWindowStyle } from '../styles/marker/info-window-style';
+import { MarkerStyle } from '../styles/marker/marker-style';
 
 export class MarkerEvent {
   private openInfoWindow: google.maps.InfoWindow[] = [];
