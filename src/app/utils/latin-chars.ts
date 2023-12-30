@@ -7,5 +7,3 @@ export function replaceSerbianLatinChars(input: string): string {
     .replace(/ć/g, 'c')
     .replace(/ž/g, 'z');
 }
-
-replaceSerbianLatinChars;

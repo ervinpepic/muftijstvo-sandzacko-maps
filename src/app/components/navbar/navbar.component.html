@@ -21,75 +21,12 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navItemsContent">
-      <!-- Input search form start -->
       <div class="col-lg-5 col">
-        <app-search
-          [searchQuery]="searchQuery"
-          [selectedCity]="selectedCity"
-          [selectedVakufType]="selectedVakufType"
-          [selectedVakufNames]="selectedVakufNames"
-        ></app-search>
+        <app-search></app-search>
       </div>
-      <!-- Input search form end -->
-
-      <!-- Select forms start -->
       <div class="d-flex-md ms-md-auto">
-        <div class="navbar-nav">
-          <ng-select
-            class="custom m-1"
-            name="vakufType"
-            aria-label="Vakuf Type"
-            placeholder="Izaberi tip vakufa"
-            [(ngModel)]="selectedVakufType"
-            (change)="filterMarkers(); onVakufTypeChange()"
-          >
-            <ng-option
-              class="hover-effect"
-              *ngFor="let vakufType of vakufObjectTypes$ | async"
-              [value]="vakufType"
-            >
-              {{ vakufType }}
-            </ng-option>
-          </ng-select>
-
-          <ng-select
-            #openCities
-            class="custom m-1"
-            name="selectedCity"
-            aria-label="City"
-            placeholder="Izaberi grad"
-            [(ngModel)]="selectedCity"
-            (change)="filterMarkers(); onCityChange()"
-          >
-            <ng-option
-              class="hover-effect"
-              *ngFor="let cityName of vakufCities$ | async"
-              [value]="cityName"
-            >
-              {{ cityName }}
-            </ng-option>
-          </ng-select>
-
-          <ng-select
-            #openVakufNames
-            class="custom m-1"
-            name="filteredVakufNames"
-            aria-label="Vakuf name"
-            placeholder="Izaberi naziv vakufa"
-            [(ngModel)]="selectedVakufNames"
-            (change)="updateMarkersVisibility()"
-          >
-            <ng-option
-              class="hover-effect"
-              *ngFor="let name of selectFilteredMarkerNames"
-              [value]="name"
-            >
-              {{ name | ellipsis : 25 }}
-            </ng-option>
-          </ng-select>
-        </div>
+        <app-select></app-select>
       </div>
     </div>
-    <!-- Select forms end -->
   </div>
 </nav>

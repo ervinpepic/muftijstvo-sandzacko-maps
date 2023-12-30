@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormsModule } from '@angular/forms';
 import { CustomMarker } from '../../Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';
 import { SearchService } from '../../services/search-suggestions.service';
+import { replaceSerbianLatinChars } from '../../utils/latin-chars';
 
 @Component({
   selector: 'app-search',
@@ -21,30 +22,29 @@ export class SearchComponent {
     private filterService: FilterService
   ) {}
 
-  // Input from parent component
-  @Input() searchQuery: string = '';
-  @Input() selectedCity: string | null = null;
-  @Input() selectedVakufType: string | null = null;
-  @Input() selectedVakufNames: string | null = null;
+  get searchQuery(): string {
+    return this.filterService.searchQuery;
+  }
+  set searchQuery(value: string) {
+    this.filterService.searchQuery = value;
+  }
 
-  searchFormControl = new FormControl();
+  searchControl = new FormControl();
   showSearchSuggestions: boolean = false;
   searchSuggestionsList: string[] = [];
 
   private getFilteredMarkers(): CustomMarker[] {
-    return this.filterService.filterMarkers(
-      this.markerService.markers,
-      this.selectedCity || '',
-      this.selectedVakufType || '',
-      this.selectedVakufNames || '',
-      this.searchQuery || ''
-    );
+    return this.filterService.filterMarkers(this.markerService.markers);
   }
 
-  async generateSearchSuggestions(value: string): Promise<void> {
+  generateSearchSuggestions(value: string): void {
+    const normalizedSearchQuery = replaceSerbianLatinChars(value.toLowerCase());
     const filteredMarkers = this.getFilteredMarkers();
-    const suggestion = await (this.searchSuggestionsList =
-      this.searchService.generateSearchSuggestions(value, filteredMarkers));
+    const suggestion = this.searchService.generateSearchSuggestions(
+      normalizedSearchQuery,
+      filteredMarkers
+    );
+    // console.log('Suggestions:', suggestion);
     this.searchSuggestionsList = suggestion;
   }
 
@@ -57,12 +57,14 @@ export class SearchComponent {
   updateSearchQuery(value: string): void {
     const searchQueryParts = value.split(' ');
     const numberPart = searchQueryParts[0];
-    this.searchQuery = /^\d+$/.test(numberPart) ? numberPart : value;
+    this.filterService.searchQuery = /^\d+$/.test(numberPart)
+      ? numberPart
+      : value;
   }
 
   handleSearchInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
-    this.searchFormControl.setValue(inputElement.value);
+    this.searchControl.setValue(inputElement.value);
     if (inputElement.value.length > 0) {
       this.generateSearchSuggestions(inputElement.value);
       this.showSearchSuggestions = true;

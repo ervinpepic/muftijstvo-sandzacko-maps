@@ -64,7 +64,7 @@ export class MarkerService {
     return marker;
   }
 
-  updateMarkersVisibility(filteredMarkers: any[]): void {
+  updateMarkersVisibility(filteredMarkers: CustomMarker[]): void {
     this.markers.forEach((marker) => {
       marker.setVisible(filteredMarkers.includes(marker));
     });
