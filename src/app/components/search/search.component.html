@@ -2,11 +2,11 @@
   <input
     class="form-control mt-sm-0 mt-2"
     type="search"
-    name="searchTerm"
+    name="searchQuery"
     aria-label="Search"
-    placeholder="Naziv | br. parcele"
+    placeholder="Naziv vakufa | br. parcele"
     [(ngModel)]="searchQuery"
-    (input)="updateMarkersVisibility(); handleSearchInput($event)"
+    (input)="getFilteredMarkers(); handleSearchInput($event)"
   />
   <span class="input-group-append">
     <span class="input-group-text" *ngIf="searchQuery.length === 0">

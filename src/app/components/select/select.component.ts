@@ -18,7 +18,7 @@ import { MarkerService } from '../../services/marker.service';
 export class SelectComponent implements OnInit {
   constructor(
     private markerService: MarkerService,
-    private filterService: FilterService
+    private filterService: FilterService,
   ) {}
   @ViewChild('openVakufNames') openVakufNames!: NgSelectComponent;
   @ViewChild('openCities') openCities!: NgSelectComponent;
@@ -43,7 +43,7 @@ export class SelectComponent implements OnInit {
     this.vakufObjectTypes$ = this.markerService.getVakufObjectTypes();
   }
 
-  private getFilteredMarkers(): CustomMarker[] {
+  getFilteredMarkers(): CustomMarker[] {
     return this.filterService.filterMarkers(this.markerService.markers);
   }
 
@@ -51,7 +51,7 @@ export class SelectComponent implements OnInit {
     const filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
     this.selectFilteredMarkerNames = filteredMarkers.map((marker) => marker.vakufName);
     this.selectedVakufNames = null;
-    this.updateMarkersVisibility();
+    this.getFilteredMarkers();
   }
 
   onVakufTypeChange(): void {
@@ -61,10 +61,5 @@ export class SelectComponent implements OnInit {
   onCityChange(): void {
     this.openCities.close();
     this.openVakufNames.open();
-  }
-
-  updateMarkersVisibility(): void {
-    const filteredMarkers = this.getFilteredMarkers();
-    this.markerService.updateMarkersVisibility(filteredMarkers);
   }
 }

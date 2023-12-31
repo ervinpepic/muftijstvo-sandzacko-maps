@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { replaceSerbianLatinChars } from '../utils/latin-chars';
 import { CustomMarker } from '../Marker';
+import { replaceUsToBs } from '../utils/latin-chars';
 
 @Injectable({
   providedIn: 'root',
@@ -45,19 +45,15 @@ export class FilterService {
     this._selectedVakufNames = value;
   }
 
-  filterMarkers(markers: CustomMarker[]): CustomMarker[] {
+  filterMarkers(markers: any[]): CustomMarker[] {
     const visibleMarkers: CustomMarker[] = [];
 
     // Replace Serbian Latin characters in the search term
-    const normalizedSearchTerm = replaceSerbianLatinChars(
-      this.searchQuery.toLowerCase()
-    );
+    const normalizedSearchTerm = replaceUsToBs(this.searchQuery.toLowerCase());
 
     markers.forEach((marker) => {
       const { city, vakufType, vakufName, cadastralParcelNumber } = marker;
-      const normalizedVakufName = replaceSerbianLatinChars(
-        vakufName.toLowerCase()
-      );
+      const normalizedVakufName = replaceUsToBs(vakufName.toLowerCase());
 
       const isVisible =
         (!this.selectedCity || city === this.selectedCity) &&
@@ -66,6 +62,8 @@ export class FilterService {
         (!normalizedSearchTerm ||
           normalizedVakufName.includes(normalizedSearchTerm) ||
           cadastralParcelNumber.toLowerCase().includes(normalizedSearchTerm));
+
+      marker.setVisible(isVisible);
 
       if (isVisible) {
         visibleMarkers.push(marker);

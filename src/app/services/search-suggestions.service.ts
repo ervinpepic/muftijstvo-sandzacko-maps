@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CustomMarker } from '../Marker';
-import { replaceSerbianLatinChars } from '../utils/latin-chars';
+import { replaceUsToBs } from '../utils/latin-chars';
   // Adjust the path accordingly
 
 @Injectable({
@@ -17,13 +17,13 @@ export class SearchService {
         return [];
       }
 
-      const normalizedInputValue = replaceSerbianLatinChars(inputValue.toLowerCase());
+      const normalizedInputValue = replaceUsToBs(inputValue.toLowerCase());
 
       const suggestionsMap = new Map<string, number>();
 
       visibleMarkers.forEach((marker) => {
-        const normalizedVakufName = replaceSerbianLatinChars(marker.vakufName.toLowerCase());
-        const normalizedCadastralParcelNumber = replaceSerbianLatinChars(marker.cadastralParcelNumber.toLowerCase());
+        const normalizedVakufName = replaceUsToBs(marker.vakufName.toLowerCase());
+        const normalizedCadastralParcelNumber = replaceUsToBs(marker.cadastralParcelNumber.toLowerCase());
 
         if (normalizedVakufName.includes(normalizedInputValue)) {
           // Assign a relevance score based on the match

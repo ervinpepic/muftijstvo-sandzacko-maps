@@ -41,7 +41,7 @@
     aria-label="Vakuf name"
     placeholder="Izaberi naziv vakufa"
     [(ngModel)]="selectedVakufNames"
-    (change)="updateMarkersVisibility()"
+    (change)="getFilteredMarkers()"
   >
     <ng-option
       class="hover-effect"

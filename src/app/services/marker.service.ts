@@ -63,10 +63,4 @@ export class MarkerService {
     marker.setMap(map); // Set the map
     return marker;
   }
-
-  updateMarkersVisibility(filteredMarkers: CustomMarker[]): void {
-    this.markers.forEach((marker) => {
-      marker.setVisible(filteredMarkers.includes(marker));
-    });
-  }
 }

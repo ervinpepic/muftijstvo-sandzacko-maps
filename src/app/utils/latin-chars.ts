@@ -1,5 +1,5 @@
 // Function to replace Serbian Latin characters
-export function replaceSerbianLatinChars(input: string): string {
+export function replaceUsToBs(input: string): string {
   return input
     .replace(/š/g, 's')
     .replace(/đ/g, 'dj')
