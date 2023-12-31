@@ -1,37 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
-/* You can add global styles to this file, and also import other style files */
+/* Importing styles from ng-select library */
 @import "@ng-select/ng-select/themes/default.theme.css";
+
+/* Global styles for the entire body */
 body {
-  background-image: url("./assets/images/info-window-background.png");
-  background-attachment: fixed;
-  background-position: center center;
-  background-size: auto;
-  background-repeat: repeat;
-  font-family: "Raleway", sans-serif;
+  background-image: url("./assets/images/info-window-background.png"); /* Background image */
+  background-attachment: fixed; /* Fixed background attachment */
+  background-position: center center; /* Centered background position */
+  background-size: auto; /* Auto background size */
+  background-repeat: repeat; /* Repeating background */
+  font-family: "Raleway", sans-serif; /* Font family for the entire body */
 }
 
+/* Styling for all images on the page */
 img {
-  border-radius: 15px;
+  border-radius: 15px; /* Border-radius for rounded corners */
 }
 
+/* Styling for the custom info window */
 .infowindow {
-  max-height: max-content;
-  max-width: max-content;
+  max-height: max-content; /* Maximum height with content-based sizing */
+  max-width: max-content; /* Maximum width with content-based sizing */
 }
 
+/* Styling for the custom ng-select component */
 .ng-select.custom {
-  border: 0px;
-  min-height: 0px;
-  width: 100%;
-  border-radius: 5px;
-}
-.ng-select.custom .ng-select-container {
-  min-height: 0px;
-  border-radius: 5px;
-  width: 100%;
+  border: 0px; /* No border */
+  min-height: 0px; /* Minimum height */
+  width: 100%; /* Full width */
+  border-radius: 5px; /* Border radius for rounded corners */
 }
 
+/* Styling for ng-select container in the custom ng-select component */
+.ng-select.custom .ng-select-container {
+  min-height: 0px; /* Minimum height */
+  border-radius: 5px; /* Border radius for rounded corners */
+  width: 100%; /* Full width */
+}
+
+/* Styling for the placeholder in the custom ng-select component */
 .ng-select.custom .ng-select-container .ng-placeholder {
-  color: #8C8C8C;
-  font-weight: 300;
+  color: #8C8C8C; /* Placeholder text color */
+  font-weight: 300; /* Placeholder font weight */
 }

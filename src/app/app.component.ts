@@ -1,19 +1,19 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PolygonsBoundaries } from './polygons/map-polygons';
-import { environment } from '../environments/environment.development';
 import { Loader } from '@googlemaps/js-api-loader';
-import { mapStyle } from './styles/map/map-style';
+import { environment } from '../environments/environment.development';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { PolygonsBoundaries } from './polygons/map-polygons';
 import { MarkerService } from './services/marker.service';
-import { NavbarComponent } from "./components/navbar/navbar.component";
+import { mapStyle } from './styles/map/map-style';
 
 @Component({
-    selector: 'app-root',
-    standalone: true,
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.css',
-    imports: [CommonModule, RouterOutlet, NavbarComponent]
+  selector: 'app-root',
+  standalone: true,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
+  imports: [CommonModule, RouterOutlet, NavbarComponent],
 })
 export class AppComponent {
   title = 'muftijstvo-sandzacko-maps';
@@ -34,13 +34,15 @@ export class AppComponent {
   //mandatory method for OnInit decorator
   async ngOnInit(): Promise<void> {
     try {
+      // Initialize Google Maps API loader
       const googleApiAsyncLoader = new Loader({
         apiKey: environment.GOOGLEAPIKEY,
         version: 'weekly',
       });
 
-      //initialize createMap() funciton with async closure
+      // Load Google Maps API asynchronously
       await googleApiAsyncLoader.load();
+      // Create the map after loading the API
       this.createMap();
     } catch (error) {
       // Handle the error appropriately (e.g., show a user-friendly message)
@@ -48,8 +50,9 @@ export class AppComponent {
     }
   }
 
-  //google maps creation
+  // Google Maps creation
   createMap(): void {
+    // Initialize the Google Map
     this.map = new google.maps.Map(this.mapContainer!.nativeElement, {
       center: this.initialMapCenter,
       zoom: this.initialMapZoom,

@@ -18,46 +18,62 @@ import { MarkerService } from '../../services/marker.service';
 export class SelectComponent implements OnInit {
   constructor(
     private markerService: MarkerService,
-    private filterService: FilterService,
+    private filterService: FilterService
   ) {}
+
+  // ViewChild decorator to reference the NgSelectComponent instance
   @ViewChild('openVakufNames') openVakufNames!: NgSelectComponent;
   @ViewChild('openCities') openCities!: NgSelectComponent;
 
+  selectFilteredMarkerNames: string[] = []; //filtered markers name here
+
+  vakufCities$?: Observable<string[]>; // data from server
+  vakufObjectTypes$?: Observable<string[]>; // data from server
+
+  // setters and getters from filter service
   set selectedVakufType(value: string) {
     this.filterService.selectedVakufType = value;
   }
   set selectedCity(value: string) {
     this.filterService.selectedCity = value;
   }
-  set selectedVakufNames(value: string | null) {
-    this.filterService.selectedVakufNames = value;
+  set selectedVakufName(value: string | null) {
+    this.filterService.selectedVakufName = value;
   }
-  // Arrays
-  markers: CustomMarker[] = [];
-  selectFilteredMarkerNames: string[] = [];
-  vakufCities$?: Observable<string[]>;
-  vakufObjectTypes$?: Observable<string[]>;
 
+  // Retrieve and set the list of vakuf cities and object types from the marker service
   ngOnInit(): void {
     this.vakufCities$ = this.markerService.getVakufCities();
     this.vakufObjectTypes$ = this.markerService.getVakufObjectTypes();
   }
 
-  getFilteredMarkers(): CustomMarker[] {
+  // Filter markers on the component level and share the filtered data with a service
+  // Returns an array of CustomMarker objects after filtering based on the current filter criteria
+  filterMarkers(): CustomMarker[] {
     return this.filterService.filterMarkers(this.markerService.markers);
   }
 
-  filterMarkers(): void {
-    const filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
-    this.selectFilteredMarkerNames = filteredMarkers.map((marker) => marker.vakufName);
-    this.selectedVakufNames = null;
-    this.getFilteredMarkers();
+  // Filter marker names based on the selected vakufType and city
+  // - Retrieves filtered markers from the filter service
+  // - Maps the vakuf names of the filtered markers and sets them to selectFilteredMarkerNames
+  // - Resets the selectedVakufName to null and triggers the overall marker filtering
+  filterMarkersName(): void {
+    const filteredMarkers = this.filterService.filterMarkers(
+      this.markerService.markers
+    );
+    this.selectFilteredMarkerNames = filteredMarkers.map(
+      (marker) => marker.vakufName
+    );
+    this.selectedVakufName = null;
+    this.filterMarkers();
   }
 
+  // triggered when a user selects vakufType to open a city dropdown
   onVakufTypeChange(): void {
     this.openCities.open();
   }
 
+  // triggered when a user selects vakufCity to open vakuf names dropdown
   onCityChange(): void {
     this.openCities.close();
     this.openVakufNames.open();

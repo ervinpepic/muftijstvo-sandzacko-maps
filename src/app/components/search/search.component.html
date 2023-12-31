@@ -6,7 +6,7 @@
     aria-label="Search"
     placeholder="Naziv vakufa | br. parcele"
     [(ngModel)]="searchQuery"
-    (input)="getFilteredMarkers(); handleSearchInput($event)"
+    (input)="filterMarkers(); handleSearchInput($event)"
   />
   <span class="input-group-append">
     <span class="input-group-text" *ngIf="searchQuery.length === 0">
@@ -17,18 +17,18 @@
       </i>
     </span>
   </span>
-  <ul class="list-group search-suggestions" *ngIf="showSearchSuggestions">
+  <ul class="list-group search-suggestions" *ngIf="showSuggestions">
     <li
       class="list-group-item"
       style="color: #ccc"
-      *ngIf="searchSuggestionsList.length === 0"
+      *ngIf="suggestionsList.length === 0"
     >
       Nema vakufa za unijeti naziv | parcelu
     </li>
     <li
       class="list-group-item hover-effect"
-      tabindex="{{ searchSuggestionsList }}"
-      *ngFor="let suggestion of searchSuggestionsList"
+      tabindex="{{ suggestionsList }}"
+      *ngFor="let suggestion of suggestionsList"
       (click)="selectSearchSuggestion(suggestion)"
     >
       <span [innerHTML]="suggestion | highlightSearchTerm : searchQuery">

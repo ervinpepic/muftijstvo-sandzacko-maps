@@ -5,7 +5,7 @@
     aria-label="Vakuf Type"
     placeholder="Izaberi tip vakufa"
     [(ngModel)]="selectedVakufType"
-    (change)="filterMarkers(); onVakufTypeChange()"
+    (change)="filterMarkersName(); onVakufTypeChange()"
   >
     <ng-option
       class="hover-effect"
@@ -23,7 +23,7 @@
     aria-label="City"
     placeholder="Izaberi grad"
     [(ngModel)]="selectedCity"
-    (change)="filterMarkers(); onCityChange()"
+    (change)="filterMarkersName(); onCityChange()"
   >
     <ng-option
       class="hover-effect"
@@ -40,8 +40,8 @@
     name="filteredVakufNames"
     aria-label="Vakuf name"
     placeholder="Izaberi naziv vakufa"
-    [(ngModel)]="selectedVakufNames"
-    (change)="getFilteredMarkers()"
+    [(ngModel)]="selectedVakufName"
+    (change)="filterMarkers()"
   >
     <ng-option
       class="hover-effect"

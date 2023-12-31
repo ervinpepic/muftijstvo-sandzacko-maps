@@ -1,14 +1,15 @@
-/* Hover Effect */
+/* Hover effect styling */
 .hover-effect:hover {
-  color: #fff;
-  cursor: pointer;
-  background-color: #86b7fe;
-  border-color: #86b7fe;
-  outline: 0;
+  color: #fff; /* Text color on hover */
+  cursor: pointer; /* Cursor style on hover */
+  background-color: #86b7fe; /* Background color on hover */
+  border-color: #86b7fe; /* Border color on hover */
+  outline: 0; /* Remove outline on hover */
 }
 
+/* Focus effect styling */
 .hover-effect:focus {
-  border-color: #86b7fe;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: #86b7fe; /* Border color on focus */
+  outline: 0; /* Remove outline on focus */
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
 }

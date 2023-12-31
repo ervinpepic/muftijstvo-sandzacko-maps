@@ -1,3 +1,4 @@
+/* Styling for search suggestions dropdown */
 .search-suggestions {
   position: absolute;
   z-index: 100;
@@ -7,9 +8,10 @@
   border-top: none;
   overflow-y: auto;
   height: 200px;
-  scrollbar-color: #86b7fe;
+  scrollbar-color: #86b7fe; /* Scrollbar color */
 }
 
+/* Styling for input group append */
 .input-group-append {
   position: absolute;
   right: 0;
@@ -22,12 +24,14 @@
   justify-content: center;
 }
 
+/* Styling for input group text */
 .input-group-text {
   background-color: transparent;
   border: none;
   font-size: 1.3rem;
 }
 
+/* Styling for input group without validation */
 .input-group.m-1:not(.has-validation)
   > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(
     .form-floating
@@ -36,22 +40,24 @@
   border-bottom-right-radius: 0.375rem;
 }
 
+/* Styling for input placeholder */
 input::placeholder {
-  color: #8c8c8c;
-  font-weight: 300;
+  color: #8c8c8c; /* Placeholder text color */
+  font-weight: 300; /* Placeholder font weight */
 }
 
-/* Hover Effect */
+/* Hover effect styling */
 .hover-effect:hover {
-  color: #fff;
-  cursor: pointer;
-  background-color: #86b7fe;
-  border-color: #86b7fe;
-  outline: 0;
+  color: #fff; /* Text color on hover */
+  cursor: pointer; /* Cursor style on hover */
+  background-color: #86b7fe; /* Background color on hover */
+  border-color: #86b7fe; /* Border color on hover */
+  outline: 0; /* Remove outline on hover */
 }
 
+/* Focus effect styling */
 .hover-effect:focus {
-  border-color: #86b7fe;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: #86b7fe; /* Border color on focus */
+  outline: 0; /* Remove outline on focus */
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
 }

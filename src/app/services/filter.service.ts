@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CustomMarker } from '../Marker';
-import { replaceUsToBs } from '../utils/latin-chars';
+import { substituteUsToBs } from '../utils/latin-chars';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +9,7 @@ export class FilterService {
   private _searchQuery: string = '';
   private _selectedCity: string | null = null;
   private _selectedVakufType: string | null = null;
-  private _selectedVakufNames: string | null = null;
+  private _selectedVakufName: string | null = null;
 
   // Getter methods to expose values
   get searchQuery(): string {
@@ -24,8 +24,8 @@ export class FilterService {
     return this._selectedVakufType;
   }
 
-  get selectedVakufNames(): string | null {
-    return this._selectedVakufNames;
+  get selectedVakufName(): string | null {
+    return this._selectedVakufName;
   }
 
   // Setter methods to update values
@@ -41,24 +41,32 @@ export class FilterService {
     this._selectedVakufType = value;
   }
 
-  set selectedVakufNames(value: string | null) {
-    this._selectedVakufNames = value;
+  set selectedVakufName(value: string | null) {
+    this._selectedVakufName = value;
   }
+
+  /**
+   * Filters an array of markers based on the specified criteria and updates their visibility.
+   * @param markers - An array of markers to filter.
+   * @returns An array of CustomMarker objects representing the visible markers.
+   */
 
   filterMarkers(markers: any[]): CustomMarker[] {
     const visibleMarkers: CustomMarker[] = [];
 
     // Replace Serbian Latin characters in the search term
-    const normalizedSearchTerm = replaceUsToBs(this.searchQuery.toLowerCase());
+    const normalizedSearchTerm = substituteUsToBs(
+      this.searchQuery.toLowerCase()
+    );
 
     markers.forEach((marker) => {
       const { city, vakufType, vakufName, cadastralParcelNumber } = marker;
-      const normalizedVakufName = replaceUsToBs(vakufName.toLowerCase());
+      const normalizedVakufName = substituteUsToBs(vakufName.toLowerCase());
 
       const isVisible =
         (!this.selectedCity || city === this.selectedCity) &&
         (!this.selectedVakufType || vakufType === this.selectedVakufType) &&
-        (!this.selectedVakufNames || vakufName === this.selectedVakufNames) &&
+        (!this.selectedVakufName || vakufName === this.selectedVakufName) &&
         (!normalizedSearchTerm ||
           normalizedVakufName.includes(normalizedSearchTerm) ||
           cadastralParcelNumber.toLowerCase().includes(normalizedSearchTerm));

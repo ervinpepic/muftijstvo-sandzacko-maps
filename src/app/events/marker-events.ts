@@ -8,6 +8,7 @@ export class MarkerEvent {
 
   private readonly markerStyler = new MarkerStyle();
 
+  // Handles the click event on a marker to show its info window
   handleMarkerInfoWindow(
     marker: any,
     markerData: CustomMarker,
@@ -36,18 +37,21 @@ export class MarkerEvent {
     });
   }
 
+  // Handles the mouseover event on a marker to change its style
   handleMarkerMouseOver(marker: any) {
     marker.addListener('mouseover', () => {
       this.markerStyler.onMarkerMouseOver(marker);
     });
   }
 
+  // Handles the mouseout event on a marker to revert its style
   handleMarkerMouseOut(marker: any) {
     marker.addListener('mouseout', () => {
       this.markerStyler.onMarkerMouseOut(marker);
     });
   }
 
+  // Triggers a bounce animation on a marker
   triggerMarkerBounce(marker: any) {
     if (marker.getAnimation() !== null) {
       marker.setAnimation(null);
@@ -59,6 +63,7 @@ export class MarkerEvent {
     }
   }
 
+  // Closes other open info windows on the map
   closeOtherInfoWindows() {
     if (this.openInfoWindow.length > 0) {
       // detach the info window from the marker undocumented in google API

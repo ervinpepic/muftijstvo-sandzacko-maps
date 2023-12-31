@@ -1,9 +1,9 @@
-// Function to replace Serbian Latin characters
-export function replaceUsToBs(input: string): string {
+// Function to replace Serbian Latin characters with Bosnian Latin characters
+export function substituteUsToBs(input: string): string {
   return input
-    .replace(/š/g, 's')
-    .replace(/đ/g, 'dj')
-    .replace(/č/g, 'c')
-    .replace(/ć/g, 'c')
-    .replace(/ž/g, 'z');
+    .replace(/š/g, 's')  // Replace 'š' with 's'
+    .replace(/đ/g, 'dj') // Replace 'đ' with 'dj'
+    .replace(/č/g, 'c')  // Replace 'č' with 'c'
+    .replace(/ć/g, 'c')  // Replace 'ć' with 'c'
+    .replace(/ž/g, 'z');  // Replace 'ž' with 'z'
 }
