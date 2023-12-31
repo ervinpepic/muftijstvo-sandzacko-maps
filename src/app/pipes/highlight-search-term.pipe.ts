@@ -18,7 +18,9 @@ export class HighlightSearchTermPipe implements PipeTransform {
         .replace(/s/g, '[sš]')
         .replace(/dj/g, '[đdj]')
         .replace(/c/g, '[cćč]')
-        .replace(/z/g, '[zž]');
+        .replace(/z/g, '[zž]')
+        .replace(/\(/g, '[(]')
+        .replace(/\)/g, '[)]');
     }
 
     // Normalize the searchTerm by substituting characters
