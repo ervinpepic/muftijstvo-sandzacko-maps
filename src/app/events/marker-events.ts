@@ -1,4 +1,4 @@
-import { CustomMarker } from '../Marker';
+import { CustomMarker } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
 import { MarkerStyle } from '../styles/marker/marker-style';
 

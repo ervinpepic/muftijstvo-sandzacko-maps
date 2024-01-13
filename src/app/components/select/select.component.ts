@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { Observable } from 'rxjs';
-import { CustomMarker } from '../../Marker';
+import { CustomMarker } from '../../interface/Marker';
 import { EllipsisPipe } from '../../pipes/ellipsis.pipe';
 import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';

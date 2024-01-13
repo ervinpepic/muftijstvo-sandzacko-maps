@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormsModule } from '@angular/forms';
-import { CustomMarker } from '../../Marker';
+import { CustomMarker } from '../../interface/Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CustomMarker } from '../Marker';
+import { CustomMarker } from '../interface/Marker';
 import { substituteUsToBs } from '../utils/latin-chars';
 
 @Injectable({

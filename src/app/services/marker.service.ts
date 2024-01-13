@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, lastValueFrom, of } from 'rxjs';
 
-import { CustomMarker } from '../Marker';
+import { CustomMarker } from '../interface/Marker';
 import { VakufData } from '../database/database-seed';
 
 import { MarkerEvent } from '../events/marker-events';
