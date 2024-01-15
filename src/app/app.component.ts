@@ -7,6 +7,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { PolygonsBoundaries } from './polygons/map-polygons';
 import { MarkerService } from './services/marker.service';
 import { mapStyle } from './styles/map/map-style';
+import {getInitialZoomLevel} from './utils/dynamic-zoom';
 
 @Component({
   selector: 'app-root',
@@ -27,9 +28,11 @@ export class AppComponent {
     lat: 42.99603931107363,
     lng: 19.863259815559704,
   };
-  readonly initialMapZoom = 9;
+  initialMapZoom: number;
 
-  constructor(private markerService: MarkerService) {}
+  constructor(private markerService: MarkerService) {
+    this.initialMapZoom = getInitialZoomLevel();
+  }
 
   //mandatory method for OnInit decorator
   async ngOnInit(): Promise<void> {
