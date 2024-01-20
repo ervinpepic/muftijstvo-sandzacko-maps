@@ -96,4 +96,26 @@ export class SearchComponent {
     this.showSuggestions = false;
     this.filterMarkers();
   }
+  handleArrowNavigation(event: KeyboardEvent, index?: number): void {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+
+      const suggestions = document.querySelectorAll(
+        '.search-suggestions .hover-effect'
+      );
+      let currentIndex = index !== undefined ? index : 0;
+
+      if (event.key === 'ArrowDown') {
+        currentIndex =
+          currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
+      } else if (event.key === 'ArrowUp') {
+        currentIndex =
+          currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
+      }
+
+      const selectedSuggestion = suggestions[currentIndex] as HTMLLIElement;
+      selectedSuggestion.focus();
+      this.searchQuery = this.suggestionsList[currentIndex];
+    }
+  }
 }

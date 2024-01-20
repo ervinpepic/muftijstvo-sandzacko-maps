@@ -8,6 +8,7 @@
     autocomplete="on"
     [(ngModel)]="searchQuery"
     (input)="filterMarkers(); handleSearchInput($event)"
+    (keydown)="handleArrowNavigation($event)"
   />
   <span class="input-group-append">
     <span class="input-group-text" *ngIf="searchQuery.length === 0">
@@ -28,9 +29,10 @@
     </li>
     <li
       class="list-group-item hover-effect"
-      tabindex="{{ suggestionsList }}"
-      *ngFor="let suggestion of suggestionsList"
+      tabindex="{{ i + 1 }}"
+      *ngFor="let suggestion of suggestionsList; let i = index"
       (click)="selectSearchSuggestion(suggestion)"
+      (keydown)="handleArrowNavigation($event, i)"
     >
       <span [innerHTML]="suggestion | highlightSearchTerm : searchQuery">
       </span>
