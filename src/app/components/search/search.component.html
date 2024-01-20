@@ -5,6 +5,7 @@
     name="searchQuery"
     aria-label="Search"
     placeholder="Naziv vakufa | br. parcele"
+    autocomplete="on"
     [(ngModel)]="searchQuery"
     (input)="filterMarkers(); handleSearchInput($event)"
   />
