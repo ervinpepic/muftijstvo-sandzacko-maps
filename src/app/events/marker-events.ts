@@ -3,7 +3,7 @@ import { infoWindowStyle } from '../styles/marker/info-window-style';
 import { MarkerStyle } from '../styles/marker/marker-style';
 
 export class MarkerEvent {
-  private openInfoWindow: google.maps.InfoWindow[] = [];
+  private openInfoWindow: google.maps.InfoWindow | null = null;
   private readonly infoWindowStyle = infoWindowStyle;
 
   private readonly markerStyler = new MarkerStyle();
@@ -21,7 +21,7 @@ export class MarkerEvent {
 
       infoWindow.setContent(this.infoWindowStyle(markerData));
       infoWindow.open(map, marker);
-      this.openInfoWindow[0] = infoWindow;
+      this.openInfoWindow = infoWindow;
       map.panTo(marker.getPosition()!);
     });
 
@@ -65,13 +65,9 @@ export class MarkerEvent {
 
   // Closes other open info windows on the map
   closeOtherInfoWindows() {
-    if (this.openInfoWindow.length > 0) {
-      // detach the info window from the marker undocumented in google API
-      this.openInfoWindow[0].set('marker', null);
-      // close it
-      this.openInfoWindow[0].close();
-      // blank the array
-      this.openInfoWindow.length = 0;
+    if (this.openInfoWindow) {
+      this.openInfoWindow.close();
+      this.openInfoWindow = null;
     }
   }
 }

@@ -13,7 +13,7 @@ import { sandzakCity } from '../database/sandzak-cities';
   providedIn: 'root',
 })
 export class MarkerService {
-  markers: any[] = []; // Array to hold marker instances
+  markers: google.maps.Marker[] = []; // Array to hold marker instances
   vakufCities: string[] = []; // Array to hold vakuf cities
   vakufTypes: string[] = []; // Array to hold vakuf types
 

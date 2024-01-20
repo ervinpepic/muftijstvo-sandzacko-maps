@@ -60,6 +60,7 @@ export class SearchComponent {
   // - If the input is empty, hides the suggestions
   // - Calls updateSearchQuery to update the search query based on the input
   handleSearchInput(event: Event): void {
+    this.markerService.markerEvent.closeOtherInfoWindows();
     const inputElement = event.target as HTMLInputElement;
     this.searchControl.setValue(inputElement.value);
     if (inputElement.value.length > 0) {
