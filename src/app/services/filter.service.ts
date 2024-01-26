@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { substituteUsToBs } from '../utils/latin-chars';
+import { MapService } from './map.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
+  
+  constructor(private mapService: MapService) {}
+
   private _searchQuery: string = '';
   private _selectedCity: string | null = null;
   private _selectedVakufType: string | null = null;
@@ -53,7 +57,7 @@ export class FilterService {
 
   filterMarkers(markers: any[]): CustomMarker[] {
     const visibleMarkers: CustomMarker[] = [];
-
+    const bounds = new google.maps.LatLngBounds(); // Initialize bounds
     // Replace Serbian Latin characters in the search term
     const normalizedSearchTerm = substituteUsToBs(
       this.searchQuery.toLowerCase()
@@ -75,8 +79,14 @@ export class FilterService {
 
       if (isVisible) {
         visibleMarkers.push(marker);
+        bounds.extend(marker.getPosition());
       }
     });
+    if (visibleMarkers.length > 0) {
+      setTimeout(() => {
+        this.mapService.map?.fitBounds(bounds);
+      }, 500);
+    }
 
     return visibleMarkers;
   }

@@ -7,10 +7,9 @@ export class MarkerEvent {
   private readonly infoWindowStyle = infoWindowStyle;
 
   private readonly markerStyler = new MarkerStyle();
-
   // Handles the click event on a marker to show its info window
   handleMarkerInfoWindow(
-    marker: any,
+    marker: google.maps.Marker,
     markerData: CustomMarker,
     map: google.maps.Map
   ) {
@@ -26,14 +25,24 @@ export class MarkerEvent {
     });
 
     infoWindow.addListener('closeclick', () => {
-      map.panTo(marker.getPosition());
-      map.setZoom(map.getZoom()! - 0.5);
+      map.panTo(marker.getPosition()!);
     });
 
     map.addListener('click', () => {
       infoWindow.close();
-      marker.open = false;
-      map.setZoom(map.getZoom()! - 0.9 / 1.8);
+    });
+    let panOffset = -150;
+    // Add event listener to the "Prikaži sliku parcele" link
+    google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+      const imageToggle = document.getElementById('viewImageControlHeight');
+      if (imageToggle) {
+        imageToggle.addEventListener('click', () => {
+          // Pan the map by the current offset by px
+          map.panBy(0, panOffset);
+          // Toggle the pan offset for the next click
+          panOffset = -panOffset;
+        });
+      }
     });
   }
 

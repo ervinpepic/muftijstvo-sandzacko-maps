@@ -4,22 +4,25 @@
     type="search"
     name="searchQuery"
     aria-label="Search"
-    placeholder="Naziv vakufa | br. parcele"
+    placeholder="Unesite naziv vakufa ili broj parcele"
     autocomplete="on"
     [(ngModel)]="searchQuery"
     (input)="filterMarkers(); handleSearchInput($event)"
-    (keydown)="handleArrowNavigation($event)"
+    (keydown)="handleArrowKeyNavigation($event)"
   />
   <span class="input-group-append">
     <span class="input-group-text" *ngIf="searchQuery.length === 0">
       <i
-        class="fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2"
-        style="color: #27a27a"
-      >
-      </i>
+      [ngClass]="{'fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2': searchQuery.length === 0}"
+      style="color: #27a27a"
+    >
+    </i>
     </span>
   </span>
-  <ul class="list-group search-suggestions" *ngIf="showSuggestions">
+  <ul 
+    class="list-group search-suggestions" *ngIf="isSuggestionsVisible"
+    role="listbox" aria-live="assertive" aria-atomic="true"
+    >
     <li
       class="list-group-item"
       style="color: #ccc"
@@ -28,11 +31,13 @@
       Nema vakufa za unijeti naziv | parcelu
     </li>
     <li
+      role="option" 
+      aria-labelledby="suggestions-label"
       class="list-group-item hover-effect"
-      tabindex="{{ i + 1 }}"
+      tabindex="{{ i === selectedSuggestionIndex ? 0 : -1 }}"
       *ngFor="let suggestion of suggestionsList; let i = index"
       (click)="selectSearchSuggestion(suggestion)"
-      (keydown)="handleArrowNavigation($event, i)"
+      (keydown)="handleArrowKeyNavigation($event, i)"
     >
       <span [innerHTML]="suggestion | highlightSearchTerm : searchQuery">
       </span>

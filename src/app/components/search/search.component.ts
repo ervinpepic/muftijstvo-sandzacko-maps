@@ -7,6 +7,7 @@ import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';
 import { SearchService } from '../../services/search-suggestions.service';
 import { substituteUsToBs } from '../../utils/latin-chars';
+import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
 
 @Component({
   selector: 'app-search',
@@ -23,8 +24,9 @@ export class SearchComponent {
   ) {}
 
   searchControl = new FormControl(); // create a form control property with no init values
-  showSuggestions: boolean = false; // show or hide suggestion list in template
+  isSuggestionsVisible: boolean = false; // show or hide suggestion list in template
   suggestionsList: string[] = []; // save search suggestions here
+  selectedSuggestionIndex: number = -1; // Init with -1 to indicate no suggestion selected
 
   // getters and setters from filter service
   get searchQuery(): string {
@@ -56,20 +58,31 @@ export class SearchComponent {
 
   // Handles user input in the search input field
   // - Sets the value of the search control to the user input
-  // - If the input is not empty, generates search suggestions and shows them
-  // - If the input is empty, hides the suggestions
-  // - Calls updateSearchQuery to update the search query based on the input
+  // - Generates search suggestions if the input is not empty
+  // - Hides suggestions if the input is empty
+  // - Updates the search query based on the input
   handleSearchInput(event: Event): void {
+    // Close other info windows when user start typing into the input field
     this.markerService.markerEvent.closeOtherInfoWindows();
+
+    // Get the input element and set search control value
     const inputElement = event.target as HTMLInputElement;
     this.searchControl.setValue(inputElement.value);
+
+    // Show suggestions if input is not empty, otherwise hide them
     if (inputElement.value.length > 0) {
       this.generateSearchSuggestions(inputElement.value);
-      this.showSuggestions = true;
+      this.isSuggestionsVisible = true;
     } else {
-      this.showSuggestions = false;
+      this.isSuggestionsVisible = false;
     }
+    // Update the search query based on the input
     this.updateSearchQuery(inputElement.value);
+  }
+  // Private method to check if input is numeric
+  private isNumericInput(input: string): boolean {
+    return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
+    // The regular expressions check if the input matches a specific pattern or consists of only digits
   }
 
   // Updates the search query based on user input
@@ -80,7 +93,7 @@ export class SearchComponent {
   updateSearchQuery(inputValue: string): void {
     const searchQueryParts = inputValue.split(' ');
     const numberPart = searchQueryParts[0];
-    if (/^\d+\/\d+$/.test(numberPart) || /^\d+$/.test(numberPart)) {
+    if (this.isNumericInput(numberPart)) {
       this.filterService.searchQuery = numberPart;
     } else {
       this.filterService.searchQuery = inputValue;
@@ -93,29 +106,20 @@ export class SearchComponent {
   // - Calls filterMarkers to update markers based on the new search query
   selectSearchSuggestion(suggestion: string): void {
     this.updateSearchQuery(suggestion);
-    this.showSuggestions = false;
+    this.isSuggestionsVisible = false;
     this.filterMarkers();
   }
-  handleArrowNavigation(event: KeyboardEvent, index?: number): void {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
 
-      const suggestions = document.querySelectorAll(
-        '.search-suggestions .hover-effect'
-      );
-      let currentIndex = index !== undefined ? index : 0;
+  // Handles arrow key navigation within search suggestions
+  handleArrowKeyNavigation(event: KeyboardEvent, index?: number): void {
+    let currentIndex = index !== undefined ? index : 0;
 
-      if (event.key === 'ArrowDown') {
-        currentIndex =
-          currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
-      } else if (event.key === 'ArrowUp') {
-        currentIndex =
-          currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
-      }
-
-      const selectedSuggestion = suggestions[currentIndex] as HTMLLIElement;
-      selectedSuggestion.focus();
-      this.searchQuery = this.suggestionsList[currentIndex];
-    }
+    arrowKeyNavigation(
+      event,
+      currentIndex,
+      this.suggestionsList,
+      (query) => (this.searchQuery = query),
+      (suggestion) => this.selectSearchSuggestion(suggestion)
+    );
   }
 }

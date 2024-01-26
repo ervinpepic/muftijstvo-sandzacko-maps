@@ -3,6 +3,7 @@
     class="custom m-1"
     name="vakufType"
     aria-label="Vakuf Type"
+    aria-labelledby="vakufTypeLabel"
     placeholder="Izaberi tip vakufa"
     [(ngModel)]="selectedVakufType"
     (change)="filterMarkersName(); onVakufTypeChange()"
@@ -22,6 +23,7 @@
     name="selectedCity"
     aria-label="City"
     placeholder="Izaberi grad"
+    aria-labelledby="cityLabel"
     [(ngModel)]="selectedCity"
     (change)="filterMarkersName(); onCityChange()"
   >
@@ -40,6 +42,7 @@
     name="filteredVakufNames"
     aria-label="Vakuf name"
     placeholder="Izaberi naziv vakufa"
+    aria-labelledby="vakufNameLabel"
     [(ngModel)]="selectedVakufName"
     (change)="filterMarkers()"
   >

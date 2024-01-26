@@ -59,8 +59,8 @@ input::placeholder {
 /* Focus effect styling */
 .hover-effect:focus {
   color: #fff; /* Text color on hover */
+  background-color: #86b7fe; /* Background color on focus */
   border-color: #86b7fe; /* Border color on focus */
-  background-color: #86b7fe; /* Background color on hover */
   outline: 0; /* Remove outline on focus */
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
 }

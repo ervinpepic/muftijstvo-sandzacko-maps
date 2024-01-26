@@ -9,6 +9,7 @@
 /src/environments/*.ts
 /src/assets/images/land-images
 /src/assets/images/mosque-images
+/src/assets/images/building-images
 
 # Compiled output
 /dist

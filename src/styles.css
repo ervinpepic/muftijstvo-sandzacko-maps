@@ -17,9 +17,11 @@ img {
 }
 
 /* Styling for the custom info window */
-.infowindow {
+.gm-style-iw {
   max-height: max-content; /* Maximum height with content-based sizing */
   max-width: max-content; /* Maximum width with content-based sizing */
+  transition: max-height 0.5s ease-in-out, max-width 0.5s ease-in-out;
+  overflow: auto;
 }
 
 /* Styling for the custom ng-select component */
@@ -41,4 +43,14 @@ img {
 .ng-select.custom .ng-select-container .ng-placeholder {
   color: #8C8C8C; /* Placeholder text color */
   font-weight: 300; /* Placeholder font weight */
+}
+
+.material-symbols-outlined {
+  vertical-align: middle;
+  font-size: 25px;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 100,
+  'GRAD' 0,
+  'opsz' 24,
 }
