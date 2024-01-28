@@ -1,48 +1,76 @@
+import { EventEmitter, Injectable } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
 import { MarkerStyle } from '../styles/marker/marker-style';
 
-export class MarkerEvent {
-  private openInfoWindow: google.maps.InfoWindow | null = null;
-  private readonly infoWindowStyle = infoWindowStyle;
+@Injectable({
+  providedIn: 'root',
+})
+export class MarkerEventService {
+  constructor() {}
 
+  private readonly infoWindowStyle = infoWindowStyle;
   private readonly markerStyler = new MarkerStyle();
+  mapClicked: EventEmitter<void> = new EventEmitter<void>();
+
+  private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
+    new Map();
+
   // Handles the click event on a marker to show its info window
   handleMarkerInfoWindow(
     marker: google.maps.Marker,
     markerData: CustomMarker,
     map: google.maps.Map
   ) {
-    const infoWindow = new google.maps.InfoWindow();
+    const infoWindow = new google.maps.InfoWindow({
+      content: this.infoWindowStyle(markerData),
+    });
+    this.openInfoWindows.set(marker, infoWindow);
+
     marker.addListener('click', () => {
-      this.closeOtherInfoWindows();
+      this.closeOtherInfoWindows(marker);
       this.triggerMarkerBounce(marker);
 
-      infoWindow.setContent(this.infoWindowStyle(markerData));
       infoWindow.open(map, marker);
-      this.openInfoWindow = infoWindow;
       map.panTo(marker.getPosition()!);
     });
 
     infoWindow.addListener('closeclick', () => {
       map.panTo(marker.getPosition()!);
     });
-
-    map.addListener('click', () => {
-      infoWindow.close();
-    });
-    let panOffset = -150;
     // Add event listener to the "Prikaži sliku parcele" link
+    this.handleInfoWindowImageShow(infoWindow, map);
+  }
+
+  handleInfoWindowImageShow(
+    infoWindow: google.maps.InfoWindow,
+    map: google.maps.Map
+  ) {
     google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
       const imageToggle = document.getElementById('viewImageControlHeight');
       if (imageToggle) {
+        let isCollapsed = false; // Variable to track toggle state
         imageToggle.addEventListener('click', () => {
-          // Pan the map by the current offset by px
+          let panOffset = -150; // Default panOffset value
+
+          // Adjust panOffset based on toggle state
+          if (isCollapsed) {
+            panOffset = 150; // Increase panOffset
+          } else {
+            panOffset = -150; // Reset panOffset to its default value
+          }
+
           map.panBy(0, panOffset);
-          // Toggle the pan offset for the next click
-          panOffset = -panOffset;
+          isCollapsed = !isCollapsed; // Toggle the state
         });
       }
+    });
+  }
+
+  handleMapClick(map: google.maps.Map) {
+    map.addListener('click', () => {
+      this.mapClicked.emit();
+      this.closeOtherInfoWindows();
     });
   }
 
@@ -73,10 +101,11 @@ export class MarkerEvent {
   }
 
   // Closes other open info windows on the map
-  closeOtherInfoWindows() {
-    if (this.openInfoWindow) {
-      this.openInfoWindow.close();
-      this.openInfoWindow = null;
-    }
+  closeOtherInfoWindows(markerToKeepOpen?: google.maps.Marker) {
+    this.openInfoWindows.forEach((infoWindow, marker) => {
+      if (marker !== markerToKeepOpen) {
+        infoWindow.close();
+      }
+    });
   }
 }

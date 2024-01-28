@@ -3,25 +3,20 @@ import { Observable, lastValueFrom, of } from 'rxjs';
 
 import { CustomMarker } from '../interface/Marker';
 import { VakufData } from '../database/database-seed';
-
-import { MarkerEvent } from '../events/marker-events';
 import { MarkerStyle } from '../styles/marker/marker-style';
 import { vakufObjecType } from '../database/vakuf-types';
 import { sandzakCity } from '../database/sandzak-cities';
+import { MarkerEventService } from './marker-event.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
-  markers: google.maps.Marker[] = []; // Array to hold marker instances
-  vakufCities: string[] = []; // Array to hold vakuf cities
-  vakufTypes: string[] = []; // Array to hold vakuf types
+  markers: CustomMarker[] = []; // Array to hold marker instances
 
-  // Instances for handling marker events and styling
-  markerEvent = new MarkerEvent();
-  markerStyle = new MarkerStyle();
+  markerStyle = new MarkerStyle(); // Instances for handling marker events and styling
 
-  constructor() {}
+  constructor(private markerEventService: MarkerEventService) {}
 
   /**
    * Returns an observable of Vakuf and Cities and a marker objects.
@@ -58,7 +53,7 @@ export class MarkerService {
    * @param map - The Google Map instance.
    * @returns The created Google Maps Marker instance.
    */
-  createMarker(data: any, map: google.maps.Map): google.maps.Marker {
+  createMarker(data: any, map: google.maps.Map): CustomMarker {
     const marker = new google.maps.Marker({
       ...data,
       position: new google.maps.LatLng(data.position),
@@ -66,14 +61,15 @@ export class MarkerService {
       draggable: false,
       optimized: false,
       animation: google.maps.Animation.DROP,
+      map: map,
     });
+    const customMarker = marker as CustomMarker;
 
     // Set up marker events and styling
-    this.markerEvent.handleMarkerInfoWindow(marker, data, map);
-    this.markerEvent.handleMarkerMouseOver(marker);
-    this.markerEvent.handleMarkerMouseOut(marker);
+    this.markerEventService.handleMarkerInfoWindow(marker, data, map);
+    this.markerEventService.handleMarkerMouseOver(marker);
+    this.markerEventService.handleMarkerMouseOut(marker);
 
-    marker.setMap(map); // Set the map
-    return marker;
+    return customMarker;
   }
 }

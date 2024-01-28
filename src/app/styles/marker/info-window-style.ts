@@ -1,5 +1,5 @@
 import { CustomMarker } from "../../interface/Marker";
-const paragraphCLass = "word-wrap fs-6"
+const paragraphCLass = "text-nowrap fs-6"
 export function infoWindowStyle(marker: CustomMarker) {
   // Start building the HTML content for the InfoWindow
   let infoWindowHtmlContent = 
@@ -43,7 +43,7 @@ export function infoWindowStyle(marker: CustomMarker) {
             <span class='material-symbols-outlined'>location_city</span> Katastarska opština: <strong>${marker.cadastralMunicipality}</strong>
           </p>` +
           // Street name
-          `<p class='${paragraphCLass}'>
+          `<p class='fs-6 word-wrap'>
             <span class='material-symbols-outlined'>signpost</span> Ulica | Potes: <strong>${marker.streetName}</strong>
           </p>` +
         "</div>" +

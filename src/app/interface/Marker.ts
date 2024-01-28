@@ -1,5 +1,5 @@
 // Interface representing custom marker properties, extending google.maps.MarkerOptions
-export interface CustomMarker extends google.maps.MarkerOptions {
+export interface CustomMarker extends google.maps.Marker {
   vakufName: string; // Name of the vakuf
   vakufType: string; // Type of the vakuf
   city: string; // City where the vakuf is located

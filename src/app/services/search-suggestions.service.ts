@@ -1,35 +1,28 @@
 import { Injectable } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { substituteUsToBs } from '../utils/latin-chars';
+import { BehaviorSubject } from 'rxjs';
+import { MarkerService } from './marker.service';
+import { filter } from 'rxjs/operators';
 // Adjust the path accordingly
 
 @Injectable({
   providedIn: 'root',
 })
 export class SearchService {
-  /**
-   * Generates search suggestions based on the input value and visible markers.
-   * @param inputValue - The search input value.
-   * @param visibleMarkers - The array of visible markers.
-   * @returns An array of search suggestions.
-   */
+  private indexedData: Map<string, CustomMarker[]> = new Map();
 
-  generateSearchSuggestions(
-    inputValue: string,
-    visibleMarkers: CustomMarker[]
-  ): string[] {
-    try {
-      // Ensure that visibleMarkers is an array and not empty
-      if (!Array.isArray(visibleMarkers) || visibleMarkers.length === 0) {
-        return [];
-      }
+  constructor(private markerService: MarkerService) {
+    this.indexData();
+  }
 
-      const normalizedInputValue = substituteUsToBs(inputValue.toLowerCase());
+  private indexData(): void {
+    // Use BehaviorSubject to keep track of when markers are loaded
+    const markersLoaded = new BehaviorSubject<boolean>(false);
 
-      // Use a Map to store suggestions and their relevance scores
-      const suggestionsMap = new Map<string, number>();
-
-      visibleMarkers.forEach((marker) => {
+    // Subscribe to markerService to get markers
+    this.markerService.getMarkers().subscribe((markers) => {
+      markers.forEach((marker) => {
         const normalizedVakufName = substituteUsToBs(
           marker.vakufName.toLowerCase()
         );
@@ -37,28 +30,67 @@ export class SearchService {
           marker.cadastralParcelNumber.toLowerCase()
         );
 
-        if (normalizedVakufName.includes(normalizedInputValue)) {
-          // Assign a relevance score based on the match
-          suggestionsMap.set(marker.vakufName, 1);
+        if (!this.indexedData.has(normalizedVakufName)) {
+          this.indexedData.set(normalizedVakufName, []);
         }
+        this.indexedData.get(normalizedVakufName)!.push(marker);
 
-        if (normalizedCadastralParcelNumber.includes(normalizedInputValue)) {
-          const suggestion = `${marker.cadastralParcelNumber} ${marker.vakufName}`;
-          // Assign a higher relevance score for suggestions with both parcel number and name
-          suggestionsMap.set(suggestion, 2);
+        if (!this.indexedData.has(normalizedCadastralParcelNumber)) {
+          this.indexedData.set(normalizedCadastralParcelNumber, []);
         }
+        this.indexedData.get(normalizedCadastralParcelNumber)!.push(marker);
       });
 
-      // Sort suggestions based on relevance score
-      const sortedSuggestions = Array.from(suggestionsMap.keys()).sort(
-        (a, b) => suggestionsMap.get(b)! - suggestionsMap.get(a)!
-      );
+      // Markers are now loaded, notify subscribers
+      markersLoaded.next(true);
+    });
 
+    // Ensure indexing only happens after markers are loaded
+    markersLoaded.pipe(filter((loaded) => loaded)).subscribe(() => {
+      // Indexing completed
+      console.log('Markers indexed');
+    });
+  }
+
+  generateSearchSuggestions(
+    normalizedSearchQuery: string,
+    filteredMarkers: CustomMarker[]
+  ): string[] {
+    try {
+      // Use a Set to store unique suggestions
+      const suggestionsSet = new Set<string>();
+  
+      // Search filtered markers for matches
+      filteredMarkers.forEach(marker => {
+        const normalizedVakufName = substituteUsToBs(marker.vakufName.toLowerCase());
+        const normalizedCadastralParcelNumber = substituteUsToBs(marker.cadastralParcelNumber.toLowerCase());
+  
+        if (normalizedVakufName.includes(normalizedSearchQuery)) {
+          suggestionsSet.add(marker.vakufName);
+        }
+  
+        if (normalizedCadastralParcelNumber.includes(normalizedSearchQuery)) {
+          suggestionsSet.add(`${marker.cadastralParcelNumber} ${marker.vakufName}`);
+        }
+      });
+  
+      // Convert Set to array and sort by relevance
+      const sortedSuggestions = Array.from(suggestionsSet).sort((a, b) =>
+        this.calculateRelevance(a, b, normalizedSearchQuery)
+      );
+  
       return sortedSuggestions;
     } catch (error) {
-      // Log and handle errors gracefull
       console.error('Error generating search suggestions:', error);
       return [];
     }
+  }
+
+  private calculateRelevance(a: string, b: string, inputValue: string): number {
+    // Custom logic to calculate relevance, you can adjust this based on your requirements
+    const relevanceA = a.toLowerCase().includes(inputValue) ? 1 : 0;
+    const relevanceB = b.toLowerCase().includes(inputValue) ? 1 : 0;
+
+    return relevanceB - relevanceA; // Sort in descending order of relevance
   }
 }

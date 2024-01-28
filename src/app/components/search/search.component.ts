@@ -8,6 +8,7 @@ import { MarkerService } from '../../services/marker.service';
 import { SearchService } from '../../services/search-suggestions.service';
 import { substituteUsToBs } from '../../utils/latin-chars';
 import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
+import { MarkerEventService } from '../../services/marker-event.service';
 
 @Component({
   selector: 'app-search',
@@ -20,14 +21,26 @@ export class SearchComponent {
   constructor(
     private markerService: MarkerService,
     private searchService: SearchService,
-    private filterService: FilterService
-  ) {}
+    private filterService: FilterService,
+    private markerEventService: MarkerEventService
+  ) {
+
+    this.markerEventService.mapClicked.subscribe(() => {
+      console.log('Map clicked event triggered');
+      this.hideSuggestionsIfVisible();
+    });
+  }
+
+  hideSuggestionsIfVisible(): void {
+    if (this.isSuggestionsVisible) {
+      this.isSuggestionsVisible = false;
+    }
+  }
 
   searchControl = new FormControl(); // create a form control property with no init values
   isSuggestionsVisible: boolean = false; // show or hide suggestion list in template
   suggestionsList: string[] = []; // save search suggestions here
   selectedSuggestionIndex: number = -1; // Init with -1 to indicate no suggestion selected
-
   // getters and setters from filter service
   get searchQuery(): string {
     return this.filterService.searchQuery;
@@ -62,22 +75,23 @@ export class SearchComponent {
   // - Hides suggestions if the input is empty
   // - Updates the search query based on the input
   handleSearchInput(event: Event): void {
-    // Close other info windows when user start typing into the input field
-    this.markerService.markerEvent.closeOtherInfoWindows();
+   // Close other info windows when user start typing into the input field
+   this.markerEventService.closeOtherInfoWindows();
 
-    // Get the input element and set search control value
-    const inputElement = event.target as HTMLInputElement;
-    this.searchControl.setValue(inputElement.value);
-
-    // Show suggestions if input is not empty, otherwise hide them
-    if (inputElement.value.length > 0) {
-      this.generateSearchSuggestions(inputElement.value);
-      this.isSuggestionsVisible = true;
-    } else {
-      this.isSuggestionsVisible = false;
-    }
-    // Update the search query based on the input
-    this.updateSearchQuery(inputElement.value);
+   // Get the input element and set search control value
+   const inputElement = event.target as HTMLInputElement;
+   const inputValue = inputElement.value || ''; // Add null check and default value
+   this.searchControl.setValue(inputValue);
+ 
+   // Show suggestions if input is not empty, otherwise hide them
+   if (inputValue.length > 0) {
+     this.generateSearchSuggestions(inputValue);
+     this.isSuggestionsVisible = true;
+   } else {
+     this.isSuggestionsVisible = false;
+   }
+   // Update the search query based on the input
+   this.updateSearchQuery(inputValue);
   }
   // Private method to check if input is numeric
   private isNumericInput(input: string): boolean {
