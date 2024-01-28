@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { debounceTime, take, tap } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { CustomMarker } from '../interface/Marker';
 import { substituteUsToBs } from '../utils/latin-chars';
 import { MapService } from './map.service';
@@ -63,17 +63,34 @@ export class FilterService {
       this.searchQuery.toLowerCase()
     );
 
-    // Iterate through each marker and update visibility
-    markers.forEach((marker) => {
-      const isVisible = this.isVisibleMarker(marker);
-      marker.setVisible(isVisible);
-    });
+    // Filter markers and update visibility, and calculate bounds in a single pass
+    const { visibleMarkers, bounds } = markers.reduce(
+      (acc, marker) => {
+        const isVisible = this.isVisibleMarker(marker);
+        marker.setVisible(isVisible);
+        if (isVisible) {
+          acc.visibleMarkers.push(marker);
+          const position = marker.getPosition();
+          if (position) {
+            acc.bounds.extend(position);
+          }
+        }
+        return acc;
+      },
+      {
+        visibleMarkers: [] as CustomMarker[],
+        bounds: new google.maps.LatLngBounds(),
+      }
+    );
 
-    // Filter out visible markers
-    const visibleMarkers = markers.filter((marker) => marker.getVisible());
-
-    // Update map bounds based on visible markers
-    this.updateBounds(visibleMarkers);
+    // Fit map bounds to visible markers after the debounce time
+    if (visibleMarkers.length > 0) {
+      this.mapService.map$
+        .pipe(debounceTime(this.searchTimeDelay))
+        .subscribe(() => {
+          this.mapService.map?.fitBounds(bounds);
+        });
+    }
 
     return visibleMarkers;
   }
@@ -101,34 +118,5 @@ export class FilterService {
     return (
       matchesCity && matchesVakufType && matchesVakufName && matchesSearchTerm
     );
-  }
-
-  /**
-   * Updates the map bounds based on the visible markers.
-   * @param markers - The visible markers to calculate bounds from.
-   */
-  private updateBounds(markers: CustomMarker[]): void {
-    const bounds = new google.maps.LatLngBounds();
-
-    // Extend bounds with each visible marker's position
-    markers.forEach((marker) => {
-      const position = marker.getPosition();
-      if (position) {
-        bounds.extend(position);
-      }
-    });
-
-    // Fit map bounds to visible markers
-    if (markers.length > 0) {
-      this.mapService.map$
-        .pipe(
-          take(1),
-          debounceTime(this.searchTimeDelay),
-          tap(() => {
-            this.mapService.map?.fitBounds(bounds);
-          })
-        )
-        .subscribe();
-    }
   }
 }

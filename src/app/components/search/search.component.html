@@ -7,40 +7,54 @@
     placeholder="Naziv vakufa | broj parcele"
     autocomplete="off"
     [(ngModel)]="searchQuery"
-    (input)="filterMarkers(); handleSearchInput($event)"
-    (keydown)="handleArrowKeyNavigation($event)"
+    (input)="filterMarkers(); handleSearchInputChange(searchQuery)"
+    (keydown)="navigateWithArrowKeys($event)"
   />
   <span class="input-group-append">
     <span class="input-group-text" *ngIf="searchQuery.length === 0">
       <i
-      [ngClass]="{'fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2': searchQuery.length === 0}"
-      style="color: #27a27a"
-    >
-    </i>
+        [ngClass]="{
+          'fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2':
+            searchQuery.length === 0
+        }"
+        style="color: #27a27a"
+      >
+      </i>
     </span>
   </span>
-  <ul 
-    class="list-group search-suggestions" *ngIf="isSuggestionsVisible"
-    role="listbox" aria-live="assertive" aria-atomic="true"
-    >
-    <li
-      class="list-group-item"
-      style="color: #ccc"
+  <div
+    *ngIf="isSuggestionsVisible"
+    role="listbox"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div
       *ngIf="suggestionsList.length === 0"
+      class="list-group search-suggestions"
     >
-      Nema vakufa za unijeti naziv | parcelu
-    </li>
-    <li
-      role="option" 
-      aria-labelledby="suggestions-label"
-      class="list-group-item hover-effect"
-      tabindex="{{ i === selectedSuggestionIndex ? 0 : -1 }}"
-      *ngFor="let suggestion of suggestionsList; let i = index"
-      (click)="selectSearchSuggestion(suggestion)"
-      (keydown)="handleArrowKeyNavigation($event, i)"
+      <span class="list-group-item hover-effect"
+        >Nema vakufa za unijeti naziv | parcelu</span
+      >
+    </div>
+    <cdk-virtual-scroll-viewport
+      class="list-group search-suggestions"
+      itemSize="50"
     >
-      <span [innerHTML]="suggestion | highlightSearchTerm : searchQuery">
-      </span>
-    </li>
-  </ul>
+      <div
+        *cdkVirtualFor="let suggestion of suggestionsList; let i = index"
+        class="list-group-item hover-effect"
+        role="option"
+        aria-labelledby="suggestions-label"
+        tabindex="{{ i === selectedSuggestionIndex ? 0 : -1 }}"
+        (click)="selectSearchSuggestion(suggestion)"
+        (keydown)="navigateWithArrowKeys($event, i)"
+      >
+        <span
+          [innerHTML]="
+            suggestion | highlightSearchTerm : searchQuery || 'Ucitavanje'
+          "
+        ></span>
+      </div>
+    </cdk-virtual-scroll-viewport>
+  </div>
 </div>

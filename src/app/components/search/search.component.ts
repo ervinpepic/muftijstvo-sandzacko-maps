@@ -1,46 +1,59 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormControl, FormsModule } from '@angular/forms';
+import { Component, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CustomMarker } from '../../interface/Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
+import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
 import { SearchService } from '../../services/search-suggestions.service';
-import { substituteUsToBs } from '../../utils/latin-chars';
 import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
-import { MarkerEventService } from '../../services/marker-event.service';
+import { substituteUsToBs } from '../../utils/latin-chars';
+import { Subscription } from 'rxjs';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [HighlightSearchTermPipe, CommonModule, FormsModule],
+  imports: [
+    HighlightSearchTermPipe,
+    CommonModule,
+    FormsModule,
+    ScrollingModule,
+  ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
-export class SearchComponent {
+export class SearchComponent implements OnDestroy {
+  isSuggestionsVisible: boolean = false; // show or hide suggestion list in template
+  private mapClickedSubscription: Subscription;
+  suggestionsList: string[] = []; // save search suggestions here
+  selectedSuggestionIndex: number = -1; // Init with -1 to indicate no suggestion selected
+
   constructor(
     private markerService: MarkerService,
     private searchService: SearchService,
     private filterService: FilterService,
     private markerEventService: MarkerEventService
   ) {
-
-    this.markerEventService.mapClicked.subscribe(() => {
-      console.log('Map clicked event triggered');
-      this.hideSuggestionsIfVisible();
-    });
+    this.mapClickedSubscription = this.markerEventService.mapClicked.subscribe(
+      () => {
+        this.hideSuggestionsIfVisible();
+      }
+    );
   }
-
+  ngOnDestroy(): void {
+    // Unsubscribe from subscriptions to avoid memory leaks
+    if (this.mapClickedSubscription) {
+      this.mapClickedSubscription.unsubscribe();
+    }
+  }
   hideSuggestionsIfVisible(): void {
     if (this.isSuggestionsVisible) {
       this.isSuggestionsVisible = false;
     }
   }
 
-  searchControl = new FormControl(); // create a form control property with no init values
-  isSuggestionsVisible: boolean = false; // show or hide suggestion list in template
-  suggestionsList: string[] = []; // save search suggestions here
-  selectedSuggestionIndex: number = -1; // Init with -1 to indicate no suggestion selected
   // getters and setters from filter service
   get searchQuery(): string {
     return this.filterService.searchQuery;
@@ -51,7 +64,13 @@ export class SearchComponent {
 
   // filter markers on component level and share filtered data to a service
   filterMarkers(): CustomMarker[] {
-    return this.filterService.filterMarkers(this.markerService.markers);
+    try {
+      return this.filterService.filterMarkers(this.markerService.markers);
+    } catch (error) {
+      console.error('Error filtering markers:', error);
+      // Handle the error gracefully, perhaps by showing a message to the user
+      return [];
+    }
   }
 
   // Generates search suggestions based on user input
@@ -62,11 +81,11 @@ export class SearchComponent {
   generateSearchSuggestions(inputValue: string): void {
     const normalizedSearchQuery = substituteUsToBs(inputValue.toLowerCase());
     const filteredMarkers = this.filterMarkers();
-    const suggestion = this.searchService.generateSearchSuggestions(
+    const suggestions = this.searchService.generateSearchSuggestions(
       normalizedSearchQuery,
       filteredMarkers
     );
-    this.suggestionsList = suggestion;
+    this.suggestionsList = suggestions;
   }
 
   // Handles user input in the search input field
@@ -74,28 +93,30 @@ export class SearchComponent {
   // - Generates search suggestions if the input is not empty
   // - Hides suggestions if the input is empty
   // - Updates the search query based on the input
-  handleSearchInput(event: Event): void {
-   // Close other info windows when user start typing into the input field
-   this.markerEventService.closeOtherInfoWindows();
+  handleSearchInputChange(inputValue: string): void {
+    // Close other info windows when user starts typing into the input field
+    this.markerEventService.closeOtherInfoWindows();
 
-   // Get the input element and set search control value
-   const inputElement = event.target as HTMLInputElement;
-   const inputValue = inputElement.value || ''; // Add null check and default value
-   this.searchControl.setValue(inputValue);
- 
-   // Show suggestions if input is not empty, otherwise hide them
-   if (inputValue.length > 0) {
-     this.generateSearchSuggestions(inputValue);
-     this.isSuggestionsVisible = true;
-   } else {
-     this.isSuggestionsVisible = false;
-   }
-   // Update the search query based on the input
-   this.updateSearchQuery(inputValue);
+    // Show suggestions if input is not empty, otherwise hide them
+    if (inputValue.length > 0) {
+      this.generateSearchSuggestions(inputValue);
+      this.isSuggestionsVisible = true;
+    } else {
+      this.isSuggestionsVisible = false;
+    }
+
+    // Update the search query based on the input directly using ngModel
+    this.updateSearchQuery(inputValue);
   }
   // Private method to check if input is numeric
   private isNumericInput(input: string): boolean {
-    return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
+    try {
+      return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
+    } catch (error) {
+      console.error('Error validating input:', error);
+      // Handle the error gracefully, perhaps by returning false or showing a message to the user
+      return false;
+    }
     // The regular expressions check if the input matches a specific pattern or consists of only digits
   }
 
@@ -125,15 +146,19 @@ export class SearchComponent {
   }
 
   // Handles arrow key navigation within search suggestions
-  handleArrowKeyNavigation(event: KeyboardEvent, index?: number): void {
-    let currentIndex = index !== undefined ? index : 0;
-
-    arrowKeyNavigation(
-      event,
-      currentIndex,
-      this.suggestionsList,
-      (query) => (this.searchQuery = query),
-      (suggestion) => this.selectSearchSuggestion(suggestion)
-    );
+  navigateWithArrowKeys(event: KeyboardEvent, index?: number): void {
+    try {
+      let currentIndex = index !== undefined ? index : 0;
+      arrowKeyNavigation(
+        event,
+        currentIndex,
+        this.suggestionsList,
+        (query) => (this.searchQuery = query),
+        (suggestion) => this.selectSearchSuggestion(suggestion)
+      );
+    } catch (error) {
+      console.error('Error handling arrow key navigation:', error);
+      // Handle the error gracefully, perhaps by logging it or showing a message to the user
+    }
   }
 }
