@@ -1,3 +1,4 @@
+import { PolygonData } from '../interface/Polygon';
 import { andrijevicaPolygonDelimiter } from './sandzak/andrijevica';
 import { beranePolygonDelimiter } from './sandzak/berane';
 import { bijeloPoljePolygonDelimiter } from './sandzak/bijeloPolje';
@@ -12,13 +13,32 @@ import { prijepoljePolygonDelimiter } from './sandzak/prijepolje';
 import { rozajePolygonDelimiter } from './sandzak/rozaje';
 import { sjenicaPolygonDelimiter } from './sandzak/sjenica';
 import { tutinPolygonDelimiter } from './sandzak/tutin';
-
-import { zoomChange } from './zoom-change';
+import { zoomChange } from '../utils/dynamic-zoom';
 
 export class PolygonsBoundaries {
-  noviPazarPolygon(map: google.maps.Map) {
-    let noviPazarPolygon = new google.maps.Polygon({
-      paths: noviPazarPolygonDelimiter,
+  private polygonData: PolygonData[] = [
+    { delimiter: noviPazarPolygonDelimiter, name: 'noviPazarPolygon' },
+    { delimiter: tutinPolygonDelimiter, name: 'tutinPolygon' },
+    { delimiter: sjenicaPolygonDelimiter, name: 'sjenicaPolygon' },
+    { delimiter: novaVarosPolygonDelimiter, name: 'novaVarosPolygon' },
+    { delimiter: prijepoljePolygonDelimiter, name: 'prijepoljePolygon' },
+    { delimiter: pribojPolygonDelimiter, name: 'pribojPolygon' },
+    { delimiter: rozajePolygonDelimiter, name: 'rozajePolygon' },
+    { delimiter: beranePolygonDelimiter, name: 'beranePolygon' },
+    { delimiter: petnjicaPolygonDelimiter, name: 'petnjicaPolygon' },
+    { delimiter: andrijevicaPolygonDelimiter, name: 'andrijevicaPolygon' },
+    { delimiter: bijeloPoljePolygonDelimiter, name: 'bijeloPoljePolygon' },
+    { delimiter: plavPolygonDelimiter, name: 'plavPolygon' },
+    { delimiter: pljevljaPolygonDelimiter, name: 'pljevljaPolygon' },
+    { delimiter: gusinjePolygonDelimiter, name: 'gusinjePolygon' },
+  ];
+  constructor(private map: google.maps.Map) {}
+
+  private createPolygon(
+    paths: google.maps.LatLngLiteral[]
+  ): google.maps.Polygon {
+    return new google.maps.Polygon({
+      paths: paths,
       geodesic: true,
       strokeColor: '#000000',
       strokeOpacity: 0.8,
@@ -26,199 +46,19 @@ export class PolygonsBoundaries {
       fillColor: '#FC4445',
       fillOpacity: 0.43,
     });
-    noviPazarPolygon.setMap(map);
-    zoomChange(map, noviPazarPolygon);
   }
 
-  tutinPolygon(map: google.maps.Map) {
-    let tutinPolygon = new google.maps.Polygon({
-      paths: tutinPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    tutinPolygon.setMap(map);
-    zoomChange(map, tutinPolygon);
+  private addPolygonToMap(polygon: google.maps.Polygon) {
+    polygon.setMap(this.map);
+    zoomChange(this.map, polygon);
   }
 
-  sjenicaPolygon(map: google.maps.Map) {
-    let sjenicaPolygon = new google.maps.Polygon({
-      paths: sjenicaPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    sjenicaPolygon.setMap(map);
-    zoomChange(map, sjenicaPolygon);
+  private drawPolygon(polygonData: PolygonData) {
+    const polygon = this.createPolygon(polygonData.delimiter);
+    this.addPolygonToMap(polygon);
   }
 
-  novaVarosPolygon(map: google.maps.Map) {
-    let novaVarosPolygon = new google.maps.Polygon({
-      paths: novaVarosPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    novaVarosPolygon.setMap(map);
-    zoomChange(map, novaVarosPolygon);
-  }
-
-  prijepoljePolygon(map: google.maps.Map) {
-    let prijepoljePolygon = new google.maps.Polygon({
-      paths: prijepoljePolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    prijepoljePolygon.setMap(map);
-    zoomChange(map, prijepoljePolygon);
-  }
-
-  pribojPolygon(map: google.maps.Map) {
-    let pribojPolygon = new google.maps.Polygon({
-      paths: pribojPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    pribojPolygon.setMap(map);
-    zoomChange(map, pribojPolygon);
-  }
-
-  rozajePolygon(map: google.maps.Map) {
-    let rozajePolygon = new google.maps.Polygon({
-      paths: rozajePolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    rozajePolygon.setMap(map);
-    // zoomChange(map, rozajePolygon);
-  }
-  beranePolygon(map: google.maps.Map) {
-    let beranePolygon = new google.maps.Polygon({
-      paths: beranePolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    beranePolygon.setMap(map);
-    zoomChange(map, beranePolygon);
-  }
-  andrijevicaPolygon(map: google.maps.Map) {
-    let andrijevicaPolygon = new google.maps.Polygon({
-      paths: andrijevicaPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    andrijevicaPolygon.setMap(map);
-    zoomChange(map, andrijevicaPolygon);
-  }
-  bijeloPoljePolygon(map: google.maps.Map) {
-    let bijeloPoljePolygon = new google.maps.Polygon({
-      paths: bijeloPoljePolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    bijeloPoljePolygon.setMap(map);
-    zoomChange(map, bijeloPoljePolygon);
-  }
-  plavPolygon(map: google.maps.Map) {
-    let plavPolygon = new google.maps.Polygon({
-      paths: plavPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    plavPolygon.setMap(map);
-    zoomChange(map, plavPolygon);
-  }
-  pljevljaPolygon(map: google.maps.Map) {
-    let pljevljaPolygon = new google.maps.Polygon({
-      paths: pljevljaPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    pljevljaPolygon.setMap(map);
-    zoomChange(map, pljevljaPolygon);
-  }
-  gusinjePolygon(map: google.maps.Map) {
-    let gusinjePolygon = new google.maps.Polygon({
-      paths: gusinjePolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    gusinjePolygon.setMap(map);
-    zoomChange(map, gusinjePolygon);
-  }
-  petnjicaPolygon(map: google.maps.Map) {
-    let petnjicaPolygon = new google.maps.Polygon({
-      paths: petnjicaPolygonDelimiter,
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
-    });
-    petnjicaPolygon.setMap(map);
-    zoomChange(map, petnjicaPolygon);
-  }
-
-  drawPolgygons(map: google.maps.Map) {
-    this.noviPazarPolygon(map);
-    this.tutinPolygon(map);
-    this.sjenicaPolygon(map);
-    this.novaVarosPolygon(map);
-    this.prijepoljePolygon(map);
-    this.pribojPolygon(map);
-    this.rozajePolygon(map);
-    this.beranePolygon(map);
-    this.petnjicaPolygon(map);
-    this.andrijevicaPolygon(map);
-    this.bijeloPoljePolygon(map);
-    this.plavPolygon(map);
-    this.pljevljaPolygon(map);
-    this.gusinjePolygon(map);
+  drawPolgygons() {
+    this.polygonData.map((polygonData) => this.drawPolygon(polygonData));
   }
 }

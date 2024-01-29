@@ -25,34 +25,10 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnDestroy {
-  isSuggestionsVisible: boolean = false; // show or hide suggestion list in template
-  private mapClickedSubscription: Subscription;
-  suggestionsList: string[] = []; // save search suggestions here
-  selectedSuggestionIndex: number = -1; // Init with -1 to indicate no suggestion selected
-
-  constructor(
-    private markerService: MarkerService,
-    private searchService: SearchService,
-    private filterService: FilterService,
-    private markerEventService: MarkerEventService
-  ) {
-    this.mapClickedSubscription = this.markerEventService.mapClicked.subscribe(
-      () => {
-        this.hideSuggestionsIfVisible();
-      }
-    );
-  }
-  ngOnDestroy(): void {
-    // Unsubscribe from subscriptions to avoid memory leaks
-    if (this.mapClickedSubscription) {
-      this.mapClickedSubscription.unsubscribe();
-    }
-  }
-  hideSuggestionsIfVisible(): void {
-    if (this.isSuggestionsVisible) {
-      this.isSuggestionsVisible = false;
-    }
-  }
+  private mapClickedSubscription: Subscription; // Subscription for map click event
+  isSuggestionsVisible: boolean = false; // Indicates whether the search suggestions are visible
+  suggestionsList: string[] = []; // List of search suggestions
+  selectedSuggestionIndex: number = -1; // Index of the selected search suggestion
 
   // getters and setters from filter service
   get searchQuery(): string {
@@ -62,21 +38,45 @@ export class SearchComponent implements OnDestroy {
     this.filterService.searchQuery = value;
   }
 
-  // filter markers on component level and share filtered data to a service
+  constructor(
+    private markerService: MarkerService,
+    private searchService: SearchService,
+    private filterService: FilterService,
+    private markerEventService: MarkerEventService
+  ) {
+    // Subscribe to map click event to hide suggestions
+    this.mapClickedSubscription = this.markerEventService.mapClicked.subscribe(
+      () => {
+        this.hideSuggestionsIfVisible();
+      }
+    );
+  }
+
+  // Unsubscribe from subscriptions to avoid memory leaks
+  ngOnDestroy(): void {
+    if (this.mapClickedSubscription) {
+      this.mapClickedSubscription.unsubscribe();
+    }
+  }
+
+  // Filter markers on the component level using the FilterService
+  // - Retrieves the array of markers from the MarkerService
+  // - Filters the markers based on the current search criteria and filters
+  // - Returns an array of CustomMarker objects representing the filtered markers
+  // - Catches and logs any errors that occur during the filtering process
   filterMarkers(): CustomMarker[] {
     try {
       return this.filterService.filterMarkers(this.markerService.markers);
     } catch (error) {
       console.error('Error filtering markers:', error);
-      // Handle the error gracefully, perhaps by showing a message to the user
       return [];
     }
   }
 
   // Generates search suggestions based on user input
-  // - Converts the input to lowercase and replaces Serbian Latin characters
-  // - Retrieves filtered markers based on the current filter criteria
-  // - Calls the search service to generate suggestions
+  // - Converts the input value to lowercase and substitutes Serbian Latin characters
+  // - Retrieves filtered markers based on the current filter criteria using the FilterService
+  // - Calls the SearchService to generate suggestions based on the normalized search query and filtered markers
   // - Updates the component's suggestionsList with the generated suggestions
   generateSearchSuggestions(inputValue: string): void {
     const normalizedSearchQuery = substituteUsToBs(inputValue.toLowerCase());
@@ -88,16 +88,22 @@ export class SearchComponent implements OnDestroy {
     this.suggestionsList = suggestions;
   }
 
+  hideSuggestionsIfVisible(): void {
+    if (this.isSuggestionsVisible) {
+      this.isSuggestionsVisible = false;
+    }
+  }
+
   // Handles user input in the search input field
-  // - Sets the value of the search control to the user input
-  // - Generates search suggestions if the input is not empty
-  // - Hides suggestions if the input is empty
-  // - Updates the search query based on the input
+  // - Closes other info windows to improve user experience
+  // - Shows search suggestions if the input is not empty and updates visibility accordingly
+  // - Hides search suggestions if the input is empty
+  // - Updates the search query based on the input value
   handleSearchInputChange(inputValue: string): void {
-    // Close other info windows when user starts typing into the input field
+    // Close other info windows to prevent cluttering the interface
     this.markerEventService.closeOtherInfoWindows();
 
-    // Show suggestions if input is not empty, otherwise hide them
+    // Show suggestions if the input is not empty, otherwise hide them
     if (inputValue.length > 0) {
       this.generateSearchSuggestions(inputValue);
       this.isSuggestionsVisible = true;
@@ -105,9 +111,10 @@ export class SearchComponent implements OnDestroy {
       this.isSuggestionsVisible = false;
     }
 
-    // Update the search query based on the input directly using ngModel
+    // Update the search query based on the input value
     this.updateSearchQuery(inputValue);
   }
+
   // Private method to check if input is numeric
   private isNumericInput(input: string): boolean {
     try {

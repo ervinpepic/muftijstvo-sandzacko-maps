@@ -19,35 +19,41 @@ export function arrowKeyNavigation(
   setSearchQuery: (query: string) => void,
   selectSearchSuggestion: (suggestion: string) => void
 ): void {
-  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-    event.preventDefault();
+  const suggestionsContainer = document.querySelector('.search-suggestions');
+  if (!suggestionsContainer) return; // Exit if suggestions container not found
 
-    const suggestions = document.querySelectorAll(
-      '.search-suggestions .hover-effect'
-    );
-    if (suggestions.length === 0) {
-      // No suggestions, do nothing
-      return;
-    }
+  const suggestions = Array.from(
+    suggestionsContainer.querySelectorAll('.hover-effect')
+  );
 
-    if (event.key === 'ArrowDown') {
-      currentIndex =
-        currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0;
-    } else if (event.key === 'ArrowUp') {
-      currentIndex =
-        currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1;
-    }
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      currentIndex = getNextIndex(currentIndex, suggestions.length);
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      currentIndex = getPreviousIndex(currentIndex, suggestions.length);
+      break;
+    case 'Enter':
+      event.preventDefault();
+      selectSearchSuggestion(suggestionsList[currentIndex]);
+      return; // Exit early to prevent setting search query
+    default:
+      return; // Ignore other keys
+  }
 
-    suggestions.forEach((suggestion, index) => {
-      suggestion.setAttribute('tabindex', index === currentIndex ? '0' : '-1');
-    });
-
+  if (currentIndex >= 0 && currentIndex < suggestions.length) {
     const selectedSuggestion = suggestions[currentIndex] as HTMLLIElement;
     selectedSuggestion.focus();
     setSearchQuery(suggestionsList[currentIndex]);
-  } else if (event.key === 'Enter') {
-    // Handle Enter key press to select the current suggestion
-    event.preventDefault(); // Prevent the default Enter key behavior
-    selectSearchSuggestion(suggestionsList[currentIndex]);
   }
+}
+
+function getNextIndex(currentIndex: number, maxIndex: number): number {
+  return (currentIndex + 1) % maxIndex;
+}
+
+function getPreviousIndex(currentIndex: number, maxIndex: number): number {
+  return (currentIndex - 1 + maxIndex) % maxIndex;
 }

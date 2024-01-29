@@ -4,6 +4,9 @@
     type="search"
     name="searchQuery"
     aria-label="Search"
+    role="combobox"
+    aria-haspopup="listbox"
+    aria-controls="suggestion-list"
     placeholder="Naziv vakufa | broj parcele"
     autocomplete="off"
     [(ngModel)]="searchQuery"
@@ -27,6 +30,7 @@
     role="listbox"
     aria-live="assertive"
     aria-atomic="true"
+    id="suggestion-list"
   >
     <div
       *ngIf="suggestionsList.length === 0"

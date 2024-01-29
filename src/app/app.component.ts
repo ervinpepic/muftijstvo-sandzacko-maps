@@ -16,8 +16,6 @@ export class AppComponent implements OnInit {
   title = 'muftijstvo-sandzacko-maps';
   @ViewChild('mapContainer', { static: true }) mapContainer?: ElementRef;
 
-  map?: google.maps.Map; //google maps declaration
-
   async ngOnInit(): Promise<void> {
     await this.mapService.initializeMap(this.mapContainer!);
   }

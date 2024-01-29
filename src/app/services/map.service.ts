@@ -14,7 +14,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class MapService {
   private _map: google.maps.Map | undefined;
   private _map$ = new BehaviorSubject<google.maps.Map | undefined>(undefined);
-  polygons = new PolygonsBoundaries(); //map polygon boundaries for Sandzak
+  polygons?: PolygonsBoundaries;
   readonly initialMapCenter = {
     lat: 42.99603931107363,
     lng: 19.863259815559704,
@@ -69,7 +69,8 @@ export class MapService {
     // Method call to create markers on the map
     this.markerService.createMarkers(this.map);
     // Method call to draw polygons on the map
-    this.polygons.drawPolgygons(this.map);
+    this.polygons = new PolygonsBoundaries(this.map);
+    this.polygons.drawPolgygons();
     this.markerEventService.handleMapClick(this.map);
   }
 }
