@@ -1,26 +1,20 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { CustomMarker } from '../../interface/Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
 import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
-import { SearchService } from '../../services/search-suggestions.service';
 import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
-import { substituteUsToBs } from '../../utils/latin-chars';
-import { Subscription } from 'rxjs';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [
-    HighlightSearchTermPipe,
-    CommonModule,
-    FormsModule,
-    ScrollingModule,
-  ],
+  imports: [HighlightSearchTermPipe, CommonModule, FormsModule, ScrollingModule],
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
@@ -40,14 +34,15 @@ export class SearchComponent implements OnDestroy {
 
   constructor(
     private markerService: MarkerService,
-    private searchService: SearchService,
     private filterService: FilterService,
     private markerEventService: MarkerEventService
   ) {
     // Subscribe to map click event to hide suggestions
     this.mapClickedSubscription = this.markerEventService.mapClicked.subscribe(
       () => {
-        this.hideSuggestionsIfVisible();
+        if (this.isSuggestionsVisible) {
+          this.isSuggestionsVisible = false;
+        }
       }
     );
   }
@@ -64,7 +59,7 @@ export class SearchComponent implements OnDestroy {
   // - Filters the markers based on the current search criteria and filters
   // - Returns an array of CustomMarker objects representing the filtered markers
   // - Catches and logs any errors that occur during the filtering process
-  filterMarkers(): CustomMarker[] {
+  updateMarkersVisibility(): CustomMarker[] {
     try {
       return this.filterService.filterMarkers(this.markerService.markers);
     } catch (error) {
@@ -78,20 +73,12 @@ export class SearchComponent implements OnDestroy {
   // - Retrieves filtered markers based on the current filter criteria using the FilterService
   // - Calls the SearchService to generate suggestions based on the normalized search query and filtered markers
   // - Updates the component's suggestionsList with the generated suggestions
-  generateSearchSuggestions(inputValue: string): void {
-    const normalizedSearchQuery = substituteUsToBs(inputValue.toLowerCase());
-    const filteredMarkers = this.filterMarkers();
-    const suggestions = this.searchService.generateSearchSuggestions(
-      normalizedSearchQuery,
-      filteredMarkers
+  private generateSearchSuggestions(): void {
+    const suggestions = generateSearchSuggestions(
+      this.updateMarkersVisibility(),
+      this.searchQuery
     );
     this.suggestionsList = suggestions;
-  }
-
-  hideSuggestionsIfVisible(): void {
-    if (this.isSuggestionsVisible) {
-      this.isSuggestionsVisible = false;
-    }
   }
 
   // Handles user input in the search input field
@@ -100,31 +87,26 @@ export class SearchComponent implements OnDestroy {
   // - Hides search suggestions if the input is empty
   // - Updates the search query based on the input value
   handleSearchInputChange(inputValue: string): void {
-    // Close other info windows to prevent cluttering the interface
-    this.markerEventService.closeOtherInfoWindows();
-
-    // Show suggestions if the input is not empty, otherwise hide them
+    this.markerEventService.closeOtherInfoWindows(); // Close other info windows to prevent cluttering the interface
+     // Show suggestions if the input is not empty, otherwise hide them
     if (inputValue.length > 0) {
-      this.generateSearchSuggestions(inputValue);
+      this.generateSearchSuggestions();
       this.isSuggestionsVisible = true;
     } else {
       this.isSuggestionsVisible = false;
     }
-
-    // Update the search query based on the input value
-    this.updateSearchQuery(inputValue);
+    this.updateSearchQuery(inputValue); // Update the search query based on the input value
   }
 
   // Private method to check if input is numeric
+  // - The regular expressions check if the input matches a specific pattern or consists of only digits
   private isNumericInput(input: string): boolean {
     try {
       return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
     } catch (error) {
-      console.error('Error validating input:', error);
-      // Handle the error gracefully, perhaps by returning false or showing a message to the user
+      console.error('Error validating input:', error); //change better error handling in future
       return false;
     }
-    // The regular expressions check if the input matches a specific pattern or consists of only digits
   }
 
   // Updates the search query based on user input
@@ -132,7 +114,7 @@ export class SearchComponent implements OnDestroy {
   // - Extracts the first part (numberPart) for numeric input
   // - If numberPart matches a specific pattern or consists of only digits, updates the search query
   // - Otherwise, updates the search query with the entire input value
-  updateSearchQuery(inputValue: string): void {
+  private updateSearchQuery(inputValue: string): void {
     const searchQueryParts = inputValue.split(' ');
     const numberPart = searchQueryParts[0];
     if (this.isNumericInput(numberPart)) {
@@ -149,13 +131,13 @@ export class SearchComponent implements OnDestroy {
   selectSearchSuggestion(suggestion: string): void {
     this.updateSearchQuery(suggestion);
     this.isSuggestionsVisible = false;
-    this.filterMarkers();
+    this.updateMarkersVisibility();
   }
 
   // Handles arrow key navigation within search suggestions
   navigateWithArrowKeys(event: KeyboardEvent, index?: number): void {
     try {
-      let currentIndex = index !== undefined ? index : 0;
+      let currentIndex = index !== undefined ? index : -1;
       arrowKeyNavigation(
         event,
         currentIndex,
@@ -165,7 +147,6 @@ export class SearchComponent implements OnDestroy {
       );
     } catch (error) {
       console.error('Error handling arrow key navigation:', error);
-      // Handle the error gracefully, perhaps by logging it or showing a message to the user
     }
   }
 }

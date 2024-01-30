@@ -1,45 +1,43 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { EventEmitter } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
-import { MarkerStyle } from '../styles/marker/marker-style';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerEventService {
-  constructor() {}
-
-  private readonly infoWindowStyle = infoWindowStyle;
-  private readonly markerStyler = new MarkerStyle();
   mapClicked: EventEmitter<void> = new EventEmitter<void>();
-
   private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
     new Map();
 
-  // Handles the click event on a marker to show its info window
+  constructor() {}
+
   handleMarkerInfoWindow(
     marker: google.maps.Marker,
     markerData: CustomMarker,
     map: google.maps.Map
   ) {
-    const infoWindow = new google.maps.InfoWindow({
-      content: this.infoWindowStyle(markerData),
-    });
-    this.openInfoWindows.set(marker, infoWindow);
+    if (!this.openInfoWindows.has(marker)) {
+      const infoWindow = new google.maps.InfoWindow({
+        content: infoWindowStyle(markerData),
+      });
 
-    marker.addListener('click', () => {
-      this.closeOtherInfoWindows(marker);
-      this.triggerMarkerBounce(marker);
+      this.openInfoWindows.set(marker, infoWindow);
 
-      infoWindow.open(map, marker);
-      map.panTo(marker.getPosition()!);
-    });
+      marker.addListener('click', () => {
+        this.closeOtherInfoWindows(marker);
+        this.triggerMarkerBounce(marker);
+        infoWindow.open(map, marker);
+        map.panTo(marker.getPosition()!);
+      });
 
-    infoWindow.addListener('closeclick', () => {
-      map.panTo(marker.getPosition()!);
-    });
-    // Add event listener to the "Prikaži sliku parcele" link
-    this.handleInfoWindowImageShow(infoWindow, map);
+      infoWindow.addListener('closeclick', () => {
+        map.panTo(marker.getPosition()!);
+      });
+
+      this.handleInfoWindowImageShow(infoWindow, map);
+    }
   }
 
   handleInfoWindowImageShow(
@@ -49,21 +47,33 @@ export class MarkerEventService {
     google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
       const imageToggle = document.getElementById('viewImageControlHeight');
       if (imageToggle) {
-        let isCollapsed = false; // Variable to track toggle state
+        let isCollapsed = false;
         imageToggle.addEventListener('click', () => {
-          let panOffset = -150; // Default panOffset value
-
-          // Adjust panOffset based on toggle state
-          if (isCollapsed) {
-            panOffset = 150; // Increase panOffset
-          } else {
-            panOffset = -150; // Reset panOffset to its default value
-          }
-
+          const panOffset = isCollapsed ? 150 : -150;
           map.panBy(0, panOffset);
-          isCollapsed = !isCollapsed; // Toggle the state
+          isCollapsed = !isCollapsed;
         });
       }
+    });
+  }
+
+  handleMarkerMouseHover(marker: google.maps.Marker) {
+    const defaultIcon = {
+      url: '../assets/images/marker_main.svg',
+      scaledSize: new google.maps.Size(40, 40),
+      labelOrigin: new google.maps.Point(20, -15),
+    };
+    const hoverIcon = {
+      url: '../assets/images/marker_hover.svg',
+      scaledSize: new google.maps.Size(60, 60),
+      labelOrigin: new google.maps.Point(40, -25),
+    };
+
+    marker.addListener('mouseover', () => {
+      marker.setIcon(hoverIcon);
+    });
+    marker.addListener('mouseout', () => {
+      marker.setIcon(defaultIcon);
     });
   }
 
@@ -74,33 +84,17 @@ export class MarkerEventService {
     });
   }
 
-  // Handles the mouseover event on a marker to change its style
-  handleMarkerMouseOver(marker: any) {
-    marker.addListener('mouseover', () => {
-      this.markerStyler.onMarkerMouseOver(marker);
-    });
-  }
-
-  // Handles the mouseout event on a marker to revert its style
-  handleMarkerMouseOut(marker: any) {
-    marker.addListener('mouseout', () => {
-      this.markerStyler.onMarkerMouseOut(marker);
-    });
-  }
-
-  // Triggers a bounce animation on a marker
-  triggerMarkerBounce(marker: any) {
+  triggerMarkerBounce(marker: google.maps.Marker) {
     if (marker.getAnimation() !== null) {
       marker.setAnimation(null);
     } else {
       marker.setAnimation(google.maps.Animation.BOUNCE);
-      setTimeout(function () {
+      setTimeout(() => {
         marker.setAnimation(null);
-      }, 2000); // current maps duration of one bounce (v3.13)
+      }, 2000);
     }
   }
 
-  // Closes other open info windows on the map
   closeOtherInfoWindows(markerToKeepOpen?: google.maps.Marker) {
     this.openInfoWindows.forEach((infoWindow, marker) => {
       if (marker !== markerToKeepOpen) {

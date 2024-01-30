@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, lastValueFrom, of } from 'rxjs';
-
-import { CustomMarker } from '../interface/Marker';
-import { VakufData } from '../database/database-seed';
-import { MarkerStyle } from '../styles/marker/marker-style';
-import { vakufObjecType } from '../database/vakuf-types';
+import { loadVakufData } from '../database/database-seed';
 import { sandzakCity } from '../database/sandzak-cities';
+import { vakufObjecType } from '../database/vakuf-types';
+import { CustomMarker } from '../interface/Marker';
 import { MarkerEventService } from './marker-event.service';
 
 @Injectable({
@@ -13,35 +10,33 @@ import { MarkerEventService } from './marker-event.service';
 })
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
-
-  markerStyle = new MarkerStyle(); // Instances for handling marker events and styling
-
   constructor(private markerEventService: MarkerEventService) {}
 
   /**
-   * Returns an observable of Vakuf and Cities and a marker objects.
+   * Returns data Vakuf and Cities and a marker objects.
    */
-  getVakufObjectTypes(): Observable<string[]> {
-    return of(Object.values(vakufObjecType));
+  getVakufObjectTypes(): string[] {
+    return Object.values(vakufObjecType);
   }
 
-  getVakufCities(): Observable<string[]> {
-    return of(Object.values(sandzakCity));
+  getVakufCities(): string[] {
+    return Object.values(sandzakCity);
   }
 
-  getMarkers(): Observable<CustomMarker[]> {
-    return of(VakufData);
+  getMarkers(): CustomMarker[] {
+    return loadVakufData();
   }
 
   /**
-   * Asynchronously creates markers on the specified map.
+   * creates markers on the specified map.
    * @param map - The Google Map instance.
    */
-  async createMarkers(map: google.maps.Map): Promise<void> {
+  createMarkers(map: google.maps.Map): void {
+    this.clearMarkers();
     try {
-      const markerData = await lastValueFrom(this.getMarkers());
-      this.markers =
-        markerData?.map((data) => this.createMarker(data, map)) || [];
+      const markerData = this.getMarkers();
+      this.markers = markerData.map((markerData) =>
+        this.createMarker(markerData, map));
     } catch (error) {
       console.error('Error creating markers', error);
     }
@@ -53,23 +48,31 @@ export class MarkerService {
    * @param map - The Google Map instance.
    * @returns The created Google Maps Marker instance.
    */
-  createMarker(data: any, map: google.maps.Map): CustomMarker {
+  createMarker(data: CustomMarker, map: google.maps.Map): CustomMarker {
     const marker = new google.maps.Marker({
       ...data,
       position: new google.maps.LatLng(data.position),
-      icon: this.markerStyle.createDefaultMarkerIcon(),
+      icon: {
+        url: '../assets/images/marker_main.svg',
+        scaledSize: new google.maps.Size(40, 40),
+        labelOrigin: new google.maps.Point(20, -15),
+      },
       draggable: false,
       optimized: false,
       animation: google.maps.Animation.DROP,
       map: map,
     });
+
     const customMarker = marker as CustomMarker;
 
     // Set up marker events and styling
+    this.markerEventService.handleMarkerMouseHover(marker);
     this.markerEventService.handleMarkerInfoWindow(marker, data, map);
-    this.markerEventService.handleMarkerMouseOver(marker);
-    this.markerEventService.handleMarkerMouseOut(marker);
-
     return customMarker;
+  }
+
+  private clearMarkers(): void {
+    this.markers.forEach(marker => marker.setMap(null));
+    this.markers = [];
   }
 }

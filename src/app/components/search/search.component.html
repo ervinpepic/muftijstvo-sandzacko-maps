@@ -10,7 +10,7 @@
     placeholder="Naziv vakufa | broj parcele"
     autocomplete="off"
     [(ngModel)]="searchQuery"
-    (input)="filterMarkers(); handleSearchInputChange(searchQuery)"
+    (input)="updateMarkersVisibility(); handleSearchInputChange(searchQuery)"
     (keydown)="navigateWithArrowKeys($event)"
   />
   <span class="input-group-append">

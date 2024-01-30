@@ -6,11 +6,11 @@
     aria-labelledby="vakufTypeLabel"
     placeholder="Tip vakufa"
     [(ngModel)]="selectedVakufType"
-    (change)="filterMarkersName(); onVakufTypeChange()"
+    (change)="filterMarkersNames(); onVakufTypeChange()"
   >
     <ng-option
       class="hover-effect"
-      *ngFor="let vakufType of vakufObjectTypes$ | async"
+      *ngFor="let vakufType of vakufObjectTypes"
       [value]="vakufType"
     >
       {{ vakufType }}
@@ -25,11 +25,11 @@
     placeholder="Grad"
     aria-labelledby="cityLabel"
     [(ngModel)]="selectedCity"
-    (change)="filterMarkersName(); onCityChange()"
+    (change)="filterMarkersNames(); onCityChange()"
   >
     <ng-option
       class="hover-effect"
-      *ngFor="let cityName of vakufCities$ | async"
+      *ngFor="let cityName of vakufCities"
       [value]="cityName"
     >
       {{ cityName }}
@@ -48,7 +48,7 @@
   >
     <ng-option
       class="hover-effect"
-      *ngFor="let name of selectFilteredMarkerNames"
+      *ngFor="let name of filteredMarkerNames"
       [value]="name"
     >
       {{ name | ellipsis : 25 }}
