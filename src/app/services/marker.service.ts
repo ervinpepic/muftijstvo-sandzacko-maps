@@ -4,12 +4,14 @@ import { sandzakCity } from '../database/sandzak-cities';
 import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../interface/Marker';
 import { MarkerEventService } from './marker-event.service';
+import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
+  markerCluster?: MarkerClusterer;
   constructor(private markerEventService: MarkerEventService) {}
 
   /**
@@ -26,7 +28,6 @@ export class MarkerService {
   getMarkers(): CustomMarker[] {
     return loadVakufData();
   }
-
   /**
    * creates markers on the specified map.
    * @param map - The Google Map instance.
@@ -37,6 +38,8 @@ export class MarkerService {
       const markerData = this.getMarkers();
       this.markers = markerData.map((markerData) =>
         this.createMarker(markerData, map));
+        // intialize MarkerClusterer
+        this.markerCluster = new MarkerClusterer({map: map, markers: this.markers})
     } catch (error) {
       console.error('Error creating markers', error);
     }
@@ -74,5 +77,8 @@ export class MarkerService {
   private clearMarkers(): void {
     this.markers.forEach(marker => marker.setMap(null));
     this.markers = [];
+    if (this.markerCluster) {
+      this.markerCluster.clearMarkers();
+    }
   }
 }

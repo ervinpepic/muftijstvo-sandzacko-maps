@@ -3,12 +3,13 @@ import { debounceTime } from 'rxjs/operators';
 import { CustomMarker } from '../interface/Marker';
 import { substituteUsToBs } from '../utils/latin-chars';
 import { MapService } from './map.service';
+import { MarkerService } from './marker.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(private mapService: MapService) {}
+  constructor(private mapService: MapService, private markerService: MarkerService) {}
 
   private searchTimeDelay: number = 800; // Delay for debouncing search input
 
@@ -81,6 +82,11 @@ export class FilterService {
       const visibleMarkers = markers.filter((marker) => marker.getVisible());
       if (visibleMarkers.length > 0) {
         this.fitBoundsAfterDelay(bounds);
+      }
+      
+      if (this.markerService.markerCluster) {
+        this.markerService.markerCluster.clearMarkers();
+        this.markerService.markerCluster.addMarkers(visibleMarkers);
       }
 
       return visibleMarkers;
