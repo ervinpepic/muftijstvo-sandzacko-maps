@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
@@ -6,12 +6,14 @@ import { infoWindowStyle } from '../styles/marker/info-window-style';
 @Injectable({
   providedIn: 'root',
 })
-export class MarkerEventService {
+export class MarkerEventService implements OnDestroy {
   mapClicked: EventEmitter<void> = new EventEmitter<void>();
   private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
     new Map();
 
-  constructor() {}
+  private mapClickSubscription: google.maps.MapsEventListener | null = null;
+
+  constructor(private ngZone: NgZone) {}
 
   handleMarkerInfoWindow(
     marker: google.maps.Marker,
@@ -26,14 +28,20 @@ export class MarkerEventService {
       this.openInfoWindows.set(marker, infoWindow);
 
       marker.addListener('click', () => {
-        this.closeOtherInfoWindows(marker);
-        this.triggerMarkerBounce(marker);
-        infoWindow.open(map, marker);
-        map.panTo(marker.getPosition()!);
+        this.ngZone.run(() => {
+          // Wrap event listener with ngZone.run()
+          this.closeOtherInfoWindows(marker);
+          this.triggerMarkerBounce(marker);
+          infoWindow.open(map, marker);
+          map.panTo(marker.getPosition()!);
+        });
       });
 
       infoWindow.addListener('closeclick', () => {
-        map.panTo(marker.getPosition()!);
+        this.ngZone.run(() => {
+          // Wrap event listener with ngZone.run()
+          map.panTo(marker.getPosition()!);
+        });
       });
 
       this.handleInfoWindowImageShow(infoWindow, map);
@@ -78,10 +86,18 @@ export class MarkerEventService {
   }
 
   handleMapClick(map: google.maps.Map) {
-    map.addListener('click', () => {
-      this.mapClicked.emit();
-      this.closeOtherInfoWindows();
-    });
+    // Add the click event listener
+    this.mapClickSubscription = google.maps.event.addListener(
+      map,
+      'click',
+      () => {
+        this.ngZone.run(() => {
+          // Ensure event listener runs within Angular's zone
+          this.mapClicked.emit();
+          this.closeOtherInfoWindows();
+        });
+      }
+    );
   }
 
   triggerMarkerBounce(marker: google.maps.Marker) {
@@ -101,5 +117,12 @@ export class MarkerEventService {
         infoWindow.close();
       }
     });
+  }
+
+  ngOnDestroy() {
+    // Remove the click event listener when the service is destroyed
+    if (this.mapClickSubscription) {
+      google.maps.event.removeListener(this.mapClickSubscription);
+    }
   }
 }

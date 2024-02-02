@@ -4,7 +4,7 @@ import { sandzakCity } from '../database/sandzak-cities';
 import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../interface/Marker';
 import { MarkerEventService } from './marker-event.service';
-import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
+import { MarkerClusterer, Renderer} from '@googlemaps/markerclusterer';
 
 @Injectable({
   providedIn: 'root',
@@ -38,8 +38,23 @@ export class MarkerService {
       const markerData = this.getMarkers();
       this.markers = markerData.map((markerData) =>
         this.createMarker(markerData, map));
+
+        // define custom render for marker clusterer
+        const render: Renderer = {
+          render:  ({count, position}) => {
+            return new google.maps.Marker({
+              icon: {
+                url: '../assets/images/marker_main.svg',
+                scaledSize: new google.maps.Size(40,40)
+              },
+              label: { text: String(count), color: "white", fontSize: "10px"},
+              position,
+              zIndex: google.maps.Marker.MAX_ZINDEX + count
+            });
+          }
+        }
         // intialize MarkerClusterer
-        this.markerCluster = new MarkerClusterer({map: map, markers: this.markers})
+        this.markerCluster = new MarkerClusterer({map: map, markers: this.markers, renderer: render})
     } catch (error) {
       console.error('Error creating markers', error);
     }
