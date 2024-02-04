@@ -43,11 +43,11 @@ export class PolygonsBoundaries {
       strokeColor: '#000000',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#FC4445',
-      fillOpacity: 0.43,
+      fillColor: '#931A25',
+      fillOpacity: 0.65
     });
   }
-
+// #950101 #CE1212
   private addPolygonToMap(polygon: google.maps.Polygon) {
     polygon.setMap(this.map);
     zoomChange(this.map, polygon);

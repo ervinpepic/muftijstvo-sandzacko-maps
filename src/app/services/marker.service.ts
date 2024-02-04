@@ -4,7 +4,8 @@ import { sandzakCity } from '../database/sandzak-cities';
 import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../interface/Marker';
 import { MarkerEventService } from './marker-event.service';
-import { MarkerClusterer, Renderer} from '@googlemaps/markerclusterer';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
+import { render } from '../styles/marker/cluster-icon-style';
 
 @Injectable({
   providedIn: 'root',
@@ -37,24 +38,15 @@ export class MarkerService {
     try {
       const markerData = this.getMarkers();
       this.markers = markerData.map((markerData) =>
-        this.createMarker(markerData, map));
+        this.createMarker(markerData, map)
+      );
 
-        // define custom render for marker clusterer
-        const render: Renderer = {
-          render:  ({count, position}) => {
-            return new google.maps.Marker({
-              icon: {
-                url: '../assets/images/marker_main.svg',
-                scaledSize: new google.maps.Size(40,40)
-              },
-              label: { text: String(count), color: "white", fontSize: "10px"},
-              position,
-              zIndex: google.maps.Marker.MAX_ZINDEX + count
-            });
-          }
-        }
-        // intialize MarkerClusterer
-        this.markerCluster = new MarkerClusterer({map: map, markers: this.markers, renderer: render})
+      // intialize MarkerClusterer
+      this.markerCluster = new MarkerClusterer({
+        map: map,
+        markers: this.markers,
+        renderer: render,
+      });
     } catch (error) {
       console.error('Error creating markers', error);
     }
@@ -72,7 +64,7 @@ export class MarkerService {
       position: new google.maps.LatLng(data.position),
       icon: {
         url: '../assets/images/marker_main.svg',
-        scaledSize: new google.maps.Size(40, 40),
+        scaledSize: new google.maps.Size(60, 40),
         labelOrigin: new google.maps.Point(20, -15),
       },
       draggable: false,
@@ -90,7 +82,7 @@ export class MarkerService {
   }
 
   private clearMarkers(): void {
-    this.markers.forEach(marker => marker.setMap(null));
+    this.markers.forEach((marker) => marker.setMap(null));
     this.markers = [];
     if (this.markerCluster) {
       this.markerCluster.clearMarkers();
