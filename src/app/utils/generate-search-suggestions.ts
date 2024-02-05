@@ -1,4 +1,5 @@
 import { CustomMarker } from '../interface/Marker';
+import { normalizeString } from './latin-chars';
 
 export function generateSearchSuggestions(
   filteredMarkers: CustomMarker[],
@@ -6,17 +7,19 @@ export function generateSearchSuggestions(
 ): string[] {
   try {
     const suggestionsSet = new Set<string>();
-    const normalizedSearchQuery = searchQuery;
+    const normalizedSearchQuery = normalizeString(searchQuery); // Remove lowercase here
 
     filteredMarkers.forEach((marker) => {
-      const vakufName = marker.vakufName.toLowerCase();
-      const cadastralParcelNumber = marker.cadastralParcelNumber.toLowerCase();
+      const normalizedVakufName = normalizeString(marker.vakufName); // Normalize vakufName here
+      const normalizedCadastralParcelNumber = normalizeString(
+        marker.cadastralParcelNumber
+      ); // Normalize cadastralParcelNumber here
 
-      if (vakufName.includes(normalizedSearchQuery)) {
+      if (normalizedVakufName.includes(normalizedSearchQuery)) {
         suggestionsSet.add(marker.vakufName);
       }
 
-      if (cadastralParcelNumber.includes(normalizedSearchQuery)) {
+      if (normalizedCadastralParcelNumber.includes(normalizedSearchQuery)) {
         suggestionsSet.add(
           `${marker.cadastralParcelNumber} ${marker.vakufName}`
         );

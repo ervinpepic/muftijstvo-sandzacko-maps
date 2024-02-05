@@ -24,23 +24,13 @@ img {
   overflow: auto;
 }
 
-/* Styling for the custom ng-select component */
-.ng-select.custom {
-  border: 0px; /* No border */
-  min-height: 100%; /* Minimum height */
-  min-width: 150px;
-  width: 100%; /* Full width */
-  border-radius: 5px; /* Border radius for rounded corners */
-}
-
 /* Styling for ng-select container in the custom ng-select component */
 .ng-select.custom .ng-select-container {
   min-height: 100%; /* Minimum height */
   min-width: 150px;
+  width: 100%;/* Expand to fit content */
   border-radius: 5px; /* Border radius for rounded corners */
-  width: 100%; /* Full width */
 }
-
 /* Styling for the placeholder in the custom ng-select component */
 .ng-select.custom .ng-select-container .ng-placeholder {
   color: #8c8c8c; /* Placeholder text color */

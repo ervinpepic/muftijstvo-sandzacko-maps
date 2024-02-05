@@ -1,44 +1,43 @@
-<div class="input-group m-1">
-  <input
-    class="form-control mt-sm-0 mt-2"
-    type="search"
-    name="searchQuery"
-    aria-label="Search"
-    role="combobox"
-    aria-haspopup="listbox"
-    aria-controls="suggestion-list"
-    placeholder="Naziv vakufa | broj parcele"
-    autocomplete="off"
-    [(ngModel)]="searchQuery"
-    (input)="updateMarkersVisibility(); handleSearchInputChange(searchQuery)"
-    (keydown)="navigateWithArrowKeys($event)"
-  />
-  <span class="input-group-append">
-    <span class="input-group-text" *ngIf="searchQuery.length === 0">
-      <i
-        [ngClass]="{
-          'fas-sharp fa-solid fa-magnifying-glass-location fa-lg mt-sm-0 mt-2':
-            searchQuery.length === 0
-        }"
-        style="color: #27a27a"
-      >
-      </i>
+<div class="m-1">
+  <div class="input-group mt-2 mt-lg-0">
+    <span
+      *ngIf="searchQuery === ''; else showCountNumber"
+      class="input-group-text"
+      id="searchIcon"
+    >
+      <i class="fas fa-search-location fa-lg" style="color: #27a27a"></i>
     </span>
-  </span>
+    <ng-template #showCountNumber>
+      <span class="input-group-text" id="searchCountNumber">
+        {{ suggestionsList.length }}
+      </span>
+    </ng-template>
+    <input
+      class="form-control"
+      type="search"
+      name="searchQuery"
+      aria-label="Search"
+      role="combobox"
+      aria-haspopup="listbox"
+      aria-controls="suggestion-list"
+      aria-describedby="searchIcon searchCountNumber"
+      placeholder="Naziv vakufa | broj parcele"
+      autocomplete="off"
+      [(ngModel)]="searchQuery"
+      (input)="updateMarkersVisibility(); handleSearchInputChange(searchQuery)"
+      (keydown)="navigateWithArrowKeys($event)"
+    />
+  </div>
   <div
+    class="input-group mt-1"
     *ngIf="isSuggestionsVisible"
     role="listbox"
     aria-live="assertive"
     aria-atomic="true"
     id="suggestion-list"
   >
-    <div
-      *ngIf="suggestionsList.length === 0"
-      class="list-group search-suggestions"
-    >
-      <span class="list-group-item hover-effect"
-        >Nema vakufa za unijeti naziv | parcelu</span
-      >
+    <div *ngIf="suggestionsList.length === 0" class="list-group search-suggestions">
+      <span class="list-group-item text-muted">Nema vakufa za unijeti kriterijum</span>
     </div>
     <cdk-virtual-scroll-viewport
       class="list-group search-suggestions"

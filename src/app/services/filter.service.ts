@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { debounceTime } from 'rxjs/operators';
 import { CustomMarker } from '../interface/Marker';
-import { substituteUsToBs } from '../utils/latin-chars';
+import { normalizeString } from '../utils/latin-chars';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 
@@ -9,7 +9,10 @@ import { MarkerService } from './marker.service';
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(private mapService: MapService, private markerService: MarkerService) {}
+  constructor(
+    private mapService: MapService,
+    private markerService: MarkerService
+  ) {}
 
   private searchTimeDelay: number = 800; // Delay for debouncing search input
 
@@ -83,7 +86,7 @@ export class FilterService {
       if (visibleMarkers.length > 0) {
         this.fitBoundsAfterDelay(bounds);
       }
-      
+
       if (this.markerService.markerCluster) {
         this.markerService.markerCluster.clearMarkers();
         this.markerService.markerCluster.addMarkers(visibleMarkers);
@@ -130,7 +133,7 @@ export class FilterService {
    * @returns The normalized search term.
    */
   private normalizeSearchTerm(term: string | null): string {
-    return term ? substituteUsToBs(term.toLowerCase()) : '';
+    return term ? normalizeString(term.toLowerCase()) : '';
   }
 
   /**

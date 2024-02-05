@@ -14,7 +14,12 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [HighlightSearchTermPipe, CommonModule, FormsModule, ScrollingModule],
+  imports: [
+    HighlightSearchTermPipe,
+    CommonModule,
+    FormsModule,
+    ScrollingModule,
+  ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
@@ -88,7 +93,7 @@ export class SearchComponent implements OnDestroy {
   // - Updates the search query based on the input value
   handleSearchInputChange(inputValue: string): void {
     this.markerEventService.closeOtherInfoWindows(); // Close other info windows to prevent cluttering the interface
-     // Show suggestions if the input is not empty, otherwise hide them
+    // Show suggestions if the input is not empty, otherwise hide them
     if (inputValue.length > 0) {
       this.generateSearchSuggestions();
       this.isSuggestionsVisible = true;

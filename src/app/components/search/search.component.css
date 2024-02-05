@@ -8,36 +8,6 @@
   border-top: none;
   overflow-y: auto;
   height: 200px;
-  scrollbar-color: #86b7fe; /* Scrollbar color */
-}
-
-/* Styling for input group append */
-.input-group-append {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 2;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Styling for input group text */
-.input-group-text {
-  background-color: transparent;
-  border: none;
-  font-size: 1.3rem;
-}
-
-/* Styling for input group without validation */
-.input-group.m-1:not(.has-validation)
-  > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(
-    .form-floating
-  ) {
-  border-top-right-radius: 0.375rem;
-  border-bottom-right-radius: 0.375rem;
 }
 
 /* Styling for input placeholder */

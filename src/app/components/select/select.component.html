@@ -39,6 +39,7 @@
   <ng-select
     #openVakufNames
     class="custom m-1"
+    style="min-width: 250px;"
     name="filteredVakufNames"
     aria-label="Vakuf name"
     placeholder="Naziv vakufa"
@@ -51,7 +52,7 @@
       *ngFor="let name of filteredMarkerNames"
       [value]="name"
     >
-      {{ name | ellipsis : 40 }}
+      {{ name | ellipsis : 50 }}
     </ng-option>
   </ng-select>
 </div>
