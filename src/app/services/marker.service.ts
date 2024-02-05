@@ -1,11 +1,28 @@
 import { Injectable } from '@angular/core';
-import { loadVakufData } from '../database/database-seed';
+import { Firestore } from '@angular/fire/firestore';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
+import { collection, getDocs } from 'firebase/firestore';
 import { sandzakCity } from '../database/sandzak-cities';
 import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../interface/Marker';
-import { MarkerEventService } from './marker-event.service';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { render } from '../styles/marker/cluster-icon-style';
+import { MarkerEventService } from './marker-event.service';
+
+// async addMarker(): Promise<void> {
+//   try {
+//     const markersColletcion = collection(this.firestore, 'markers');
+//     const markerData = this.getMarkers();
+//     for (const marker of markerData) {
+//       await addDoc(markersColletcion, marker);
+//     }
+//     console.log('Marker data added to Firestore');
+//   } catch (error) {
+//     console.error('Error adding marker data to Firestore:', error);
+//   }
+// }
+/**
+ * Returns data Vakuf and Cities and a marker objects.
+ */
 
 @Injectable({
   providedIn: 'root',
@@ -13,11 +30,11 @@ import { render } from '../styles/marker/cluster-icon-style';
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
   markerCluster?: MarkerClusterer;
-  constructor(private markerEventService: MarkerEventService) {}
+  constructor(
+    private markerEventService: MarkerEventService,
+    private firestore: Firestore
+  ) {}
 
-  /**
-   * Returns data Vakuf and Cities and a marker objects.
-   */
   getVakufObjectTypes(): string[] {
     return Object.values(vakufObjecType);
   }
@@ -26,17 +43,28 @@ export class MarkerService {
     return Object.values(sandzakCity);
   }
 
-  getMarkers(): CustomMarker[] {
-    return loadVakufData();
+  async getMarkers(): Promise<CustomMarker[]> {
+    try {
+      const markersCollection = collection(this.firestore, 'markers');
+      const querySnapshot = await getDocs(markersCollection);
+      querySnapshot.forEach((doc) => {
+        const mrkData = doc.data();
+        this.markers.push(mrkData as CustomMarker);
+      });
+      return this.markers;
+    } catch (error) {
+      console.log('Error while fetching markers => ', error);
+      return [];
+    }
   }
   /**
    * creates markers on the specified map.
    * @param map - The Google Map instance.
    */
-  createMarkers(map: google.maps.Map): void {
+  async createMarkers(map: google.maps.Map): Promise<void> {
     this.clearMarkers();
     try {
-      const markerData = this.getMarkers();
+      const markerData = await this.getMarkers();
       this.markers = markerData.map((markerData) =>
         this.createMarker(markerData, map)
       );
