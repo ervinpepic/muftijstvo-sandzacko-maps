@@ -3,14 +3,16 @@ import { EventEmitter } from '@angular/core';
 import { CustomMarker } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
 
+/**
+ * Service responsible for managing events on makrers and and on Google Maps.
+ * Handles a variety of events, destroys them once they are not used anymore
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerEventService implements OnDestroy {
   mapClicked: EventEmitter<void> = new EventEmitter<void>();
-  private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
-    new Map();
-
+  private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> = new Map();
   private mapClickSubscription: google.maps.MapsEventListener | null = null;
 
   constructor(private ngZone: NgZone) {}
@@ -92,7 +94,6 @@ export class MarkerEventService implements OnDestroy {
    * Handles changing marker icon on mouse hover.
    * @param marker - The Google Maps Marker instance.
    */
-
   handleMarkerMouseHover(marker: google.maps.Marker) {
     const defaultIcon = {
       url: 'assets/images/marker_main.svg',
@@ -137,7 +138,6 @@ export class MarkerEventService implements OnDestroy {
    * Triggers marker bounce animation.
    * @param marker - The Google Maps Marker instance.
    */
-
   triggerMarkerBounce(marker: google.maps.Marker) {
     if (marker.getAnimation() !== null) {
       marker.setAnimation(null);

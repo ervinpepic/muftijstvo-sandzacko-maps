@@ -9,7 +9,6 @@
     (change)="filterMarkersNames(); onVakufTypeChange()"
   >
     <ng-option
-      class="hover-effect"
       *ngFor="let vakufType of vakufObjectTypes"
       [value]="vakufType"
     >
@@ -28,7 +27,6 @@
     (change)="filterMarkersNames(); onCityChange()"
   >
     <ng-option
-      class="hover-effect"
       *ngFor="let cityName of vakufCities"
       [value]="cityName"
     >
@@ -48,7 +46,6 @@
     (change)="filterMarkers()"
   >
     <ng-option
-      class="hover-effect"
       *ngFor="let name of filteredMarkerNames"
       [value]="name"
     >

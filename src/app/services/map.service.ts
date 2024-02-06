@@ -7,44 +7,41 @@ import { mapStyle } from '../styles/map/map-style';
 import { getInitialZoomLevel } from '../utils/dynamic-zoom';
 import { MarkerEventService } from './marker-event.service';
 import { MarkerService } from './marker.service';
-
+/**
+ * Service responsible for creating instance of Google Maps.
+ * Initializing maps
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
   private _map: google.maps.Map | undefined;
   private _map$ = new BehaviorSubject<google.maps.Map | undefined>(undefined);
-  polygons?: PolygonsBoundaries;
+  private polygons?: PolygonsBoundaries;
+
   readonly initialMapCenter = {
     lat: 42.99603931107363,
     lng: 19.863259815559704,
   };
-  initialMapZoom: number = getInitialZoomLevel();
+  private initialMapZoom: number = getInitialZoomLevel();
 
   constructor(
     private markerService: MarkerService,
     private markerEventService: MarkerEventService
   ) {}
 
-  /**
-   * Returns the current Google Map instance.
-   */
+  // Returns the current Google Map instance.
   get map(): google.maps.Map | undefined {
     return this._map;
   }
 
-  /**
-   * Sets the Google Map instance and emits its value to observers.
-   */
-
+  // Sets the Google Map instance and emits its value to observers.
   set map(value: google.maps.Map | undefined) {
     this._map = value;
     this._map$.next(value);
   }
 
-  /**
-   * Returns an observable that emits the current Google Map instance.
-   */
+  // Returns an observable that emits the current Google Map instance.
   get map$(): Observable<google.maps.Map | undefined> {
     return this._map$.asObservable();
   }
@@ -60,7 +57,6 @@ export class MapService {
         apiKey: environment.GOOGLEAPIKEY,
         version: 'weekly',
       });
-
       // Load Google Maps API asynchronously
       (await googleApiAsyncLoader.importLibrary(
         'maps'
@@ -83,6 +79,7 @@ export class MapService {
       center: this.initialMapCenter,
       zoom: this.initialMapZoom,
       styles: mapStyle,
+      mapId: environment.GOOGLEMAPSID,
     });
 
     // Create markers on the map

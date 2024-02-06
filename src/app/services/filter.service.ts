@@ -5,6 +5,10 @@ import { normalizeString } from '../utils/latin-chars';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 
+/**
+ * Service responsible for filtering either cached or fetched markers on Google Maps
+ * Returns the visible or invisible state of the markers based on certain criteria
+ */
 @Injectable({
   providedIn: 'root',
 })

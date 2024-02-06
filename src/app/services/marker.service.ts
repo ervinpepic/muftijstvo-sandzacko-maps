@@ -18,8 +18,8 @@ import { MarkerEventService } from './marker-event.service';
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
   markerCluster?: MarkerClusterer; // MarkerCluster variable
-  private cacheExpirationKey = 'markersCacheExpiration';
-  private cacheDurationInMinutes = 6 * 30 * 24 * 60; // Cache duration in minutes (1 day)
+  private cacheExpirationKey = 'markersCacheExpiration'; // Set cache key in browser
+  private cacheDurationInMinutes = 6 * 30 * 24 * 60; // Cache duration in minutes (6 months)
 
   constructor(
     private markerEventService: MarkerEventService,
@@ -46,15 +46,16 @@ export class MarkerService {
     if (cachedMarkers && !this.isCacheExpired()) {
       return cachedMarkers;
     }
+    // Get collection from Firebase Firestore db
     try {
-      const markersCollection = collection(this.firestore, 'markers');
+      const markersCollection = collection(this.firestore, 'markers'); // Name of the collection
       const querySnapshot = await getDocs(markersCollection);
       querySnapshot.forEach((doc) => {
         const markerData = doc.data();
         this.markers.push(markerData as CustomMarker);
       });
 
-      // Cache the fetcher markers
+      // Cache the fetched markers
       this.cacheMarkers(this.markers);
       return this.markers;
     } catch (error) {
@@ -78,7 +79,7 @@ export class MarkerService {
         this.createMarker(markerData, map)
       );
 
-      // intialize MarkerClusterer
+      // Intialize MarkerClusterer
       this.markerCluster = new MarkerClusterer({
         map: map,
         markers: this.markers,
