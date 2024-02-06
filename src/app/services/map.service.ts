@@ -90,7 +90,7 @@ export class MapService {
 
     // Draw polygons on the map
     this.polygons = new PolygonsBoundaries(this.map);
-    this.polygons.drawPolgygons();
+    this.polygons.drawPolygons();
 
     // Handle map click event
     this.markerEventService.handleMapClick(this.map);
