@@ -8,28 +8,15 @@ import { CustomMarker } from '../interface/Marker';
 import { render } from '../styles/marker/cluster-icon-style';
 import { MarkerEventService } from './marker-event.service';
 
-// async addMarker(): Promise<void> {
-//   try {
-//     const markersColletcion = collection(this.firestore, 'markers');
-//     const markerData = this.getMarkers();
-//     for (const marker of markerData) {
-//       await addDoc(markersColletcion, marker);
-//     }
-//     console.log('Marker data added to Firestore');
-//   } catch (error) {
-//     console.error('Error adding marker data to Firestore:', error);
-//   }
-// }
-/**
- * Returns data Vakuf and Cities and a marker objects.
- */
-
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
   markerCluster?: MarkerClusterer;
+  private cacheExpirationKey = 'markersCacheExpiration';
+  private cacheDurationInMinutes = 6 * 30 * 24 * 60; // Cache duration in minutes (1 day)
+
   constructor(
     private markerEventService: MarkerEventService,
     private firestore: Firestore
@@ -44,13 +31,21 @@ export class MarkerService {
   }
 
   async getMarkers(): Promise<CustomMarker[]> {
+    // Check if cached markers are still valid
+    const cachedMarkers = this.getCachedMarkers();
+    if (cachedMarkers && !this.isCacheExpired()) {
+      return cachedMarkers;
+    }
     try {
       const markersCollection = collection(this.firestore, 'markers');
       const querySnapshot = await getDocs(markersCollection);
       querySnapshot.forEach((doc) => {
-        const mrkData = doc.data();
-        this.markers.push(mrkData as CustomMarker);
+        const markerData = doc.data();
+        this.markers.push(markerData as CustomMarker);
       });
+
+      // Cache the fetcher markers
+      this.cacheMarkers(this.markers);
       return this.markers;
     } catch (error) {
       console.log('Error while fetching markers => ', error);
@@ -115,5 +110,24 @@ export class MarkerService {
     if (this.markerCluster) {
       this.markerCluster.clearMarkers();
     }
+  }
+
+  private getCachedMarkers(): CustomMarker[] | null {
+    const cachedMarkersJson = localStorage.getItem('markersCache');
+    return cachedMarkersJson ? JSON.parse(cachedMarkersJson) : null;
+  }
+
+  private cacheMarkers(markers: CustomMarker[]): void {
+    localStorage.setItem('markersCache', JSON.stringify(markers));
+    const expiration =
+      new Date().getTime() + this.cacheDurationInMinutes * 60 * 1000;
+    localStorage.setItem(this.cacheExpirationKey, expiration.toString());
+  }
+
+  private isCacheExpired(): boolean {
+    const expiration = localStorage.getItem(this.cacheExpirationKey);
+    if (!expiration) return true;
+    const now = new Date().getTime();
+    return now > parseInt(expiration);
   }
 }
