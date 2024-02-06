@@ -1,12 +1,12 @@
 import { ElementRef, Injectable } from '@angular/core';
-import { MarkerService } from './marker.service';
-import { environment } from '../../environments/environment.development';
 import { Loader } from '@googlemaps/js-api-loader';
-import { getInitialZoomLevel } from '../utils/dynamic-zoom';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment.development';
 import { PolygonsBoundaries } from '../polygons/map-polygons';
 import { mapStyle } from '../styles/map/map-style';
+import { getInitialZoomLevel } from '../utils/dynamic-zoom';
 import { MarkerEventService } from './marker-event.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { MarkerService } from './marker.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,18 +26,33 @@ export class MapService {
     private markerEventService: MarkerEventService
   ) {}
 
+  /**
+   * Returns the current Google Map instance.
+   */
   get map(): google.maps.Map | undefined {
     return this._map;
   }
+
+  /**
+   * Sets the Google Map instance and emits its value to observers.
+   */
 
   set map(value: google.maps.Map | undefined) {
     this._map = value;
     this._map$.next(value);
   }
 
+  /**
+   * Returns an observable that emits the current Google Map instance.
+   */
   get map$(): Observable<google.maps.Map | undefined> {
     return this._map$.asObservable();
   }
+
+  /**
+   * Initializes the map by loading the Google Maps API and creating the map instance.
+   * @param mapContainer - The reference to the HTML element that will contain the map.
+   */
   async initializeMap(mapContainer: ElementRef): Promise<void> {
     try {
       // Initialize Google Maps API loader
@@ -58,6 +73,10 @@ export class MapService {
     }
   }
 
+  /**
+   * Creates the Google Map instance and initializes map-related functionalities.
+   * @param mapContainer - The reference to the HTML element that will contain the map.
+   */
   private createMap(mapContainer: ElementRef): void {
     // Initialize the Google Map
     this.map = new google.maps.Map(mapContainer.nativeElement, {
@@ -66,11 +85,14 @@ export class MapService {
       styles: mapStyle,
     });
 
-    // Method call to create markers on the map
+    // Create markers on the map
     this.markerService.createMarkers(this.map);
-    // Method call to draw polygons on the map
+
+    // Draw polygons on the map
     this.polygons = new PolygonsBoundaries(this.map);
     this.polygons.drawPolgygons();
+
+    // Handle map click event
     this.markerEventService.handleMapClick(this.map);
   }
 }

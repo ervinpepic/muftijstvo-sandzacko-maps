@@ -8,12 +8,16 @@ import { CustomMarker } from '../interface/Marker';
 import { render } from '../styles/marker/cluster-icon-style';
 import { MarkerEventService } from './marker-event.service';
 
+/**
+ * Service responsible for managing markers on Google Maps.
+ * Handles fetching markers from Firestore, caching, and creating markers on the map.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
   markers: CustomMarker[] = []; // Array to hold marker instances
-  markerCluster?: MarkerClusterer;
+  markerCluster?: MarkerClusterer; // MarkerCluster variable
   private cacheExpirationKey = 'markersCacheExpiration';
   private cacheDurationInMinutes = 6 * 30 * 24 * 60; // Cache duration in minutes (1 day)
 
@@ -30,6 +34,12 @@ export class MarkerService {
     return Object.values(sandzakCity);
   }
 
+  /**
+   * Retrieves markers either from the cache or Firestore.
+   * If cached markers are valid, returns them; otherwise, fetches markers from Firestore,
+   * caches them, and returns them.
+   * @returns A promise that resolves to an array of CustomMarker instances.
+   */
   async getMarkers(): Promise<CustomMarker[]> {
     // Check if cached markers are still valid
     const cachedMarkers = this.getCachedMarkers();
@@ -52,12 +62,16 @@ export class MarkerService {
       return [];
     }
   }
+
   /**
-   * creates markers on the specified map.
+   * Creates markers on the specified map based on marker data retrieved from Firestore.
+   * Clears existing markers from the map, fetches marker data, creates markers, and initializes
+   * the MarkerClusterer for clustering markers.
    * @param map - The Google Map instance.
+   * @returns A promise that resolves when markers are successfully created on the map.
    */
   async createMarkers(map: google.maps.Map): Promise<void> {
-    this.clearMarkers();
+    await this.clearMarkers();
     try {
       const markerData = await this.getMarkers();
       this.markers = markerData.map((markerData) =>
@@ -86,7 +100,7 @@ export class MarkerService {
       ...data,
       position: new google.maps.LatLng(data.position),
       icon: {
-        url: '../assets/images/marker_main.svg',
+        url: 'assets/images/marker_main.svg',
         scaledSize: new google.maps.Size(60, 40),
         labelOrigin: new google.maps.Point(20, -15),
       },
@@ -104,7 +118,12 @@ export class MarkerService {
     return customMarker;
   }
 
-  private clearMarkers(): void {
+  /**
+   * Clears existing markers from the map and marker array.
+   * If a MarkerClusterer is present, also clears markers from the clusterer.
+   * @returns A promise that resolves when markers are successfully cleared from the map.
+   */
+  private async clearMarkers(): Promise<void> {
     this.markers.forEach((marker) => marker.setMap(null));
     this.markers = [];
     if (this.markerCluster) {
@@ -112,17 +131,30 @@ export class MarkerService {
     }
   }
 
+  /**
+   * Retrieves cached markers from local storage.
+   * @returns An array of CustomMarker instances if markers are found in the cache, otherwise null.
+   */
   private getCachedMarkers(): CustomMarker[] | null {
     const cachedMarkersJson = localStorage.getItem('markersCache');
     return cachedMarkersJson ? JSON.parse(cachedMarkersJson) : null;
   }
 
+  /**
+   * Caches markers in local storage along with an expiration timestamp.
+   * @param markers - An array of CustomMarker instances to cache.
+   */
   private cacheMarkers(markers: CustomMarker[]): void {
     localStorage.setItem('markersCache', JSON.stringify(markers));
     const expiration =
       new Date().getTime() + this.cacheDurationInMinutes * 60 * 1000;
     localStorage.setItem(this.cacheExpirationKey, expiration.toString());
   }
+
+  /**
+   * Checks if the cached markers are expired based on the cache expiration timestamp.
+   * @returns True if the cached markers are expired, otherwise false.
+   */
 
   private isCacheExpired(): boolean {
     const expiration = localStorage.getItem(this.cacheExpirationKey);

@@ -1,4 +1,5 @@
 import { PolygonData } from '../interface/Polygon';
+import { zoomChange } from '../utils/dynamic-zoom';
 import { andrijevicaPolygonDelimiter } from './sandzak/andrijevica';
 import { beranePolygonDelimiter } from './sandzak/berane';
 import { bijeloPoljePolygonDelimiter } from './sandzak/bijeloPolje';
@@ -13,7 +14,6 @@ import { prijepoljePolygonDelimiter } from './sandzak/prijepolje';
 import { rozajePolygonDelimiter } from './sandzak/rozaje';
 import { sjenicaPolygonDelimiter } from './sandzak/sjenica';
 import { tutinPolygonDelimiter } from './sandzak/tutin';
-import { zoomChange } from '../utils/dynamic-zoom';
 
 export class PolygonsBoundaries {
   private polygonData: PolygonData[] = [
@@ -34,6 +34,11 @@ export class PolygonsBoundaries {
   ];
   constructor(private map: google.maps.Map) {}
 
+  /**
+   * Creates a polygon object with the specified paths and styling.
+   * @param paths - The array of LatLngLiteral objects defining the polygon's vertices.
+   * @returns The created Google Maps Polygon instance.
+   */
   private createPolygon(
     paths: google.maps.LatLngLiteral[]
   ): google.maps.Polygon {
@@ -44,21 +49,32 @@ export class PolygonsBoundaries {
       strokeOpacity: 0.8,
       strokeWeight: 2,
       fillColor: '#931A25',
-      fillOpacity: 0.65
+      fillOpacity: 0.65,
     });
   }
-// #950101 #CE1212
+
+  /**
+   * Adds the specified polygon to the map.
+   * @param polygon - The Google Maps Polygon instance to add to the map.
+   */
   private addPolygonToMap(polygon: google.maps.Polygon) {
     polygon.setMap(this.map);
-    zoomChange(this.map, polygon);
+    zoomChange(this.map, polygon); // Assuming zoomChange function handles zooming appropriately
   }
 
+  /**
+   * Draws a polygon on the map based on the provided polygon data.
+   * @param polygonData - The data defining the polygon's vertices and name.
+   */
   private drawPolygon(polygonData: PolygonData) {
     const polygon = this.createPolygon(polygonData.delimiter);
     this.addPolygonToMap(polygon);
   }
 
-  drawPolgygons() {
-    this.polygonData.map((polygonData) => this.drawPolygon(polygonData));
+  /**
+   * Draws all polygons on the map.
+   */
+  drawPolygons() {
+    this.polygonData.forEach((polygonData) => this.drawPolygon(polygonData));
   }
 }

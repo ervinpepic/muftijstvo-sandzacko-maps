@@ -50,7 +50,9 @@ export class SelectComponent implements OnInit {
   // Filter markers on the component level and share the filtered data with a service
   // Returns an array of CustomMarker objects after filtering based on the current filter criteria
   filterMarkers(): void {
-    this.filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
+    this.filteredMarkers = this.filterService.filterMarkers(
+      this.markerService.markers
+    );
   }
 
   // Filter marker names based on the selected vakufType and city
@@ -59,10 +61,11 @@ export class SelectComponent implements OnInit {
   // - Resets the selectedVakufName to null and triggers the overall marker filtering
   filterMarkersNames(): void {
     this.filterMarkers();
-    this.filteredMarkerNames = this.filteredMarkers.map((marker) => marker.vakufName);
+    this.filteredMarkerNames = this.filteredMarkers.map(
+      (marker) => marker.vakufName
+    );
     this.selectedVakufName = null;
   }
-  
 
   // triggered when a user selects vakufType to open a city dropdown
   onVakufTypeChange(): void {
