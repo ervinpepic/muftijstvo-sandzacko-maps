@@ -79,7 +79,6 @@ export class MapService {
       center: this.initialMapCenter,
       zoom: this.initialMapZoom,
       styles: mapStyle,
-      mapId: environment.GOOGLEMAPSID,
     });
 
     // Create markers on the map

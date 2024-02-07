@@ -45,6 +45,7 @@ export class SelectComponent implements OnInit {
   ngOnInit(): void {
     this.vakufCities = this.markerService.getVakufCities();
     this.vakufObjectTypes = this.markerService.getVakufObjectTypes();
+    // this.markerService.addMarker();
   }
 
   // Filter markers on the component level and share the filtered data with a service

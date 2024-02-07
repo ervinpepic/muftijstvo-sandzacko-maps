@@ -7,6 +7,7 @@ import { vakufObjecType } from '../database/vakuf-types';
 import { CustomMarker } from '../interface/Marker';
 import { render } from '../styles/marker/cluster-icon-style';
 import { MarkerEventService } from './marker-event.service';
+// import { vakufMarkData } from '../database/database-seed';
 
 /**
  * Service responsible for managing markers on Google Maps.
@@ -33,6 +34,23 @@ export class MarkerService {
   getVakufCities(): string[] {
     return Object.values(sandzakCity);
   }
+
+  // getMrks(): CustomMarker[] {
+  //   return vakufMarkData
+  // }
+
+  //   async addMarker(): Promise<void> {
+  //   try {
+  //     const markersColletcion = collection(this.firestore, 'markers');
+  //     const markerData = this.getMrks();
+  //     for (const marker of markerData) {
+  //       await addDoc(markersColletcion, marker);
+  //     }
+  //     console.log('Marker data added to Firestore');
+  //   } catch (error) {
+  //     console.error('Error adding marker data to Firestore:', error);
+  //   }
+  // }
 
   /**
    * Retrieves markers either from the cache or Firestore.

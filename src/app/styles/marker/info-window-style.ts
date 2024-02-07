@@ -1,9 +1,10 @@
 import { CustomMarker } from "../../interface/Marker";
-const paragraphCLass = "text-nowrap fs-6 text-center text-lg-start"
+const paragraphTitleClass = "fs-6 text-center text-nowrap fw-light"
+const paragraphContentClass = "fs-6 text-center word-wrap fw-normal"
 export function infoWindowStyle(marker: CustomMarker) {
   // Start building the HTML content for the InfoWindow
   let infoWindowHtmlContent = 
-    "<div class='gm-style-iw'>" +
+    "<div class='gm-style-iw m-2'>" +
       "<div class='row'>" +
         // Left column: Basic information about the object or place
         "<div class='col-12 col-lg-6'>" +
@@ -19,46 +20,46 @@ export function infoWindowStyle(marker: CustomMarker) {
           </h5>` +
           "<hr>" +
           // Year of construction or endowment
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
             <span class='material-symbols-outlined'>calendar_month</span>
               ${marker.vakufType === 'Džamija' ? 'Izgrađena: ' : 'Uvakufljeno: '}
-            <span class='d-block d-md-inline ${paragraphCLass}'>
-              ${marker.yearFounded != '' ? `<strong>${marker.yearFounded}. god.</strong>` : '<strong>Nema datum</strong>'}
+            <span class='d-block ${paragraphContentClass}'>
+              ${marker.yearFounded != '' ? `${marker.yearFounded}. god.` : 'Nema datum'}
             </span>
           </p>` +
           // Cadastral parcel number
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
             <span class='material-symbols-outlined'>map</span> Katastarska parcela: 
-            <span class='d-block d-md-inline ${paragraphCLass}'>
-              <strong>${marker.cadastralParcelNumber}</strong>
+            <span class='d-block ${paragraphContentClass}'>
+              ${marker.cadastralParcelNumber}
             </span>
           </p>` +
           // Real estate number
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
             <span class='material-symbols-outlined'>contract</span> List nepokretnosti: 
-            <span class='d-block d-md-inline ${paragraphCLass}'>
-              <strong>${marker.realEstateNumber}</strong>
+            <span class='d-block ${paragraphContentClass}'>
+              ${marker.realEstateNumber}
             </span>
           </p>` +
            // Area size of the parcel
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
            <span class='material-symbols-outlined'>area_chart</span> Površina parcele: 
-           <span class='d-block d-md-inline ${paragraphCLass}'>
-             <strong>${marker.areaSize}m<sup>2</sup></strong>
+           <span class='d-block ${paragraphContentClass}'>
+             ${marker.areaSize}m<sup>2</sup>
            </span>
           </p>` +
           // Cadastral municipality
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
             <span class='material-symbols-outlined'>location_city</span> Katastarska opština: 
-            <span class='d-block d-md-inline ${paragraphCLass}'>
-              <strong>${marker.cadastralMunicipality}</strong>
+            <span class='d-block ${paragraphContentClass}'>
+              ${marker.cadastralMunicipality}
             </span>
           </p>` +
           // Street name
-          `<p class='${paragraphCLass}'>
+          `<p class='${paragraphTitleClass}'>
             <span class='material-symbols-outlined'>signpost</span> Ulica | Potes: 
-            <span class='d-block d-md-inline ${paragraphCLass}'>
-              <strong>${marker.streetName}</strong>
+            <span class='d-block ${paragraphContentClass}'>
+              ${marker.streetName}
             </span>
           </p>` +
         "</div>" +
