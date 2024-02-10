@@ -1,6 +1,6 @@
 import { CustomMarker } from "../../interface/Marker";
 const paragraphTitleClass = "fs-6 text-center text-nowrap fw-light"
-const paragraphContentClass = "fs-6 text-center word-wrap fw-normal"
+const paragraphContentClass = "fs-6 text-center word-wrap fw-normal";
 export function infoWindowStyle(marker: CustomMarker) {
   // Start building the HTML content for the InfoWindow
   let infoWindowHtmlContent = 
@@ -72,20 +72,41 @@ export function infoWindowStyle(marker: CustomMarker) {
             `<a
               id='viewImageControlHeight'
               href='#viewImageControl'
-              class='link-secondary fs-6 mt-2 mb-2' 
+              class='link-success fs-6 mt-2 mb-2 link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' 
               data-bs-toggle='collapse' 
               role='button' 
               aria-expanded='false' 
               aria-controls='viewImageContro'>
               ${marker.vakufType === "Džamija" ? 'Prikaži sliku džamije' : 'Prikaži sliku parcele'}
             </a>` +
+            `<a 
+                class='link-success'
+                data-bs-toggle='collapse' 
+                href='#imageSupportCollapse' 
+                role='button' 
+                aria-expanded='false'
+                aria-controls='imageSupportCollapse'
+            >
+                  <span class='material-symbols-outlined fs-2'>contact_support</span>
+            </a>` +
+            `<div 
+              id='imageSupportCollapse'
+              class='collapse fs-6 fw-lighter word-wrap mt-2 mb-2'
+            >
+                Imate ljepšu fotografiju vakufa? 
+                <a 
+                  class='link-success fs-6 link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' 
+                  href='mailto:dev.ervinpepic@gmail.com'>Pošaljite nam.
+                </a>
+            </div>` +
           // Image section (collapsed by default)
-          `<img src='${marker.vakufImage}'
-            id='viewImageControl' 
+          `<img src='${marker.vakufImage}' 
+            id='viewImageControl'
             class='collapse img-fluid img-thumbnail rounded mt-2 mb-2'
             width='100%'
             height='100%'
           >` +
+          "</div>"+
         "</div>" +
 
       "</div>" +

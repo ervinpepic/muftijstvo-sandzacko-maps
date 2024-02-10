@@ -5,3 +5,15 @@
   border-bottom-left-radius: 15px; /* Border radius for the bottom-left corner */
   border-bottom-right-radius: 15px; /* Border radius for the bottom-right corner */
 }
+
+.btn-bg-theme-style {
+  background-color: #52a77a;
+  color: white;
+}
+
+.btn-bg-theme-style:hover {
+  color: #b6a37c;
+  background-color: #04844a;
+  transition: ease-in-out;
+  transition-duration: 0.3s;
+}
