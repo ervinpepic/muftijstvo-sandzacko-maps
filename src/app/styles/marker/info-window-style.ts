@@ -1,6 +1,7 @@
 import { CustomMarker } from "../../interface/Marker";
 const paragraphTitleClass = "fs-6 text-center text-nowrap fw-light"
 const paragraphContentClass = "fs-6 text-center word-wrap fw-normal";
+const linkSuccess = "link-success link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover";
 export function infoWindowStyle(marker: CustomMarker) {
   // Start building the HTML content for the InfoWindow
   let infoWindowHtmlContent = 
@@ -72,22 +73,22 @@ export function infoWindowStyle(marker: CustomMarker) {
             `<a
               id='viewImageControlHeight'
               href='#viewImageControl'
-              class='link-success fs-6 mt-2 mb-2 link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' 
+              class='fs-6 mt-2 mb-2 ${linkSuccess}' 
               data-bs-toggle='collapse' 
               role='button' 
               aria-expanded='false' 
               aria-controls='viewImageContro'>
               ${marker.vakufType === "Džamija" ? 'Prikaži sliku džamije' : 'Prikaži sliku parcele'}
             </a>` +
-            `<a 
-                class='link-success'
+            `<a
+                class='link-success link-underline link-underline-opacity-0'
                 data-bs-toggle='collapse' 
                 href='#imageSupportCollapse' 
                 role='button' 
                 aria-expanded='false'
                 aria-controls='imageSupportCollapse'
             >
-                  <span class='material-symbols-outlined fs-2'>contact_support</span>
+              | <span class='material-symbols-outlined fs-3'>contact_support</span>
             </a>` +
             `<div 
               id='imageSupportCollapse'
@@ -95,7 +96,7 @@ export function infoWindowStyle(marker: CustomMarker) {
             >
                 Imate ljepšu fotografiju vakufa? 
                 <a 
-                  class='link-success fs-6 link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover' 
+                  class='fs-6 ${linkSuccess}' 
                   href='mailto:dev.ervinpepic@gmail.com'>Pošaljite nam.
                 </a>
             </div>` +
