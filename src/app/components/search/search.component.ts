@@ -25,7 +25,6 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
 })
 export class SearchComponent implements OnDestroy {
   private mapClickedSubscription: Subscription; // Subscription for map click event
-  private previousListLength = 0;
   isSuggestionsVisible: boolean = false; // Indicates whether the search suggestions are visible
   suggestionsList: string[] = []; // List of search suggestions
   selectedSuggestionIndex: number = -1; // Index of the selected search suggestion
@@ -150,7 +149,6 @@ export class SearchComponent implements OnDestroy {
         this.suggestionsList,
         (query) => (this.searchQuery = query),
         (suggestion) => this.selectSearchSuggestion(suggestion),
-        this.previousListLength
       );
     } catch (error) {
       console.error('Error handling arrow key navigation:', error);

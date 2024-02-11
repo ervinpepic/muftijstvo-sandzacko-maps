@@ -1,4 +1,4 @@
-import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 /**
  * Handles arrow key navigation within search suggestions.
  * - Prevents default browser behavior for arrow keys
@@ -18,8 +18,7 @@ export function arrowKeyNavigation(
   currentIndex: number,
   suggestionsList: string[],
   setSearchQuery: (query: string) => void,
-  selectSearchSuggestion: (suggestion: string) => void,
-  previousListLength: number // Previous length of the suggestions list
+  selectSearchSuggestion: (suggestion: string) => void
 ): void {
   const suggestionsContainer = document.querySelector('.search-suggestions');
   if (!suggestionsContainer) return; // Exit if suggestions container not found
@@ -31,13 +30,10 @@ export function arrowKeyNavigation(
   const currentListLength = suggestionsList.length;
 
   // Adjust current index if the list length has changed
-  if (currentListLength !== previousListLength) {
+  if (currentListLength) {
     // Ensure current index remains within the bounds of the updated list
     currentIndex = Math.min(currentIndex, currentListLength - 1);
   }
-
-  // Update previous list length for the next navigation event
-  previousListLength = currentListLength;
 
   switch (event.key) {
     case 'ArrowDown':
