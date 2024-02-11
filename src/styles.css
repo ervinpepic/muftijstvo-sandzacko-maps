@@ -8,7 +8,7 @@ body {
   background-position: center center; /* Centered background position */
   background-size: auto; /* Auto background size */
   background-repeat: repeat; /* Repeating background */
-  font-family: "Raleway", sans-serif; /* Font family for the entire body */
+  font-family: 'Open Sans', sans-serif; /* Font family for the entire body */
 }
 
 /* Styling for all images on the page */

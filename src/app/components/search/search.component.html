@@ -2,8 +2,8 @@
   <div class="input-group mt-2 mt-lg-0">
     <span
       *ngIf="searchQuery === ''; else showCountNumber"
-      class="input-group-text"
       id="searchIcon"
+      class="input-group-text"
     >
       <i class="fas fa-search-location fa-lg" style="color: #27a27a"></i>
     </span>
@@ -54,7 +54,7 @@
       >
         <span
           [innerHTML]="
-            suggestion | highlightSearchTerm : searchQuery || 'Ucitavanje'
+            suggestion | highlightSearchTerm : searchQuery || 'Učitavanje'
           "
         ></span>
       </div>

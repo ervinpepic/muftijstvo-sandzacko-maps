@@ -7,13 +7,13 @@
 }
 
 .btn-bg-theme-style {
-  background-color: #52a77a;
+  background-color: #194248;
   color: white;
 }
 
 .btn-bg-theme-style:hover {
   color: #b6a37c;
-  background-color: #04844a;
+  background-color: #194248;
   transition: ease-in-out;
   transition-duration: 0.3s;
 }

@@ -48,8 +48,8 @@ export class PolygonsBoundaries {
       strokeColor: '#000000',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#931A25',
-      fillOpacity: 0.65,
+      fillColor:' #194248',//'#931A25',
+      fillOpacity: 0.7,
     });
   }
 
