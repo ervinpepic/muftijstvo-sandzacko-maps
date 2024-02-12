@@ -1,6 +1,6 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { CustomMarker } from '../../interface/Marker';
@@ -10,7 +10,7 @@ import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
 import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
-
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 @Component({
   selector: 'app-search',
   standalone: true,
@@ -24,6 +24,8 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
   styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnDestroy {
+  @ViewChild(CdkVirtualScrollViewport)
+  viewport!: CdkVirtualScrollViewport;
   private mapClickedSubscription: Subscription; // Subscription for map click event
   isSuggestionsVisible: boolean = false; // Indicates whether the search suggestions are visible
   suggestionsList: string[] = []; // List of search suggestions
@@ -143,16 +145,40 @@ export class SearchComponent implements OnDestroy {
   navigateWithArrowKeys(event: KeyboardEvent, index?: number): void {
     try {
       let currentIndex = index !== undefined ? index : -1;
+
+      switch (event.key) {
+        case 'ArrowDown':
+          currentIndex =
+            currentIndex === this.suggestionsList.length - 1
+              ? 0
+              : currentIndex + 1;
+          break;
+        case 'ArrowUp':
+          currentIndex =
+            currentIndex === -1
+              ? this.suggestionsList.length - 1
+              : currentIndex === 0
+              ? this.suggestionsList.length - 1 // Move to the last element when reaching the top
+              : currentIndex - 1;
+          break;
+        case 'Enter':
+          this.selectSearchSuggestion(this.suggestionsList[currentIndex]);
+          return;
+        default:
+          // Ignore other keys
+          return;
+      }
+      this.selectedSuggestionIndex = currentIndex;
+
+      // Call arrowKeyNavigation passing the updated index
       arrowKeyNavigation(
-        event,
         currentIndex,
         this.suggestionsList,
         (query) => (this.searchQuery = query),
-        (suggestion) => this.selectSearchSuggestion(suggestion),
+        this.viewport // Pass the viewport reference
       );
     } catch (error) {
       console.error('Error handling arrow key navigation:', error);
     }
   }
-  
 }

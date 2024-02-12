@@ -36,13 +36,18 @@
     aria-atomic="true"
     id="suggestion-list"
   >
-    <div *ngIf="suggestionsList.length === 0" class="list-group search-suggestions">
-      <span class="list-group-item text-muted">Nema vakufa za unijeti kriterijum</span>
+    <div
+      *ngIf="suggestionsList.length === 0"
+      class="list-group search-suggestions"
+    >
+      <span class="list-group-item text-muted"
+        >Nema vakufa za unijeti kriterijum</span
+      >
     </div>
     <cdk-virtual-scroll-viewport
       class="list-group search-suggestions"
-      itemSize="50"
-      maxBufferPx="200"
+      [itemSize]="50"
+      [maxBufferPx]="200"
     >
       <div
         *cdkVirtualFor="let suggestion of suggestionsList; let i = index"

@@ -14,56 +14,30 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
  * @param selectSearchSuggestion - A function to handle the selection of a search suggestion
  */
 export function arrowKeyNavigation(
-  event: KeyboardEvent,
   currentIndex: number,
   suggestionsList: string[],
   setSearchQuery: (query: string) => void,
-  selectSearchSuggestion: (suggestion: string) => void
+  viewport: CdkVirtualScrollViewport
 ): void {
-  const suggestionsContainer = document.querySelector('.search-suggestions');
-  if (!suggestionsContainer) return; // Exit if suggestions container not found
-
-  const suggestions = Array.from(
-    suggestionsContainer.querySelectorAll('.hover-effect')
-  );
-
   const currentListLength = suggestionsList.length;
 
-  // Adjust current index if the list length has changed
-  if (currentListLength) {
-    // Ensure current index remains within the bounds of the updated list
-    currentIndex = Math.min(currentIndex, currentListLength - 1);
-  }
+  // Scroll to the selected suggestion
+  scrollToIndex(viewport, currentIndex);
 
-  switch (event.key) {
-    case 'ArrowDown':
-      event.preventDefault();
-      currentIndex = getNextIndex(currentIndex, suggestions.length);
-      break;
-    case 'ArrowUp':
-      event.preventDefault();
-      currentIndex = getPreviousIndex(currentIndex, suggestions.length);
-      break;
-    case 'Enter':
-      event.preventDefault();
-      selectSearchSuggestion(suggestionsList[currentIndex]);
-      return; // Exit early to prevent setting search query
-    default:
-      return; // Ignore other keys
-  }
-
-  if (currentIndex >= 0 && currentIndex < suggestions.length) {
-    const selectedSuggestion = suggestions[currentIndex] as HTMLLIElement;
-    selectedSuggestion.focus();
-    selectedSuggestion.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Scroll into view
+  // Set the search query based on the selected suggestion
+  if (currentIndex >= 0 && currentIndex < currentListLength) {
     setSearchQuery(suggestionsList[currentIndex]);
   }
 }
 
-function getNextIndex(currentIndex: number, maxIndex: number): number {
-  return currentIndex < maxIndex - 1 ? currentIndex + 1 : 0;
-}
-
-function getPreviousIndex(currentIndex: number, maxIndex: number): number {
-  return currentIndex > 0 ? currentIndex - 1 : maxIndex - 1;
+function scrollToIndex(
+  viewport: CdkVirtualScrollViewport,
+  index: number
+): void {
+  if (index >= 0) {
+    const listItemHeight = 50; // Adjust this value based on your item height
+    const scrollOffset =
+      (index + 0.5) * listItemHeight - viewport.getViewportSize() / 2;
+    viewport.scrollToOffset(scrollOffset);
+  }
 }
