@@ -4,6 +4,7 @@
       *ngIf="searchQuery === ''; else showCountNumber"
       id="searchIcon"
       class="input-group-text"
+      aria-label="search icon"
     >
       <i class="fas fa-search-location fa-lg" style="color: #27a27a"></i>
     </span>
@@ -24,8 +25,8 @@
       placeholder="Naziv vakufa | broj parcele"
       autocomplete="off"
       [(ngModel)]="searchQuery"
-      (input)="updateMarkersVisibility(); handleSearchInputChange(searchQuery)"
-      (keydown)="navigateWithArrowKeys($event, selectedSuggestionIndex)"
+      (input)="updateMarkersVisibility(); handleInputChange(searchQuery)"
+      (keydown)="navigateWithArrows($event, selectedSuggestionIndex)"
     />
   </div>
   <div
@@ -52,11 +53,20 @@
       <div
         *cdkVirtualFor="let suggestion of suggestionsList; let i = index"
         class="list-group-item hover-effect"
+        [ngStyle]="{
+          'background-color': i === selectedSuggestionIndex ? '#86b7fe' : '',
+          color: i === selectedSuggestionIndex ? '#FFF' : '',
+          'border-color': i === selectedSuggestionIndex ? '#86b7fe' : '',
+          'box-shadow':
+            i === selectedSuggestionIndex
+              ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)'
+              : ''
+        }"
         role="option"
         aria-labelledby="suggestions-label"
         [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'"
         (click)="selectSearchSuggestion(suggestion)"
-        (keydown)="navigateWithArrowKeys($event, i)"
+        (keydown)="navigateWithArrows($event, i)"
       >
         <span
           [innerHTML]="

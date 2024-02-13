@@ -7,11 +7,10 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
  * - Sets focus on the selected suggestion and updates the search query
  * - Handles Enter key press to select the current suggestion
  *
- * @param event - The keyboard event triggering the navigation
  * @param currentIndex - The current index of the selected suggestion
  * @param suggestionsList - The list of search suggestions
  * @param setSearchQuery - A function to update the search query
- * @param selectSearchSuggestion - A function to handle the selection of a search suggestion
+ * @param viewport - library for calculating current viewport of the suggestion list and selected element
  */
 export function arrowKeyNavigation(
   currentIndex: number,
@@ -20,7 +19,6 @@ export function arrowKeyNavigation(
   viewport: CdkVirtualScrollViewport
 ): void {
   const currentListLength = suggestionsList.length;
-
   // Scroll to the selected suggestion
   scrollToIndex(viewport, currentIndex);
 

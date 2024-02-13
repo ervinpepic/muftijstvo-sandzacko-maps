@@ -12,7 +12,8 @@ import { infoWindowStyle } from '../styles/marker/info-window-style';
 })
 export class MarkerEventService implements OnDestroy {
   mapClicked: EventEmitter<void> = new EventEmitter<void>();
-  private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> = new Map();
+  private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
+    new Map();
   private mapClickSubscription: google.maps.MapsEventListener | null = null;
 
   constructor(private ngZone: NgZone) {}

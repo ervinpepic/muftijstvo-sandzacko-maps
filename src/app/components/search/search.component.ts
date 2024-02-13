@@ -1,4 +1,4 @@
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,6 @@ import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
 import { arrowKeyNavigation } from '../../utils/arrowKey-navigation';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 @Component({
   selector: 'app-search',
   standalone: true,
@@ -25,12 +24,11 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 })
 export class SearchComponent implements OnDestroy {
   @ViewChild(CdkVirtualScrollViewport)
-  viewport!: CdkVirtualScrollViewport;
+  viewport?: CdkVirtualScrollViewport;
   private mapClickedSubscription: Subscription; // Subscription for map click event
   isSuggestionsVisible: boolean = false; // Indicates whether the search suggestions are visible
   suggestionsList: string[] = []; // List of search suggestions
   selectedSuggestionIndex: number = -1; // Index of the selected search suggestion
-
   // getters and setters from filter service
   get searchQuery(): string {
     return this.filterService.searchQuery;
@@ -80,7 +78,7 @@ export class SearchComponent implements OnDestroy {
   // - Retrieves filtered markers based on the current filter criteria using the FilterService
   // - Calls the SearchService to generate suggestions based on the normalized search query and filtered markers
   // - Updates the component's suggestionsList with the generated suggestions
-  private generateSearchSuggestions(): void {
+  private generateSuggestions(): void {
     const suggestions = generateSearchSuggestions(
       this.updateMarkersVisibility(),
       this.searchQuery
@@ -93,11 +91,11 @@ export class SearchComponent implements OnDestroy {
   // - Shows search suggestions if the input is not empty and updates visibility accordingly
   // - Hides search suggestions if the input is empty
   // - Updates the search query based on the input value
-  handleSearchInputChange(inputValue: string): void {
+  handleInputChange(inputValue: string): void {
     this.markerEventService.closeOtherInfoWindows(); // Close other info windows to prevent cluttering the interface
     // Show suggestions if the input is not empty, otherwise hide them
     if (inputValue.length > 0) {
-      this.generateSearchSuggestions();
+      this.generateSuggestions();
       this.isSuggestionsVisible = true;
     } else {
       this.isSuggestionsVisible = false;
@@ -108,12 +106,7 @@ export class SearchComponent implements OnDestroy {
   // Private method to check if input is numeric
   // - The regular expressions check if the input matches a specific pattern or consists of only digits
   private isNumericInput(input: string): boolean {
-    try {
-      return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
-    } catch (error) {
-      console.error('Error validating input:', error); //change better error handling in future
-      return false;
-    }
+    return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
   }
 
   // Updates the search query based on user input
@@ -142,7 +135,7 @@ export class SearchComponent implements OnDestroy {
   }
 
   // Handles arrow key navigation within search suggestions
-  navigateWithArrowKeys(event: KeyboardEvent, index?: number): void {
+  navigateWithArrows(event: KeyboardEvent, index?: number): void {
     try {
       let currentIndex = index !== undefined ? index : -1;
 
@@ -169,13 +162,12 @@ export class SearchComponent implements OnDestroy {
           return;
       }
       this.selectedSuggestionIndex = currentIndex;
-
       // Call arrowKeyNavigation passing the updated index
       arrowKeyNavigation(
         currentIndex,
         this.suggestionsList,
         (query) => (this.searchQuery = query),
-        this.viewport // Pass the viewport reference
+        this.viewport! // Pass the viewport reference
       );
     } catch (error) {
       console.error('Error handling arrow key navigation:', error);

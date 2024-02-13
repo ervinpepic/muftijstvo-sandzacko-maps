@@ -42,17 +42,25 @@ export class SelectComponent implements OnInit {
 
   // Retrieve and set the list of vakuf cities and object types from the marker service
   ngOnInit(): void {
-    this.vakufCities = this.markerService.getVakufCities();
-    this.vakufObjectTypes = this.markerService.getVakufObjectTypes();
+    try {
+      this.vakufCities = this.markerService.getVakufCities();
+      this.vakufObjectTypes = this.markerService.getVakufObjectTypes();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
     // this.markerService.addMarker();
   }
 
   // Filter markers on the component level and share the filtered data with a service
   // Returns an array of CustomMarker objects after filtering based on the current filter criteria
   filterMarkers(): void {
-    this.filteredMarkers = this.filterService.filterMarkers(
-      this.markerService.markers
-    );
+    try {
+      this.filteredMarkers = this.filterService.filterMarkers(
+        this.markerService.markers
+      );
+    } catch (error) {
+      console.error('Error filtering markers:', error);
+    }
   }
 
   // Filter marker names based on the selected vakufType and city

@@ -8,7 +8,7 @@ body {
   background-position: center center; /* Centered background position */
   background-size: auto; /* Auto background size */
   background-repeat: repeat; /* Repeating background */
-  font-family: 'Open Sans', sans-serif; /* Font family for the entire body */
+  font-family: "Open Sans", sans-serif; /* Font family for the entire body */
 }
 
 /* Styling for all images on the page */
@@ -28,7 +28,7 @@ img {
 .ng-select.custom .ng-select-container {
   min-height: 100%; /* Minimum height */
   min-width: 150px;
-  width: 100%;/* Expand to fit content */
+  width: 100%; /* Expand to fit content */
   border-radius: 5px; /* Border radius for rounded corners */
 }
 /* Styling for the placeholder in the custom ng-select component */
@@ -44,22 +44,14 @@ img {
 }
 
 /* Hover effect styling */
+.hover-effect:focus,
 .hover-effect:hover {
-  color: #fff; /* Text color on hover */
-  cursor: pointer; /* Cursor style on hover */
-  background-color: #86b7fe; /* Background color on hover */
-  border-color: #86b7fe; /* Border color on hover */
-  outline: 0; /* Remove outline on hover */
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
-}
-
-/* Focus effect styling */
-.hover-effect:focus {
-  color: #fff; /* Text color on hover */
-  background-color: #86b7fe; /* Background color on focus */
-  border-color: #86b7fe; /* Border color on focus */
+  color: #fff; /* Text color on focus/hover */
+  background-color: #86b7fe; /* Background color on focus/hover */
+  border-color: #86b7fe; /* Border color on focus/hover */
   outline: 0; /* Remove outline on focus */
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
+  cursor: grab;
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
