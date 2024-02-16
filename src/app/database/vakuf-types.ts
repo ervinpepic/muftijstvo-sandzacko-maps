@@ -1,8 +1,8 @@
 // Enum representing types of vakuf objects
-export enum vakufObjecType {
-  dzamija = 'Džamija', // Type: Džamija (Mosque)
-  zgrada = 'Zgrada', // Type: Zgrada (Building)
-  livada = 'Livada', // Type: Livada (Meadow)
-  suma = 'Šuma', // Type: Šuma (Forest)
-  groblje = 'Groblje', // Type: Groblje (Cemetery)
+export enum VakufObjectType {
+  DZAMIJA = 'Džamija', // Type: Džamija (Mosque)
+  ZGRADA = 'Zgrada', // Type: Zgrada (Building)
+  LIVADA = 'Livada', // Type: Livada (Meadow)
+  SUMA = 'Šuma', // Type: Šuma (Forest)
+  GROBLJE = 'Groblje', // Type: Groblje (Cemetery)
 }

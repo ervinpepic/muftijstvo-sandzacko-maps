@@ -6,13 +6,18 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class EllipsisPipe implements PipeTransform {
 
-  // Transforms the input string to truncate it with ellipsis if it exceeds the specified maxLength
+  /**
+ * Truncates the input string and appends an ellipsis ('...') if its length exceeds the specified maximum length.
+ * If the string's length is less than or equal to the maximum length, it returns the original string unmodified.
+ * 
+ * @param {string} value - The input string to be potentially truncated.
+ * @param {number} maxLength - The maximum allowed length of the string before truncation.
+ * @returns {string} The original string if its length is within the limit, or a truncated string with ellipsis otherwise.
+ */
   transform(value: string, maxLength: number): string {
     if (value.length <= maxLength) {
-      // Return the original string if it's shorter than or equal to maxLength
       return value;
     }
-    // Return a truncated version of the string with ellipsis
     return value.substring(0, maxLength) + '...';
   }
 

@@ -54,13 +54,14 @@ export class MapService {
     try {
       // Initialize Google Maps API loader
       const googleApiAsyncLoader = new Loader({
-        apiKey: environment.GOOGLEAPIKEY,
+        apiKey: environment.googleApi.GOOGLEAPIKEY,
         version: 'weekly',
       });
       // Load Google Maps API asynchronously
       (await googleApiAsyncLoader.importLibrary(
         'maps'
       )) as google.maps.MapsLibrary;
+
       // Create the map after loading the API
       this.createMap(mapContainer);
     } catch (error) {

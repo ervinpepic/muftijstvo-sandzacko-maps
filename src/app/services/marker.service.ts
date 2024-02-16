@@ -2,119 +2,142 @@ import { Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { collection, getDocs } from 'firebase/firestore';
-import { sandzakCity } from '../database/sandzak-cities';
-import { vakufObjecType } from '../database/vakuf-types';
-import { CustomMarker } from '../interface/Marker';
+import { SandzakCity } from '../database/sandzak-cities';
+import { VakufObjectType } from '../database/vakuf-types';
+import { VakufMarkerDetails } from '../interface/Marker';
 import { render } from '../styles/marker/cluster-icon-style';
 import { MarkerEventService } from './marker-event.service';
-// import { vakufMarkData } from '../database/database-seed';
+import { StorageUtil } from '../utils/local-storage-util';
 
-/**
- * Service responsible for managing markers on Google Maps.
- * Handles fetching markers from Firestore, caching, and creating markers on the map.
- */
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
-  markers: CustomMarker[] = []; // Array to hold marker instances
-  markerCluster?: MarkerClusterer; // MarkerCluster variable
-  private cacheExpirationKey = 'markersCacheExpiration'; // Set cache key in browser
-  private cacheDurationInMinutes = 6 * 30 * 24 * 60; // Cache duration in minutes (6 months)
+  markers: google.maps.Marker[] = []; // Holds instances of map markers
+  markerCluster?: MarkerClusterer; // Optional variable for marker clustering functionality
+  markerDataMap = new Map<google.maps.Marker, VakufMarkerDetails>(); // Maps markers to their custom data
+  private _markersNumber: number = 0; // Add this property
 
   constructor(
     private markerEventService: MarkerEventService,
     private firestore: Firestore
   ) {}
-
+  // Getter to access the number of markers
+  get markersNumber(): number {
+    return this._markersNumber;
+  }
+  /**
+   * Returns an array of vakuf object types.
+   * @returns {string[]} Array of vakuf object types as strings.
+   */
   getVakufObjectTypes(): string[] {
-    return Object.values(vakufObjecType);
+    return Object.values(VakufObjectType);
   }
-
-  getVakufCities(): string[] {
-    return Object.values(sandzakCity);
-  }
-
-  // getMrks(): CustomMarker[] {
-  //   return vakufMarkData
-  // }
-
-  //   async addMarker(): Promise<void> {
-  //   try {
-  //     const markersColletcion = collection(this.firestore, 'markers');
-  //     const markerData = this.getMrks();
-  //     for (const marker of markerData) {
-  //       await addDoc(markersColletcion, marker);
-  //     }
-  //     console.log('Marker data added to Firestore');
-  //   } catch (error) {
-  //     console.error('Error adding marker data to Firestore:', error);
-  //   }
-  // }
 
   /**
-   * Retrieves markers either from the cache or Firestore.
-   * If cached markers are valid, returns them; otherwise, fetches markers from Firestore,
-   * caches them, and returns them.
-   * @returns A promise that resolves to an array of CustomMarker instances.
+   * Returns an array of cities in Sandzak.
+   * @returns {string[]} Array of city names as strings.
    */
-  async getMarkers(): Promise<CustomMarker[]> {
-    // Check if cached markers are still valid
-    const cachedMarkers = this.getCachedMarkers();
-    if (cachedMarkers && !this.isCacheExpired()) {
-      return cachedMarkers;
-    }
-    // Get collection from Firebase Firestore db
-    try {
-      const markersCollection = collection(this.firestore, 'markers'); // Name of the collection
-      const querySnapshot = await getDocs(markersCollection);
-      querySnapshot.forEach((doc) => {
-        const markerData = doc.data();
-        this.markers.push(markerData as CustomMarker);
-      });
+  getVakufCities(): string[] {
+    return Object.values(SandzakCity);
+  }
 
-      // Cache the fetched markers
-      this.cacheMarkers(this.markers);
-      return this.markers;
+  /**
+   * Saves marker data array to local storage with a timestamp.
+   * @param {VakufMarkerDetails[]} markerData - Array of custom marker data to be saved.
+   */
+  private saveMarkerDataToLocalStorage(markerData: VakufMarkerDetails[]): void {
+    StorageUtil.saveToLocalStorage('cachedMarkerData', markerData);
+  }
+
+  /**
+   * Retrieves marker data from local storage if not older than one month.
+   * @returns {VakufMarkerDetails[] | null} Array of custom marker data or null if not found or expired.
+   */
+  private getMarkerDataFromLocalStorage(): VakufMarkerDetails[] | null {
+    const item = StorageUtil.getFromLocalStorage('cachedMarkerData');
+    if (!item) return null;
+  
+    if (!StorageUtil.isCacheValid(item.timestamp)) {
+      StorageUtil.removeFromLocalStorage('cachedMarkerData');
+      return null;
+    }
+  
+    return item.data;
+  }
+  
+
+  /**
+   * Fetches marker data, preferring cached data when available.
+   * @returns {Promise<VakufMarkerDetails[]>} Promise resolving to an array of custom marker data.
+   */
+  async getMarkers(): Promise<VakufMarkerDetails[]> {
+    const cachedData = this.getMarkerDataFromLocalStorage();
+    if (cachedData) {
+      console.log("Calling filter service")
+      this._markersNumber = cachedData.length; // Update marker count
+      return cachedData;
+    }
+    try {
+      const markersCollection = collection(this.firestore, 'markers');
+      const querySnapshot = await getDocs(markersCollection);
+      const fetchedMarkersData: VakufMarkerDetails[] = querySnapshot.docs.map(
+        (doc) => doc.data() as VakufMarkerDetails
+      );
+
+      this.saveMarkerDataToLocalStorage(fetchedMarkersData);
+      this._markersNumber = fetchedMarkersData.length; // Update marker count
+      return fetchedMarkersData;
     } catch (error) {
-      console.log('Error while fetching markers => ', error);
+      console.error('Error while fetching markers => ', error);
+      this._markersNumber = 0; // Reset marker count on error
       return [];
     }
   }
 
   /**
-   * Creates markers on the specified map based on marker data retrieved from Firestore.
-   * Clears existing markers from the map, fetches marker data, creates markers, and initializes
-   * the MarkerClusterer for clustering markers.
-   * @param map - The Google Map instance.
-   * @returns A promise that resolves when markers are successfully created on the map.
+   * Creates markers on the map using fetched marker data.
+   * @param {google.maps.Map} map - The Google Maps instance on which to create markers.
+   * @returns {Promise<void>} Promise that resolves when markers are created.
    */
   async createMarkers(map: google.maps.Map): Promise<void> {
-    await this.clearMarkers();
     try {
-      const markerData = await this.getMarkers();
-      this.markers = markerData.map((markerData) =>
-        this.createMarker(markerData, map)
-      );
-
-      // Intialize MarkerClusterer
+      await this.clearMarkers();
+      const customMarkerData = await this.getMarkers();
+      this.markers = [];
+      this.markerDataMap.clear();
+  
+      customMarkerData.forEach((data) => {
+        const marker = this.createMarker(data, map);
+        this.markers.push(marker);
+        this.markerDataMap.set(marker, data);
+      });
+  
+      if (this.markerCluster) {
+        this.markerCluster.clearMarkers();
+      }
       this.markerCluster = new MarkerClusterer({
         map: map,
         markers: this.markers,
         renderer: render,
       });
     } catch (error) {
-      console.error('Error creating markers', error);
+      console.error('Error creating markers:', error);
+      // Handle error appropriately (e.g., show user notification)
     }
   }
+  
 
   /**
-   * Creates a marker based on the provided data and adds it to the map.
-   * @param data - The marker data.
-   * @param map - The Google Map instance.
-   * @returns The created Google Maps Marker instance.
+   * Creates a single marker and associates it with custom data.
+   * @param {VakufMarkerDetails} data - Custom data for the marker.
+   * @param {google.maps.Map} map - The Google Maps instance to place the marker on.
+   * @returns {google.maps.Marker} The created marker instance.
    */
-  createMarker(data: CustomMarker, map: google.maps.Map): CustomMarker {
+  createMarker(
+    data: VakufMarkerDetails,
+    map: google.maps.Map
+  ): google.maps.Marker {
     const marker = new google.maps.Marker({
       ...data,
       position: new google.maps.LatLng(data.position),
@@ -129,18 +152,16 @@ export class MarkerService {
       map: map,
     });
 
-    const customMarker = marker as CustomMarker;
+    this.markerDataMap.set(marker, data);
 
-    // Set up marker events and styling
     this.markerEventService.handleMarkerMouseHover(marker);
     this.markerEventService.handleMarkerInfoWindow(marker, data, map);
-    return customMarker;
+    return marker;
   }
 
   /**
-   * Clears existing markers from the map and marker array.
-   * If a MarkerClusterer is present, also clears markers from the clusterer.
-   * @returns A promise that resolves when markers are successfully cleared from the map.
+   * Clears all markers from the map.
+   * @returns {Promise<void>} Promise that resolves when all markers are cleared.
    */
   private async clearMarkers(): Promise<void> {
     this.markers.forEach((marker) => marker.setMap(null));
@@ -149,36 +170,5 @@ export class MarkerService {
       this.markerCluster.clearMarkers();
     }
   }
-
-  /**
-   * Retrieves cached markers from local storage.
-   * @returns An array of CustomMarker instances if markers are found in the cache, otherwise null.
-   */
-  private getCachedMarkers(): CustomMarker[] | null {
-    const cachedMarkersJson = localStorage.getItem('markersCache');
-    return cachedMarkersJson ? JSON.parse(cachedMarkersJson) : null;
-  }
-
-  /**
-   * Caches markers in local storage along with an expiration timestamp.
-   * @param markers - An array of CustomMarker instances to cache.
-   */
-  private cacheMarkers(markers: CustomMarker[]): void {
-    localStorage.setItem('markersCache', JSON.stringify(markers));
-    const expiration =
-      new Date().getTime() + this.cacheDurationInMinutes * 60 * 1000;
-    localStorage.setItem(this.cacheExpirationKey, expiration.toString());
-  }
-
-  /**
-   * Checks if the cached markers are expired based on the cache expiration timestamp.
-   * @returns True if the cached markers are expired, otherwise false.
-   */
-
-  private isCacheExpired(): boolean {
-    const expiration = localStorage.getItem(this.cacheExpirationKey);
-    if (!expiration) return true;
-    const now = new Date().getTime();
-    return now > parseInt(expiration);
-  }
+  
 }

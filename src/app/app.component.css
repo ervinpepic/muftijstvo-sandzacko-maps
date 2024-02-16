@@ -2,18 +2,17 @@
   min-height: 750px; /* Minimum height of 750 pixels */
   width: 100%; /* Full width of the container */
   height: 100%; /* Full height of the container */
-  border-bottom-left-radius: 15px; /* Border radius for the bottom-left corner */
-  border-bottom-right-radius: 15px; /* Border radius for the bottom-right corner */
+  border-bottom-left-radius: var(--border-radius-base); /* Border radius for the bottom-left corner */
+  border-bottom-right-radius: var(--border-radius-base); /* Border radius for the bottom-right corner */
 }
 
 .btn-bg-theme-style {
-  background-color: #194248;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--text-color-base);
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* Combine transition properties */
 }
 
 .btn-bg-theme-style:hover {
-  color: #b6a37c;
-  background-color: #194248;
-  transition: ease-in-out;
-  transition-duration: 0.3s;
+  color: var(--color-secondary);
+  background-color: var(--color-primary); /* No change needed here, but ensure it's intentional */
 }

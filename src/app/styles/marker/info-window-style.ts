@@ -1,116 +1,95 @@
-import { CustomMarker } from "../../interface/Marker";
-const paragraphTitleClass = "fs-6 text-center text-nowrap fw-light"
-const paragraphContentClass = "fs-6 text-center word-wrap fw-normal";
-const linkSuccess = "link-success link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover";
-export function infoWindowStyle(marker: CustomMarker) {
-  // Start building the HTML content for the InfoWindow
-  let infoWindowHtmlContent = 
-    "<div class='gm-style-iw m-2'>" +
-      "<div class='row'>" +
-        // Left column: Basic information about the object or place
-        "<div class='col-12 col-lg-6'>" +
-        // Display the name of the object or place
-          `<h5 class='word-wrap fw-normal text-center'>
-            <span>
-              ${marker.vakufType === "Džamija" 
-                ? '<span class="material-symbols-outlined">mosque</span>' 
-                : '<span class="material-symbols-outlined">file_map</span>'
-              }
-            </span>
-            ${marker.vakufName}
-          </h5>` +
-          "<hr>" +
-          // Year of construction or endowment
-          `<p class='${paragraphTitleClass}'>
-            <span class='material-symbols-outlined'>calendar_month</span>
-              ${marker.vakufType === 'Džamija' ? 'Izgrađena: ' : 'Uvakufljeno: '}
-            <span class='d-block ${paragraphContentClass}'>
-              ${marker.yearFounded != '' ? `${marker.yearFounded}. god.` : 'Nema datum'}
-            </span>
-          </p>` +
-          // Cadastral parcel number
-          `<p class='${paragraphTitleClass}'>
-            <span class='material-symbols-outlined'>map</span> Katastarska parcela: 
-            <span class='d-block ${paragraphContentClass}'>
-              ${marker.cadastralParcelNumber}
-            </span>
-          </p>` +
-          // Real estate number
-          `<p class='${paragraphTitleClass}'>
-            <span class='material-symbols-outlined'>contract</span> List nepokretnosti: 
-            <span class='d-block ${paragraphContentClass}'>
-              ${marker.realEstateNumber}
-            </span>
-          </p>` +
-           // Area size of the parcel
-          `<p class='${paragraphTitleClass}'>
-           <span class='material-symbols-outlined'>area_chart</span> Površina parcele: 
-           <span class='d-block ${paragraphContentClass}'>
-             ${marker.areaSize}m<sup>2</sup>
-           </span>
-          </p>` +
-          // Cadastral municipality
-          `<p class='${paragraphTitleClass}'>
-            <span class='material-symbols-outlined'>location_city</span> Katastarska opština: 
-            <span class='d-block ${paragraphContentClass}'>
-              ${marker.cadastralMunicipality}
-            </span>
-          </p>` +
-          // Street name
-          `<p class='${paragraphTitleClass}'>
-            <span class='material-symbols-outlined'>signpost</span> Ulica | Potes: 
-            <span class='d-block ${paragraphContentClass}'>
-              ${marker.streetName}
-            </span>
-          </p>` +
-        "</div>" +
-        // Right column: Image section
-        "<div class='col-12 col-lg-6 text-center'>" +
-          "<h6 class='fw-normal'>" +
-              "<span class='material-symbols-outlined'>imagesmode</span> Fotografija Vakufa: " +
-          '</h6>' +
-          // Link to show/hide the image section
-            `<a
-              id='viewImageControlHeight'
-              href='#viewImageControl'
-              class='fs-6 mt-2 mb-2 ${linkSuccess}' 
-              data-bs-toggle='collapse' 
-              role='button' 
-              aria-expanded='false' 
-              aria-controls='viewImageContro'>
-              ${marker.vakufType === "Džamija" ? 'Prikaži sliku džamije' : 'Prikaži sliku parcele'}
-            </a>` +
-            `<a
-                class='link-success link-underline link-underline-opacity-0'
-                data-bs-toggle='collapse' 
-                href='#imageSupportCollapse' 
-                role='button' 
-                aria-expanded='false'
-                aria-controls='imageSupportCollapse'
-            >
-              | <span class='material-symbols-outlined fs-3'>contact_support</span>
-            </a>` +
-            `<div 
-              id='imageSupportCollapse'
-              class='collapse fs-6 fw-lighter word-wrap mt-2 mb-2'
-            >
-                Imate ljepšu fotografiju vakufa? 
-                <a 
-                  class='fs-6 ${linkSuccess}' 
-                  href='mailto:dev.ervinpepic@gmail.com'>Pošaljite nam.
-                </a>
-            </div>` +
-          // Image section (collapsed by default)
-          `<img src='${marker.vakufImage}' 
-            id='viewImageControl'
-            class='collapse img-fluid img-thumbnail rounded mt-2 mb-2'
-            width='100%'
-            height='100%'
-          >` +
-          "</div>"+
-        "</div>" +
+import { VakufMarkerDetails } from '../../interface/Marker';
+import { createParagraphHTML, getParagraphDetails, linkSuccess } from './paragraph-blueprint';
 
-      "</div>" +
-    "</div>"
-  return infoWindowHtmlContent
+/**
+ * Generates HTML content for an InfoWindow associated with a given marker. This function constructs the content by 
+ * combining marker details, including type, name, and additional paragraphs of information. It also includes an 
+ * interactive section for viewing vakuf images and a support message for submitting better images.
+ *
+ * The function starts by retrieving paragraph details for the marker, converting these details into HTML paragraphs. 
+ * It then constructs the overall HTML structure for the InfoWindow, which includes a header with the vakuf name and 
+ * an icon indicating the type of vakuf (e.g., mosque or land parcel). Additionally, it provides a link to toggle 
+ * visibility of the vakuf image and another link to expand a message offering users the ability to submit their own 
+ * images if they have a better one.
+ *
+ * @param {VakufMarkerDetails} marker - The marker object containing details about the vakuf, including its type, name, 
+ *                                image URL, and other relevant information used to populate the InfoWindow content.
+ * @returns {string} The fully constructed HTML content for the InfoWindow, ready to be displayed to the user.
+ */
+export function infoWindowStyle(marker: VakufMarkerDetails) {
+
+  const paragraphDetails = getParagraphDetails(marker);
+  const paragraphsHtml = paragraphDetails.map(({ icon, title, content }) =>
+    createParagraphHTML(icon, title, content)).join('');
+    
+    let infoWindowHtmlContent = `
+    <div class="gm-style-iw m-2">
+    <div class="row">
+      <div class="col-12 col-lg-6">
+        <h5 class="word-wrap fw-normal text-center">
+          <span>
+            ${
+              marker.vakufType === 'Džamija'
+                ? '<span class="material-symbols-outlined">mosque</span>'
+                : '<span class="material-symbols-outlined">file_map</span>'
+            }
+          </span>
+          ${marker.vakufName}
+        </h5>
+        <hr>
+        ${paragraphsHtml}
+      </div>
+  
+      <div class="col-12 col-lg-6 text-center">
+        <h6 class="fw-normal">
+          <span class="material-symbols-outlined">imagesmode</span> Fotografija vakufa:
+        </h6>
+        <a
+          id="viewImageControlHeight"
+          href="#viewImageControl"
+          class="fs-6 mt-2 mb-2 ${linkSuccess}"
+          data-bs-toggle="collapse"
+          role="button"
+          aria-expanded="false"
+          aria-controls="viewImageControl"
+          aria-label="Show image of the vakuf"
+        >
+          ${
+            marker.vakufType === 'Džamija'
+              ? 'Prikaži sliku džamije'
+              : 'Prikaži sliku parcele'
+          }
+        </a>
+        <a
+          class="link-success link-underline link-underline-opacity-0"
+          data-bs-toggle="collapse"
+          href="#imageSupportCollapse"
+          role="button"
+          aria-expanded="false"
+          aria-controls="imageSupportCollapse"
+          aria-label="Show support message"
+        >
+          |
+          <span class="material-symbols-outlined fs-3">contact_support</span>
+        </a>
+        <div
+          id="imageSupportCollapse"
+          class="collapse fs-6 fw-lighter word-wrap mt-2 mb-2"
+        >
+          Imate ljepšu fotografiju vakufa? 
+          <a class="fs-6 ${linkSuccess}" href="mailto:dev.ervinpepic@gmail.com"> Pošaljite nam.</a>
+        </div>
+        <img
+          src="${marker.vakufImage}"
+          alt="Fotografija vakufa"
+          id="viewImageControl"
+          class="collapse img-fluid img-thumbnail rounded mt-2 mb-2"
+          width="100%"
+          height="100%"
+        >
+      </div>
+    </div>
+  </div>`;
+
+  return infoWindowHtmlContent;
 }

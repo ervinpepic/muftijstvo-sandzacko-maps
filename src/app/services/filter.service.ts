@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { debounceTime } from 'rxjs/operators';
-import { CustomMarker } from '../interface/Marker';
-import { normalizeString } from '../utils/latin-chars';
+import { debounceTime, take } from 'rxjs/operators';
+import { VakufMarkerDetails } from '../interface/Marker';
+import { normalizeString } from '../utils/latin-chars-unorm';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 
@@ -24,8 +24,17 @@ export class FilterService {
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
   private _selectedVakufName: string | null = null; // Selected vakuf name filter
+  private _filteredMarkers: google.maps.Marker[] = [];
 
-  // Getter methods to expose values
+  // Getter methods to expose values// In FilterService
+
+public get filteredMarkers(): google.maps.Marker[] {
+  return this._filteredMarkers;
+}
+
+private setFilteredMarkers(markers: google.maps.Marker[]): void {
+  this._filteredMarkers = markers;
+}
   get searchQuery(): string {
     return this._searchQuery;
   }
@@ -64,54 +73,47 @@ export class FilterService {
    * @param markers - An array of markers to filter.
    * @returns An array of CustomMarker objects representing the visible markers.
    */
-  filterMarkers(markers: CustomMarker[]): CustomMarker[] {
+  filterMarkers(markers: google.maps.Marker[]): google.maps.Marker[] {
     // Normalize the search query
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
-    try {
-      const bounds = new google.maps.LatLngBounds();
-
-      // Filter markers and update visibility, and calculate bounds in a single pass
-      markers.forEach((marker) => {
-        const isVisible = this.isVisibleMarker(marker, normalizedSearchTerm);
-        const currentVisibility = marker.getVisible();
-
-        // Check if the visibility state needs to be changed
-        if (isVisible !== currentVisibility) {
-          this.setMarkerVisibility(marker, isVisible);
-        }
-
+    const bounds = new google.maps.LatLngBounds();
+    const visibleMarkers: google.maps.Marker[] = [];
+  
+    markers.forEach((marker) => {
+      // Retrieve the custom data for the marker
+      const customData = this.markerService.markerDataMap.get(marker);
+  
+      if (customData) {
+        const isVisible = this.isVisibleMarker(customData, normalizedSearchTerm);
+        this.setMarkerVisibility(marker, isVisible);
+  
         if (isVisible) {
-          bounds.extend(marker.getPosition()!); // Assume getPosition() always returns LatLng | null
+          bounds.extend(marker.getPosition()!);
+          visibleMarkers.push(marker); // Collect visible markers directly
         }
-      });
-
-      // Fit map bounds to visible markers after the debounce time
-      const visibleMarkers = markers.filter((marker) => marker.getVisible());
-      if (visibleMarkers.length > 0) {
-        this.fitBoundsAfterDelay(bounds);
       }
-
-      if (this.markerService.markerCluster) {
-        this.markerService.markerCluster.clearMarkers();
-        this.markerService.markerCluster.addMarkers(visibleMarkers);
-      }
-
-      return visibleMarkers;
-    } catch (error) {
-      console.error('Error filtering markers:', error);
-      // You can handle the error here, such as showing an error message to the user or logging it
-      return [];
+    });
+  
+    if (visibleMarkers.length > 0) {
+      this.fitBoundsAfterDelay(bounds);
     }
+  
+    if (this.markerService.markerCluster) {
+      this.markerService.markerCluster.clearMarkers();
+      this.markerService.markerCluster.addMarkers(visibleMarkers);
+    }
+    this.setFilteredMarkers(visibleMarkers);
+    return visibleMarkers;
   }
 
   /**
    * Checks if a marker is visible based on the filter criteria.
-   * @param marker - The marker to check visibility for.
+   * @param data - The marker to check visibility for.
    * @param searchTerm - The normalized search term.
    * @returns A boolean indicating if the marker is visible.
    */
-  private isVisibleMarker(marker: CustomMarker, searchTerm: string): boolean {
-    const { city, vakufType, vakufName, cadastralParcelNumber } = marker;
+  private isVisibleMarker(data: VakufMarkerDetails, searchTerm: string): boolean {
+    const { city, vakufType, vakufName, cadastralParcelNumber } = data;
     const normalizedVakufName = this.normalizeSearchTerm(vakufName); // Normalize vakufName here
 
     // Check if the marker matches the filter criteria
@@ -145,7 +147,7 @@ export class FilterService {
    * @param marker - The marker to set visibility for.
    * @param isVisible - A boolean indicating whether the marker should be visible.
    */
-  private setMarkerVisibility(marker: CustomMarker, isVisible: boolean): void {
+  private setMarkerVisibility(marker: google.maps.Marker, isVisible: boolean): void {
     marker.setVisible(isVisible);
   }
 
@@ -155,9 +157,10 @@ export class FilterService {
    */
   private fitBoundsAfterDelay(bounds: google.maps.LatLngBounds): void {
     this.mapService.map$
-      .pipe(debounceTime(this.searchTimeDelay))
-      .subscribe(() => {
-        this.mapService.map?.fitBounds(bounds);
+      .pipe(debounceTime(this.searchTimeDelay), take(1))
+      .subscribe({
+        next: () => this.mapService.map?.fitBounds(bounds),
+        error: (err) => console.error('Error adjusting map bounds:', err),
       });
   }
 }

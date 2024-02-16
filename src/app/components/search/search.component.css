@@ -8,10 +8,26 @@
   border-top: none;
   overflow-y: auto;
   height: 200px;
+
+  @media (max-width: 600px) {
+    height: 150px;
+  }
 }
 
-/* Styling for input placeholder */
-input::placeholder {
-  color: #8c8c8c; /* Placeholder text color */
-  font-weight: 300; /* Placeholder font weight */
+input {
+  &::placeholder {
+    color: var(--placeholder-color);
+    font-weight: 300;
+  }
+}
+
+.list-group-item.selected {
+  background-color: var(--hover-background-color);
+  color: var(--text-color-base);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--box-shadow-hover)
+}
+
+.search-icon {
+  color: var(--logo-color);
 }

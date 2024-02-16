@@ -1,20 +1,22 @@
-/* Navbar Styles */
-
 /* Background color and border radius for the navbar */
 .navbar-color-override {
-  background-color: #194248; /* Navbar background color */
-  border-top-left-radius: 15px; /* Border radius for the top-left corner */
-  border-top-right-radius: 15px; /* Border radius for the top-right corner */
+  background-color: var(--color-primary); /* Navbar background color */
+  border-top-left-radius: var(--border-radius-base); /* Border radius for the top-left corner */
+  border-top-right-radius: var(--border-radius-base); /* Border radius for the top-right corner */
+  
 }
 
 /* Styles for the navbar toggler button */
 .navbar-toggler {
-  color: #b6a37c !important; /* Toggler button text color */
-  border-color: #b6a37c !important; /* Toggler button border color */
+  color: var(--color-secondary); /* Toggler button text color */
+  border-color: var(--color-secondary); /* Toggler button border color */
 }
 
 /* Styles for the navbar toggler icon */
 .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(182, 163, 124)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-  /* Toggler icon background image */
+  
+  background-image: url(
+    "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(182, 163, 124)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"
+    ); 
+  
 }

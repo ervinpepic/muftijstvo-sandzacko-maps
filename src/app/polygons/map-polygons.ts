@@ -1,5 +1,5 @@
-import { PolygonData } from '../interface/Polygon';
-import { zoomChange } from '../utils/dynamic-zoom';
+import { MapPolygonDetails } from '../interface/Polygon';
+import { adjustPolygonVisibilityOnZoom } from '../utils/dynamic-zoom';
 import { andrijevicaPolygonDelimiter } from './sandzak/andrijevica';
 import { beranePolygonDelimiter } from './sandzak/berane';
 import { bijeloPoljePolygonDelimiter } from './sandzak/bijeloPolje';
@@ -16,7 +16,7 @@ import { sjenicaPolygonDelimiter } from './sandzak/sjenica';
 import { tutinPolygonDelimiter } from './sandzak/tutin';
 
 export class PolygonsBoundaries {
-  private polygonData: PolygonData[] = [
+  private polygonData: MapPolygonDetails[] = [
     { delimiter: noviPazarPolygonDelimiter, name: 'noviPazarPolygon' },
     { delimiter: tutinPolygonDelimiter, name: 'tutinPolygon' },
     { delimiter: sjenicaPolygonDelimiter, name: 'sjenicaPolygon' },
@@ -59,14 +59,14 @@ export class PolygonsBoundaries {
    */
   private addPolygonToMap(polygon: google.maps.Polygon) {
     polygon.setMap(this.map);
-    zoomChange(this.map, polygon); // Assuming zoomChange function handles zooming appropriately
+    adjustPolygonVisibilityOnZoom(this.map, polygon); // Assuming zoomChange function handles zooming appropriately
   }
 
   /**
    * Draws a polygon on the map based on the provided polygon data.
    * @param polygonData - The data defining the polygon's vertices and name.
    */
-  private drawPolygon(polygonData: PolygonData) {
+  private drawPolygon(polygonData: MapPolygonDetails) {
     const polygon = this.createPolygon(polygonData.delimiter);
     this.addPolygonToMap(polygon);
   }

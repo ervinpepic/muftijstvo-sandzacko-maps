@@ -6,7 +6,7 @@
     aria-labelledby="vakufTypeLabel"
     placeholder="Tip vakufa"
     [(ngModel)]="selectedVakufType"
-    (change)="filterMarkersNames(); onVakufTypeChange()"
+    (ngModelChange)="filterMarkersNames(); handleVakufTypeChange()"
   >
     <ng-option *ngFor="let vakufType of vakufObjectTypes" [value]="vakufType">
       {{ vakufType }}
@@ -21,7 +21,7 @@
     placeholder="Grad"
     aria-labelledby="cityLabel"
     [(ngModel)]="selectedCity"
-    (change)="filterMarkersNames(); onCityChange()"
+    (ngModelChange)="filterMarkersNames(); handleCityChange()"
   >
     <ng-option *ngFor="let cityName of vakufCities" [value]="cityName">
       {{ cityName }}
@@ -37,10 +37,10 @@
     placeholder="Naziv vakufa"
     aria-labelledby="vakufNameLabel"
     [(ngModel)]="selectedVakufName"
-    (change)="filterMarkers()"
+    (ngModelChange)="filterMarkers()"
   >
     <ng-option *ngFor="let name of filteredMarkerNames" [value]="name">
-      {{ name | ellipsis : 50 }}
+      {{ name | ellipsis : 30 }}
     </ng-option>
   </ng-select>
 </div>

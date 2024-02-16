@@ -1,6 +1,6 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { EventEmitter } from '@angular/core';
-import { CustomMarker } from '../interface/Marker';
+import { VakufMarkerDetails } from '../interface/Marker';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
 
 /**
@@ -11,9 +11,29 @@ import { infoWindowStyle } from '../styles/marker/info-window-style';
   providedIn: 'root',
 })
 export class MarkerEventService implements OnDestroy {
+  private readonly defaultIconUrl = 'assets/images/marker_main.svg';
+  private readonly hoverIconUrl = 'assets/images/marker_hover.svg';
+
+  get defaultIcon() {
+    return {
+      url: this.defaultIconUrl,
+      scaledSize: new google.maps.Size(40, 40),
+      labelOrigin: new google.maps.Point(20, -15),
+    };
+  }
+
+  get hoverIcon() {
+    return {
+      url: this.hoverIconUrl,
+      scaledSize: new google.maps.Size(60, 60),
+      labelOrigin: new google.maps.Point(40, -25),
+    };
+  }
+
   mapClicked: EventEmitter<void> = new EventEmitter<void>();
   private openInfoWindows: Map<google.maps.Marker, google.maps.InfoWindow> =
     new Map();
+  private subscriptions: google.maps.MapsEventListener[] = []; // Store all subscriptions
   private mapClickSubscription: google.maps.MapsEventListener | null = null;
 
   constructor(private ngZone: NgZone) {}
@@ -23,10 +43,8 @@ export class MarkerEventService implements OnDestroy {
    * Removes the map click event listener.
    */
   ngOnDestroy() {
-    // Remove the click event listener when the service is destroyed
-    if (this.mapClickSubscription) {
-      google.maps.event.removeListener(this.mapClickSubscription);
-    }
+    this.subscriptions.forEach((sub) => google.maps.event.removeListener(sub));
+    this.subscriptions = []; // Clear the subscriptions array
   }
 
   /**
@@ -38,32 +56,32 @@ export class MarkerEventService implements OnDestroy {
    */
   handleMarkerInfoWindow(
     marker: google.maps.Marker,
-    markerData: CustomMarker,
+    markerData: VakufMarkerDetails,
     map: google.maps.Map
   ) {
     if (!this.openInfoWindows.has(marker)) {
       const infoWindow = new google.maps.InfoWindow({
         content: infoWindowStyle(markerData),
       });
-
       this.openInfoWindows.set(marker, infoWindow);
 
-      marker.addListener('click', () => {
+      // Store marker click listener to manage its lifecycle
+      const markerClickListener = marker.addListener('click', () =>
         this.ngZone.run(() => {
-          // Wrap event listener with ngZone.run()
           this.closeOtherInfoWindows(marker);
           this.triggerMarkerBounce(marker);
           infoWindow.open(map, marker);
           map.panTo(marker.getPosition()!);
-        });
-      });
+        })
+      );
+      this.subscriptions.push(markerClickListener);
 
-      infoWindow.addListener('closeclick', () => {
+      const infoWindowCloseListener = infoWindow.addListener('closeclick', () =>
         this.ngZone.run(() => {
-          // Wrap event listener with ngZone.run()
           map.panTo(marker.getPosition()!);
-        });
-      });
+        })
+      );
+      this.subscriptions.push(infoWindowCloseListener);
 
       this.handleInfoWindowImageShow(infoWindow, map);
     }
@@ -96,22 +114,11 @@ export class MarkerEventService implements OnDestroy {
    * @param marker - The Google Maps Marker instance.
    */
   handleMarkerMouseHover(marker: google.maps.Marker) {
-    const defaultIcon = {
-      url: 'assets/images/marker_main.svg',
-      scaledSize: new google.maps.Size(40, 40),
-      labelOrigin: new google.maps.Point(20, -15),
-    };
-    const hoverIcon = {
-      url: 'assets/images/marker_hover.svg',
-      scaledSize: new google.maps.Size(60, 60),
-      labelOrigin: new google.maps.Point(40, -25),
-    };
-
     marker.addListener('mouseover', () => {
-      marker.setIcon(hoverIcon);
+      marker.setIcon(this.hoverIcon);
     });
     marker.addListener('mouseout', () => {
-      marker.setIcon(defaultIcon);
+      marker.setIcon(this.defaultIcon);
     });
   }
 
@@ -121,17 +128,15 @@ export class MarkerEventService implements OnDestroy {
    * @param map - The Google Map instance.
    */
   handleMapClick(map: google.maps.Map) {
-    // Add the click event listener
-    this.mapClickSubscription = google.maps.event.addListener(
-      map,
-      'click',
-      () => {
-        this.ngZone.run(() => {
-          // Ensure event listener runs within Angular's zone
-          this.mapClicked.emit();
-          this.closeOtherInfoWindows();
-        });
-      }
+    if (this.mapClickSubscription) {
+      google.maps.event.removeListener(this.mapClickSubscription);
+      this.mapClickSubscription = null;
+    }
+    this.mapClickSubscription = map.addListener('click', () =>
+      this.ngZone.run(() => {
+        this.mapClicked.emit();
+        this.closeOtherInfoWindows();
+      })
     );
   }
 

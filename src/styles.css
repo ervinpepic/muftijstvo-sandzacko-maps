@@ -1,40 +1,48 @@
 /* Importing styles from ng-select library */
 @import "@ng-select/ng-select/themes/default.theme.css";
 
-/* Global styles for the entire body */
+/* Define CSS variables for theme consistency */
+:root {
+  --font-family-base: "Open Sans", sans-serif;
+  --color-primary: #194248;
+  --color-secondary: #b6a37c;
+  --logo-color: #27a27a;
+  --text-color-base: white;
+  --border-radius-base: 15px;
+  --form-select-input-border-radius: 5px;
+  --hover-background-color: #86b7fe;
+  --placeholder-color: #8c8c8c;
+  --border-color-hover: #86b7fe;
+  --box-shadow-hover: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Global styles */
 body {
-  background-image: url("./assets/images/info-window-background.png"); /* Background image */
-  background-attachment: fixed; /* Fixed background attachment */
-  background-position: center center; /* Centered background position */
-  background-size: auto; /* Auto background size */
-  background-repeat: repeat; /* Repeating background */
-  font-family: "Open Sans", sans-serif; /* Font family for the entire body */
+  font-family: var(--font-family-base);
 }
 
-/* Styling for all images on the page */
 img {
-  border-radius: 15px; /* Border-radius for rounded corners */
+  border-radius: var(--border-radius-base);
 }
 
-/* Styling for the custom info window */
 .gm-style-iw {
-  max-height: max-content; /* Maximum height with content-based sizing */
-  max-width: max-content; /* Maximum width with content-based sizing */
+  max-height: max-content;
+  max-width: max-content;
   transition: max-height 0.5s ease-in-out, max-width 0.5s ease-in-out;
   overflow: auto;
 }
 
-/* Styling for ng-select container in the custom ng-select component */
+/* ng-select custom styles */
 .ng-select.custom .ng-select-container {
-  min-height: 100%; /* Minimum height */
+  min-height: 100%;
   min-width: 150px;
-  width: 100%; /* Expand to fit content */
-  border-radius: 5px; /* Border radius for rounded corners */
+  width: 100%;
+  border-radius: var(--form-select-input-border-radius);
 }
-/* Styling for the placeholder in the custom ng-select component */
+
 .ng-select.custom .ng-select-container .ng-placeholder {
-  color: #8c8c8c; /* Placeholder text color */
-  font-weight: 300; /* Placeholder font weight */
+  color: var(--placeholder-color);
+  font-weight: 300;
 }
 
 .material-symbols-outlined {
@@ -43,21 +51,13 @@ img {
   font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 24;
 }
 
-/* Hover effect styling */
 .hover-effect:focus,
-.hover-effect:hover {
-  color: #fff; /* Text color on focus/hover */
-  background-color: #86b7fe; /* Background color on focus/hover */
-  border-color: #86b7fe; /* Border color on focus/hover */
-  outline: 0; /* Remove outline on focus */
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
-  cursor: grab;
-}
-
+.hover-effect:hover,
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  color: #fff; /* Text color on hover */
-  background-color: #86b7fe; /* Background color on focus */
-  border-color: #86b7fe; /* Border color on focus */
-  outline: 0; /* Remove outline on focus */
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Box shadow on focus */
+  color: var(--text-color-base);
+  background-color: var(--hover-background-color);
+  border-color: var(--border-color-hover);
+  outline: 0;
+  box-shadow: var(--box-shadow-hover);
+  cursor: grab;
 }
