@@ -31,14 +31,16 @@ export function handleSearchNavigationKeys(
   switch (keyboardEventKey) {
     case 'ArrowDown':
       newIndex = (currentIndex + 1) % currentListLength;
+      scrollToIndex(viewport, newIndex, 'down');
       break;
     case 'ArrowUp':
       if (currentIndex === -1) { // Special case to handle when currentIndex is -1.
         newIndex = currentListLength - 1; // Directly jump to the last element in the list.
       } else {
         newIndex = currentIndex === 0 ? currentListLength - 1 : currentIndex - 1;
+        scrollToIndex(viewport, newIndex , 'up');
       }
-      break;
+      break
     case 'Enter':
       if (newIndex >= 0 && newIndex < currentListLength) {
         onEnter(newIndex);
@@ -47,8 +49,6 @@ export function handleSearchNavigationKeys(
     default:
       return -1; // No change in index for other keys
   }
-
-  scrollToIndex(viewport, newIndex);
   setSearchQueryIfNeeded(newIndex, suggestionsList, setSearchQuery);
 
   return newIndex;
@@ -63,12 +63,29 @@ export function handleSearchNavigationKeys(
  */
 function scrollToIndex(
   viewport: CdkVirtualScrollViewport,
-  index: number
+  index: number,
+  direction: 'up' | 'down'
 ): void {
   if (!viewport || index < 0) return;
 
-  const scrollOffset = (index + 0.5) * LIST_ITEM_HEIGHT - viewport.getViewportSize() / 2;
-  viewport.scrollToOffset(scrollOffset);
+  // Assuming LIST_ITEM_HEIGHT is the height of each item in the list
+  const itemHeight = LIST_ITEM_HEIGHT; // Ensure this matches your actual item height
+
+  // Calculate the viewport size and the number of items that can fit in the viewport
+  const viewportSize = viewport.getViewportSize();
+  const itemsInView = Math.floor(viewportSize / itemHeight);
+
+  let scrollOffset;
+
+  if (direction === 'down') {
+    // When navigating down, make the item the last viewable in the viewport
+    scrollOffset = (index - itemsInView + 1) * itemHeight;
+  } else {
+    // When navigating up, make the item the first viewable in the viewport
+    scrollOffset = index * itemHeight;
+  }
+
+  viewport.scrollToOffset(scrollOffset, 'smooth');
 }
 
 /**
