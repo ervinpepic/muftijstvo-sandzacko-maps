@@ -33,7 +33,11 @@ export function handleSearchNavigationKeys(
       newIndex = (currentIndex + 1) % currentListLength;
       break;
     case 'ArrowUp':
-      newIndex = currentIndex === 0 ? currentListLength - 1 : currentIndex - 1;
+      if (currentIndex === -1) { // Special case to handle when currentIndex is -1.
+        newIndex = currentListLength - 1; // Directly jump to the last element in the list.
+      } else {
+        newIndex = currentIndex === 0 ? currentListLength - 1 : currentIndex - 1;
+      }
       break;
     case 'Enter':
       if (newIndex >= 0 && newIndex < currentListLength) {
