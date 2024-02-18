@@ -38,7 +38,7 @@ export function handleSearchNavigationKeys(
         newIndex = currentListLength - 1; // Directly jump to the last element in the list.
       } else {
         newIndex = currentIndex === 0 ? currentListLength - 1 : currentIndex - 1;
-        scrollToIndex(viewport, newIndex , 'up');
+        scrollToIndex(viewport, newIndex -1 , 'up');
       }
       break
     case 'Enter':
@@ -68,25 +68,29 @@ function scrollToIndex(
 ): void {
   if (!viewport || index < 0) return;
 
-  // Assuming LIST_ITEM_HEIGHT is the height of each item in the list
   const itemHeight = LIST_ITEM_HEIGHT; // Ensure this matches your actual item height
-
-  // Calculate the viewport size and the number of items that can fit in the viewport
   const viewportSize = viewport.getViewportSize();
-  const itemsInView = Math.floor(viewportSize / itemHeight);
+  const totalItemsHeight = viewport.getDataLength() * itemHeight;
+  const viewportScrollPosition = viewport.measureScrollOffset();
 
-  let scrollOffset;
-
-  if (direction === 'down') {
-    // When navigating down, make the item the last viewable in the viewport
-    scrollOffset = (index - itemsInView + 1) * itemHeight;
-  } else {
-    // When navigating up, make the item the first viewable in the viewport
-    scrollOffset = index * itemHeight;
+  // When navigating down and we wrap to the first item or navigating up to the last item
+  if ((direction === 'down' && index === 0) || (direction === 'up' && index === viewport.getDataLength() - 1)) {
+    const targetScrollPosition = direction === 'down' ? 0 : Math.max(0, totalItemsHeight - viewportSize);
+    viewport.scrollToOffset(targetScrollPosition, 'smooth');
+    return;
   }
 
-  viewport.scrollToOffset(scrollOffset, 'smooth');
+  const itemTopPosition = index * itemHeight;
+  const itemBottomPosition = itemTopPosition + itemHeight;
+
+  // Adjust viewport only if the item is out of view
+  if (itemBottomPosition > viewportScrollPosition + viewportSize) {
+    viewport.scrollToOffset(itemTopPosition - viewportSize + itemHeight, 'smooth');
+  } else if (itemTopPosition < viewportScrollPosition) {
+    viewport.scrollToOffset(itemTopPosition, 'smooth');
+  }
 }
+
 
 /**
  * Updates the search query based on the selected suggestion if the index is valid.
