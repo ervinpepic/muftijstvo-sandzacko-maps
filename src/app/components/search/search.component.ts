@@ -3,7 +3,7 @@ import {
   ScrollingModule,
 } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { VakufMarkerDetails } from '../../interface/Marker';
@@ -22,12 +22,11 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
   styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnInit, OnDestroy {
-  searchQueryChanges = new Subject<string>();
+  protected searchQueryChanges = new Subject<string>(); // Search debouncing container
+  private destroy$ = new Subject<void>();
   suggestionsList: string[] = []; // Holds the list of search suggestions.
   selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
   isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
-
-  private destroy$ = new Subject<void>();
 
   @ViewChild(CdkVirtualScrollViewport)
   viewport?: CdkVirtualScrollViewport;
@@ -53,7 +52,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     return regex.test(inputField)
   }
 
-
   /**
    * Constructs the SearchComponent and subscribes to necessary observables.
    * @param markerService - Provides marker related functionalities.
@@ -64,7 +62,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     private markerService: MarkerService,
     private filterService: FilterService,
     private markerEventService: MarkerEventService,
-    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -94,6 +91,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.updateSearchQuery(inputValue);
     });
   }
+  
   /**
    * Cleans up resources and subscriptions when the component is destroyed.
    */
