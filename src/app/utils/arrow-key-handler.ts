@@ -34,13 +34,13 @@ export function handleSearchNavigationKeys(
       scrollToIndex(viewport, newIndex, 'down');
       break;
     case 'ArrowUp':
-      if (currentIndex === -1) { // Special case to handle when currentIndex is -1.
-        newIndex = currentListLength - 1; // Directly jump to the last element in the list.
+      if (currentIndex <= 0) { // Adjusted to handle when currentIndex is -1 or 0.
+        newIndex = currentIndex === - 1 ? currentListLength - 1 : currentListLength - 1;
       } else {
-        newIndex = currentIndex === 0 ? currentListLength - 1 : currentIndex - 1;
-        scrollToIndex(viewport, newIndex -1 , 'up');
+        newIndex = currentIndex - 1;
       }
-      break
+      scrollToIndex(viewport, newIndex - 1, 'up');
+      break;
     case 'Enter':
       if (newIndex >= 0 && newIndex < currentListLength) {
         onEnter(newIndex);
@@ -53,6 +53,7 @@ export function handleSearchNavigationKeys(
 
   return newIndex;
 }
+
 
 /**
  * Scrolls the viewport to ensure the item at the specified index is visible.
@@ -75,7 +76,7 @@ function scrollToIndex(
 
   // When navigating down and we wrap to the first item or navigating up to the last item
   if ((direction === 'down' && index === 0) || (direction === 'up' && index === viewport.getDataLength() - 1)) {
-    const targetScrollPosition = direction === 'down' ? 0 : Math.max(0, totalItemsHeight - viewportSize);
+    const targetScrollPosition = direction === 'down' ? 0 : Math.min(0, totalItemsHeight - viewportSize);
     viewport.scrollToOffset(targetScrollPosition, 'smooth');
     return;
   }
