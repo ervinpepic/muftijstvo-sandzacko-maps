@@ -3,9 +3,9 @@ import {
   ScrollingModule,
 } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { VakufMarkerDetails } from '../../interface/Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
@@ -21,7 +21,8 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
-export class SearchComponent implements OnDestroy {
+export class SearchComponent implements OnInit, OnDestroy {
+  searchQueryChanges = new Subject<string>();
   suggestionsList: string[] = []; // Holds the list of search suggestions.
   selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
   isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
@@ -47,6 +48,12 @@ export class SearchComponent implements OnDestroy {
     this.filterService.searchQuery = value;
   }
 
+  protected validateInputField(inputField: string): boolean {
+    const regex = /^(?=[A-Za-z0-9])([A-Za-z0-9\s.]*)(?<=[A-Za-z0-9])$/
+    return regex.test(inputField)
+  }
+
+
   /**
    * Constructs the SearchComponent and subscribes to necessary observables.
    * @param markerService - Provides marker related functionalities.
@@ -56,15 +63,37 @@ export class SearchComponent implements OnDestroy {
   constructor(
     private markerService: MarkerService,
     private filterService: FilterService,
-    private markerEventService: MarkerEventService
-  ) {
+    private markerEventService: MarkerEventService,
+    private cdr: ChangeDetectorRef
+  ) { }
+
+  ngOnInit(): void {
     this.markerEventService.mapClicked
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.isSuggestionsVisible = false;
       });
+    this.searchQueryChanges.pipe(
+      debounceTime(300),
+      takeUntil(this.destroy$)
+    ).subscribe((inputValue) => {
+      this.markerEventService.closeOtherInfoWindows();
+      if (inputValue.length > 0 && !this.validateInputField(inputValue)) {
+        this.isSuggestionsVisible = false;
+        this.suggestionsList = [];
+        return;
+      }
+      this.filterMarkers();
+      if (inputValue.length > 0) {
+        this.generateSuggestions(inputValue);
+        this.isSuggestionsVisible = true;
+      } else {
+        this.suggestionsList = [];
+        this.isSuggestionsVisible = false;
+      }
+      this.updateSearchQuery(inputValue);
+    });
   }
-
   /**
    * Cleans up resources and subscriptions when the component is destroyed.
    */
@@ -79,7 +108,7 @@ export class SearchComponent implements OnDestroy {
    * @returns {VakufMarkerDetails[]} An array of CustomMarker objects representing the filtered markers.
    * @throws {Error} When an error occurs during the filtering process.
    */
-  protected filterMarkers(): void {
+  private filterMarkers(): void {
     try {
       this.filterService.filterMarkers(this.markerService.markers);
     } catch (error) {
@@ -91,12 +120,13 @@ export class SearchComponent implements OnDestroy {
    * Generates search suggestions based on user input.
    * Normalizes input, retrieves filtered markers, and updates suggestionsList.
    */
-  private generateSuggestions(): void {
+  private generateSuggestions(inputValue: string): void {
     const filteredMarkerData = this.filterService.filteredMarkers
       .map((marker) => this.markerService.markerDataMap.get(marker))
       .filter((markerData) => markerData?.vakufName) as VakufMarkerDetails[];
 
-    const suggestions = generateSearchSuggestions(filteredMarkerData, this.searchQuery);
+    // Ensure you're using inputValue to generate suggestions
+    const suggestions = generateSearchSuggestions(filteredMarkerData, inputValue);
     this.suggestionsList = suggestions;
   }
 
@@ -105,15 +135,8 @@ export class SearchComponent implements OnDestroy {
    * Closes other info windows, toggles visibility of suggestions, and updates the search query.
    * @param {string} inputValue - The current value of the search input field.
    */
-  protected handleInputChange(inputValue: string): void {
-    this.markerEventService.closeOtherInfoWindows();
-    if (inputValue.length > 0) {
-      this.generateSuggestions();
-      this.isSuggestionsVisible = true;
-    } else {
-      this.isSuggestionsVisible = false;
-    }
-    this.updateSearchQuery(inputValue);
+  private handleInputChange(inputValue: string): void {
+    this.searchQueryChanges.next(inputValue);
   }
 
   /**

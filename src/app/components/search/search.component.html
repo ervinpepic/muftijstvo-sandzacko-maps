@@ -1,7 +1,7 @@
 <div class="m-1">
   <div class="input-group mt-2 mt-lg-0">
     <span
-      *ngIf="searchQuery === ''; else showCountNumber"
+      *ngIf="searchQuery === '' || !validateInputField(searchQuery) ; else showCountNumber"
       id="searchIcon"
       class="input-group-text"
     >
@@ -23,7 +23,7 @@
       placeholder="Naziv vakufa | broj parcele"
       autocomplete="off"
       [(ngModel)]="searchQuery"
-      (ngModelChange)="filterMarkers(); handleInputChange(searchQuery)"
+      (ngModelChange)="searchQueryChanges.next(searchQuery)"
       (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
     >
   </div>
