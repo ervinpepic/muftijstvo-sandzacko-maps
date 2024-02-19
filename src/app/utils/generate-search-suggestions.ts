@@ -1,5 +1,5 @@
 import { VakufMarkerDetails } from '../interface/Marker';
-import { normalizeString } from './latin-chars-unorm';
+import { normalizeString } from './input-validators';
 
 /**
  * Generates a list of search suggestions based on the user's search query and a list of filtered markers. This function 

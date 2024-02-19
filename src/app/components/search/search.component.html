@@ -2,7 +2,7 @@
   <div class="input-group mt-2 mt-lg-0">
     <span
       title="Započnite pretragu vakfua klikom u polje."
-      *ngIf="searchQuery === '' || !validateInputField(searchQuery) ; else showCountNumber"
+      *ngIf="searchQuery === '' || searchQuery.startsWith(' '); else showCountNumber"
       id="searchIcon"
       class="input-group-text"
     >

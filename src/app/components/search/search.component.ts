@@ -1,7 +1,4 @@
-import {
-  CdkVirtualScrollViewport,
-  ScrollingModule,
-} from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +10,7 @@ import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
+import { isNumericInput, validateInputField } from '../../utils/input-validators';
 
 @Component({
   selector: 'app-search',
@@ -22,15 +20,13 @@ import { generateSearchSuggestions } from '../../utils/generate-search-suggestio
   styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnInit, OnDestroy {
-  protected searchQueryChanges = new Subject<string>(); // Search debouncing container
-  private destroy$ = new Subject<void>();
   suggestionsList: string[] = []; // Holds the list of search suggestions.
   selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
   isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
 
-  @ViewChild(CdkVirtualScrollViewport)
-  viewport?: CdkVirtualScrollViewport;
-
+  protected searchQueryChanges = new Subject<string>(); // Search debouncing container
+  private destroy$ = new Subject<void>(); // Subscription remover
+  @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
   /**
    * Getter for searchQuery. Retrieves the current search query from the FilterService.
    * @returns {string} The current search query.
@@ -45,11 +41,6 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   set searchQuery(value: string) {
     this.filterService.searchQuery = value;
-  }
-
-  protected validateInputField(inputField: string): boolean {
-    const regex = /^(?=[A-Za-z0-9])([A-Za-z0-9\s.]*)(?<=[A-Za-z0-9])$/
-    return regex.test(inputField)
   }
 
   /**
@@ -75,13 +66,13 @@ export class SearchComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe((inputValue) => {
       this.markerEventService.closeOtherInfoWindows();
-      if (inputValue.length > 0 && !this.validateInputField(inputValue)) {
+      if (inputValue.length > 0 && !validateInputField(inputValue)) {
         this.isSuggestionsVisible = false;
         this.suggestionsList = [];
         return;
       }
       this.filterMarkers();
-      if (inputValue.length > 0) {
+      if (inputValue.length > 0 && validateInputField(inputValue)) {
         this.generateSuggestions(inputValue);
         this.isSuggestionsVisible = true;
       } else {
@@ -91,7 +82,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.updateSearchQuery(inputValue);
     });
   }
-  
+
   /**
    * Cleans up resources and subscriptions when the component is destroyed.
    */
@@ -129,31 +120,13 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles changes to the search input field.
-   * Closes other info windows, toggles visibility of suggestions, and updates the search query.
-   * @param {string} inputValue - The current value of the search input field.
-   */
-  private handleInputChange(inputValue: string): void {
-    this.searchQueryChanges.next(inputValue);
-  }
-
-  /**
-   * Checks if the input string is numeric.
-   * @param {string} input - The input string to check.
-   * @returns {boolean} True if the input is numeric, false otherwise.
-   */
-  private isNumericInput(input: string): boolean {
-    return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
-  }
-
-  /**
    * Updates the search query based on user input, splitting and analyzing the input value.
    * @param {string} inputValue - The input value from the search field.
    */
   private updateSearchQuery(inputValue: string): void {
     const searchQueryParts = inputValue.split(' ');
     const numberPart = searchQueryParts[0];
-    if (this.isNumericInput(numberPart)) {
+    if (isNumericInput(numberPart)) {
       this.filterService.searchQuery = numberPart;
     } else {
       this.filterService.searchQuery = inputValue;
@@ -169,6 +142,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.isSuggestionsVisible = false;
     this.filterMarkers();
   }
+
 
   /**
    * Handles keyboard navigation within the search suggestions using arrow keys.

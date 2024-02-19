@@ -24,3 +24,22 @@ export function normalizeString(inputValue: string): string {
 
   return normalizedLowerCaseStr;
 }
+
+/**
+ * Checks if the input string is numeric.
+ * @param {string} input - The input string to check.
+ * @returns {boolean} True if the input is numeric, false otherwise.
+ */
+export function isNumericInput(input: string): boolean {
+  return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
+}
+
+/**
+ * Checks if the input value satisfy given criteria.
+ * @param {string} inputField - The input string to check.
+ * @returns {boolean} True if the input is numeric, false otherwise.
+ */
+export function validateInputField(inputField: string): boolean {
+  const regex = /^(?=[A-Za-z0-9])([A-Za-z0-9\s.]*)(?<=[A-Za-z0-9])$/
+  return regex.test(inputField)
+}

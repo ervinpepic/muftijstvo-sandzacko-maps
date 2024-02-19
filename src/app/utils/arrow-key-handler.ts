@@ -31,7 +31,7 @@ export function handleSearchNavigationKeys(
   switch (keyboardEventKey) {
     case 'ArrowDown':
       newIndex = (currentIndex + 1) % currentListLength;
-      scrollToIndex(viewport, newIndex, 'down');
+      scrollToIndex(viewport, newIndex + 0.03, 'down');
       break;
     case 'ArrowUp':
       if (currentIndex <= 0) { // Adjusted to handle when currentIndex is -1 or 0.
@@ -39,7 +39,7 @@ export function handleSearchNavigationKeys(
       } else {
         newIndex = currentIndex - 1;
       }
-      scrollToIndex(viewport, newIndex - 0.1, 'up');
+      scrollToIndex(viewport, newIndex - 0.09, 'up');
       break;
     case 'Enter':
       if (newIndex >= 0 && newIndex < currentListLength) {

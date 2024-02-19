@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { debounceTime, take } from 'rxjs/operators';
 import { VakufMarkerDetails } from '../interface/Marker';
-import { normalizeString } from '../utils/latin-chars-unorm';
+import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 
