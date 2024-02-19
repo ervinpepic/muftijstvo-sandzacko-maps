@@ -27,6 +27,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
   @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
+
   /**
    * Getter for searchQuery. Retrieves the current search query from the FilterService.
    * @returns {string} The current search query.
@@ -43,12 +44,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.filterService.searchQuery = value;
   }
 
-  /**
-   * Constructs the SearchComponent and subscribes to necessary observables.
-   * @param markerService - Provides marker related functionalities.
-   * @param filterService - Provides filtering capabilities.
-   * @param markerEventService - Handles marker-related events.
-   */
   constructor(
     private markerService: MarkerService,
     private filterService: FilterService,
@@ -65,21 +60,17 @@ export class SearchComponent implements OnInit, OnDestroy {
       debounceTime(300),
       takeUntil(this.destroy$)
     ).subscribe((inputValue) => {
-      this.markerEventService.closeOtherInfoWindows();
-      if (inputValue.length > 0 && !validateInputField(inputValue)) {
-        this.isSuggestionsVisible = false;
-        this.suggestionsList = [];
-        return;
-      }
-      this.filterMarkers();
       if (inputValue.length > 0 && validateInputField(inputValue)) {
+        this.filterMarkers();
         this.generateSuggestions(inputValue);
-        this.isSuggestionsVisible = true;
+        this.isSuggestionsVisible = true
       } else {
+        this.isSuggestionsVisible = false
         this.suggestionsList = [];
-        this.isSuggestionsVisible = false;
       }
-      this.updateSearchQuery(inputValue);
+      if (inputValue === '') {
+        this.filterMarkers();
+      }
     });
   }
 
@@ -113,8 +104,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     const filteredMarkerData = this.filterService.filteredMarkers
       .map((marker) => this.markerService.markerDataMap.get(marker))
       .filter((markerData) => markerData?.vakufName) as VakufMarkerDetails[];
-
-    // Ensure you're using inputValue to generate suggestions
     const suggestions = generateSearchSuggestions(filteredMarkerData, inputValue);
     this.suggestionsList = suggestions;
   }
@@ -143,7 +132,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.filterMarkers();
   }
 
-
   /**
    * Handles keyboard navigation within the search suggestions using arrow keys.
    * Updates the selected suggestion index based on keyboard input.
@@ -159,12 +147,10 @@ export class SearchComponent implements OnInit, OnDestroy {
         event.key,
         currentIndex,
         this.suggestionsList,
-        (query) => (this.searchQuery = query),
         (currentIndex) =>
           this.selectSearchSuggestion(this.suggestionsList[currentIndex]),
         this.viewport!
       );
-
       this.selectedSuggestionIndex = currentIndex;
     } catch (error) {
       console.error('Error handling arrow key navigation:', error);

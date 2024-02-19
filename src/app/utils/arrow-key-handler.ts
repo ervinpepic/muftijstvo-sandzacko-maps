@@ -19,7 +19,6 @@ export function handleSearchNavigationKeys(
   keyboardEventKey: string,
   currentIndex: number,
   suggestionsList: string[],
-  setSearchQuery: (query: string) => void,
   onEnter: (currentIndex: number) => void,
   viewport: CdkVirtualScrollViewport
 ): number {
@@ -34,7 +33,7 @@ export function handleSearchNavigationKeys(
       scrollToIndex(viewport, newIndex + 0.03, 'down');
       break;
     case 'ArrowUp':
-      if (currentIndex <= 0) { // Adjusted to handle when currentIndex is -1 or 0.
+      if (currentIndex <= 0) {
         newIndex = currentIndex === - 1 ? currentListLength - 1 : currentListLength - 1;
       } else {
         newIndex = currentIndex - 1;
@@ -49,7 +48,6 @@ export function handleSearchNavigationKeys(
     default:
       return -1; // No change in index for other keys
   }
-  setSearchQueryIfNeeded(newIndex, suggestionsList, setSearchQuery);
 
   return newIndex;
 }
@@ -89,23 +87,5 @@ function scrollToIndex(
     viewport.scrollToOffset(itemTopPosition - viewportSize + itemHeight, 'smooth');
   } else if (itemTopPosition < viewportScrollPosition) {
     viewport.scrollToOffset(itemTopPosition, 'smooth');
-  }
-}
-
-
-/**
- * Updates the search query based on the selected suggestion if the index is valid.
- * 
- * @param index The current index of the selected suggestion.
- * @param suggestionsList An array of suggestion strings.
- * @param setSearchQuery Function to update the search query.
- */
-function setSearchQueryIfNeeded(
-  index: number,
-  suggestionsList: string[],
-  setSearchQuery: (query: string) => void
-): void {
-  if (index >= 0 && index < suggestionsList.length) {
-    setSearchQuery(suggestionsList[index]);
   }
 }

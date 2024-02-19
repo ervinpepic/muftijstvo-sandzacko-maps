@@ -15,9 +15,16 @@ import unorm from 'unorm';
  * @returns {string} The normalized string, with specific character substitutions applied, diacritical marks removed, 
  *                   and converted to lowercase.
  */
+const replacements: { [key: string]: string } = {
+  'dj': 'đ',
+  'q': 'k',
+  'x': 'ks',
+  'w': 'v',
+  // Add more replacements here
+};
 export function normalizeString(inputValue: string): string {
   let normalizedStr = unorm.nfd(inputValue);
-  normalizedStr = normalizedStr.replace(/dj/g, 'đ');
+  normalizedStr = normalizedStr.replace(/dj|q|x|w/g, (match: string) => replacements[match]);
   const normalizedLowerCaseStr = normalizedStr
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();

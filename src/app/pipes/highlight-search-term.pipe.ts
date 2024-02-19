@@ -23,34 +23,37 @@ export class HighlightSearchTermPipe implements PipeTransform {
     if (!searchTerm || !value) {
       return value;
     }
-  
+
     // Substitute characters first
     const normalizedSearchTerm = this.substituteChars(searchTerm.toLowerCase());
-  
+
     // Then, build the regex pattern directly from the substituted string
     // Note: This assumes that the substitutions have been designed to be safe for direct regex use
     const regex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
-  
+
     // Highlight the terms
     const highlighted = value.replace(regex, '<strong>$1</strong>');
-  
+
     // Assuming you're using this in an Angular template with [innerHTML] to bypass default escaping
     return highlighted;
   }
-  
+
   private substituteChars(input: string): string {
     const charMap: { [key: string]: string } = {
       s: '[sš]',
       dj: '[đdj]',
       c: '[cćč]',
       z: '[zž]',
+      w: 'v',
+      q: 'k',
+      x: '[ks]'
       // Add more substitutions as needed
     };
-  
+
     return Object.keys(charMap).reduce(
       (acc, cur) => acc.replace(new RegExp(cur, 'gi'), charMap[cur]),
       input
     );
   }
-  
+
 }
