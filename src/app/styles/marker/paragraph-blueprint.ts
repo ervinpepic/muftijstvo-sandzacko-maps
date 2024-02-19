@@ -31,7 +31,9 @@ export const createParagraphHTML = (
   title: string,
   content: string
 ) =>
-  `<p class='${paragraphTitleClass}'>
+  `<p
+    title='Prikazuje ${title} vakufa' 
+    class='${paragraphTitleClass}'>
     <span class='material-symbols-outlined'>${icon}</span> ${title}
     <span class='d-block ${paragraphContentClass}'>
       ${content}

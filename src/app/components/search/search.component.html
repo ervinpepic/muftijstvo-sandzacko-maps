@@ -1,6 +1,7 @@
 <div class="m-1">
   <div class="input-group mt-2 mt-lg-0">
     <span
+      title="Započnite pretragu vakfua klikom u polje."
       *ngIf="searchQuery === '' || !validateInputField(searchQuery) ; else showCountNumber"
       id="searchIcon"
       class="input-group-text"
@@ -8,13 +9,17 @@
       <i class="fas fa-search-location fa-lg search-icon"></i>
     </span>
     <ng-template #showCountNumber>
-      <span class="input-group-text" id="searchCountNumber">
+      <span 
+      title="Prikazuje broj pronađenih vakufa"
+      class="input-group-text" id="searchCountNumber">
         {{ suggestionsList.length }}
       </span>
     </ng-template>
     <input
+      title="Polje za pretragu vakufa po nazivu ili broju parcele"
       class="form-control"
       type="search"
+      id="searchQuery"
       name="searchQuery"
       aria-label="Search"
       aria-haspopup="listbox"
@@ -45,9 +50,10 @@
     </div>
     <cdk-virtual-scroll-viewport
       class="list-group search-suggestions"
-      [itemSize]="50"
+      itemSize="41"
     >
       <div
+        title="Lista sa pronađenim predlozima vakufa"
         *cdkVirtualFor="let suggestion of suggestionsList; let i = index"
         class="list-group-item hover-effect"
         [ngClass]="{ selected: i === selectedSuggestionIndex }"

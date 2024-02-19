@@ -1,6 +1,6 @@
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
-const LIST_ITEM_HEIGHT = 50; // Height of each suggestion item in the list
+const LIST_ITEM_HEIGHT = 41; // Height of each suggestion item in the list
 
 /**
  * Handles keyboard navigation (ArrowUp, ArrowDown, Enter) within a suggestions list.
@@ -39,7 +39,7 @@ export function handleSearchNavigationKeys(
       } else {
         newIndex = currentIndex - 1;
       }
-      scrollToIndex(viewport, newIndex - 1, 'up');
+      scrollToIndex(viewport, newIndex - 0.1, 'up');
       break;
     case 'Enter':
       if (newIndex >= 0 && newIndex < currentListLength) {
@@ -54,13 +54,13 @@ export function handleSearchNavigationKeys(
   return newIndex;
 }
 
-
 /**
  * Scrolls the viewport to ensure the item at the specified index is visible.
  * Adjusts the scroll position to center the selected item in the viewport if possible.
  * 
  * @param viewport The virtual scroll viewport instance.
  * @param index The index of the item to scroll into view.
+ * @param direction the way of the scrolling
  */
 function scrollToIndex(
   viewport: CdkVirtualScrollViewport,
@@ -72,11 +72,11 @@ function scrollToIndex(
   const itemHeight = LIST_ITEM_HEIGHT; // Ensure this matches your actual item height
   const viewportSize = viewport.getViewportSize();
   const totalItemsHeight = viewport.getDataLength() * itemHeight;
-  const viewportScrollPosition = viewport.measureScrollOffset();
+  const viewportScrollPosition = viewport.measureScrollOffset()
 
   // When navigating down and we wrap to the first item or navigating up to the last item
   if ((direction === 'down' && index === 0) || (direction === 'up' && index === viewport.getDataLength() - 1)) {
-    const targetScrollPosition = direction === 'down' ? 0 : Math.min(0, totalItemsHeight - viewportSize);
+    const targetScrollPosition = direction === 'down' ? 0 : totalItemsHeight - viewportSize;
     viewport.scrollToOffset(targetScrollPosition, 'smooth');
     return;
   }

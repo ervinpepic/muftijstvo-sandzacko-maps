@@ -1,9 +1,9 @@
 <div class="navbar-nav">
   <ng-select
+    title="Padajući meni za odabir tipa vakufa"
     class="custom m-1"
+    id="vakufType"
     name="vakufType"
-    aria-label="Vakuf Type"
-    aria-labelledby="vakufTypeLabel"
     placeholder="Tip vakufa"
     [(ngModel)]="selectedVakufType"
     (ngModelChange)="filterMarkersNames(); handleVakufTypeChange()"
@@ -14,12 +14,12 @@
   </ng-select>
 
   <ng-select
+    title="Padajući meni za odabir grada"
     #openCities
     class="custom m-1"
+    id="selectedCity"
     name="selectedCity"
-    aria-label="City"
     placeholder="Grad"
-    aria-labelledby="cityLabel"
     [(ngModel)]="selectedCity"
     (ngModelChange)="filterMarkersNames(); handleCityChange()"
   >
@@ -29,13 +29,13 @@
   </ng-select>
 
   <ng-select
+    title="Padajući meni za odabir naziva vakufa"
     #openVakufNames
     class="custom m-1"
     style="min-width: 250px"
+    id="filteredVakufNames"
     name="filteredVakufNames"
-    aria-label="Vakuf name"
     placeholder="Naziv vakufa"
-    aria-labelledby="vakufNameLabel"
     [(ngModel)]="selectedVakufName"
     (ngModelChange)="filterMarkers()"
   >
