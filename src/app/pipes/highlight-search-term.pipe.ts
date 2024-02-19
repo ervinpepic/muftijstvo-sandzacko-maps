@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Pipe({
   name: 'highlightSearchTerm',
@@ -24,36 +23,30 @@ export class HighlightSearchTermPipe implements PipeTransform {
       return value;
     }
 
-    // Substitute characters first
-    const normalizedSearchTerm = this.substituteChars(searchTerm.toLowerCase());
+    function escapeRegExp(string: string): string {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
 
-    // Then, build the regex pattern directly from the substituted string
-    // Note: This assumes that the substitutions have been designed to be safe for direct regex use
-    const regex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
+    function substituteChars(input: string): string {
+      const charMap: { [key: string]: string } = {
+        s: '[sš]',
+        dj: '[đdj]',
+        c: '[cćč]',
+        z: '[zž]',
+        w: 'v',
+        q: 'k',
+        x: '[ks]'
+      };
+      return Object.keys(charMap).reduce(
+        (acc, cur) => acc.replace(new RegExp(cur, 'g'), charMap[cur]),
+        input
+      );
+    }
 
-    // Highlight the terms
-    const highlighted = value.replace(regex, '<strong>$1</strong>');
-
-    // Assuming you're using this in an Angular template with [innerHTML] to bypass default escaping
-    return highlighted;
-  }
-
-  private substituteChars(input: string): string {
-    const charMap: { [key: string]: string } = {
-      s: '[sš]',
-      dj: '[đdj]',
-      c: '[cćč]',
-      z: '[zž]',
-      w: 'v',
-      q: 'k',
-      x: '[ks]'
-      // Add more substitutions as needed
-    };
-
-    return Object.keys(charMap).reduce(
-      (acc, cur) => acc.replace(new RegExp(cur, 'gi'), charMap[cur]),
-      input
-    );
+    const searchTermEscaped = escapeRegExp(searchTerm.toLowerCase());
+    const normalizedInputValue = substituteChars(searchTermEscaped);
+    const regex = new RegExp(`(${normalizedInputValue})`, 'gi');
+    return value.replace(regex, '<strong>$1</strong>');
   }
 
 }
