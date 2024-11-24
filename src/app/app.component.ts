@@ -6,7 +6,6 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { MapService } from './services/map.service';
 import { MarkerService } from './services/marker.service';
@@ -46,7 +45,7 @@ declare var bootstrap: any; // Declare Bootstrap as any to avoid TypeScript erro
   standalone: true,
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  imports: [CommonModule, RouterOutlet, NavbarComponent],
+  imports: [CommonModule, NavbarComponent],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   constructor(
