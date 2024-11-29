@@ -15,7 +15,7 @@ import { MarkerService } from '../../services/marker.service';
 })
 export class SelectComponent implements OnInit {
   filteredMarkerNames: string[] = []; // An array to store the names of filtered markers.
-  filteredMarkers: google.maps.Marker[] = []; //An array to store filtered markers.
+  filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; //An array to store filtered markers.
   vakufObjectTypes?: string[]; // A list of object types received from the server.
   vakufCities?: string[]; // A list of cities received from the server.
 

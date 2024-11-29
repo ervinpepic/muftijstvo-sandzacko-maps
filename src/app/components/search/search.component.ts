@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
-import { VakufMarkerDetails } from '../../interface/Marker';
+import { Marker } from '../../interface/Marker';
 import { HighlightSearchTermPipe } from '../../pipes/highlight-search-term.pipe';
 import { FilterService } from '../../services/filter.service';
-import { MarkerEventService } from '../../services/marker-event.service';
 import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
@@ -47,15 +46,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   constructor(
     private markerService: MarkerService,
     private filterService: FilterService,
-    private markerEventService: MarkerEventService,
   ) { }
 
   ngOnInit(): void {
-    this.markerEventService.mapClicked
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.isSuggestionsVisible = false;
-      });
     this.searchQueryChanges.pipe(
       debounceTime(300),
       takeUntil(this.destroy$)
@@ -85,7 +78,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   /**
    * Filters markers at the component level using the FilterService.
    * Retrieves, filters based on search criteria and filters, and returns an array of filtered markers.
-   * @returns {VakufMarkerDetails[]} An array of CustomMarker objects representing the filtered markers.
+   * @returns {Marker[]} An array of CustomMarker objects representing the filtered markers.
    * @throws {Error} When an error occurs during the filtering process.
    */
   private filterMarkers(): void {
@@ -103,7 +96,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private generateSuggestions(inputValue: string): void {
     const filteredMarkerData = this.filterService.filteredMarkers
       .map((marker) => this.markerService.markerDataMap.get(marker))
-      .filter((markerData) => markerData?.vakufName) as VakufMarkerDetails[];
+      .filter((markerData) => markerData?.vakufName) as Marker[];
     const suggestions = generateSearchSuggestions(filteredMarkerData, inputValue);
     this.suggestionsList = suggestions;
   }

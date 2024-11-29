@@ -1,4 +1,4 @@
-import { VakufMarkerDetails } from '../interface/Marker';
+import { Marker } from '../interface/Marker';
 import { normalizeString } from './input-validators';
 
 /**
@@ -13,7 +13,7 @@ import { normalizeString } from './input-validators';
  * converted to an array, sorted by relevance to the search query to improve the user's ability to quickly find the 
  * desired result.
  *
- * @param {VakufMarkerDetails[]} filteredMarkers - An array of markers that have been filtered based on some criteria, 
+ * @param {Marker[]} filteredMarkers - An array of markers that have been filtered based on some criteria, 
  *                                           providing a subset of markers to generate suggestions from.
  * @param {string} searchQuery - The user's input used to generate search suggestions. This query is normalized to 
  *                               ensure case and accent-insensitive matching.
@@ -22,7 +22,7 @@ import { normalizeString } from './input-validators';
  * @throws Will log an error to the console if an exception occurs during the generation of search suggestions.
  */
 export function generateSearchSuggestions(
-  filteredMarkers: VakufMarkerDetails[],
+  filteredMarkers: Marker[],
   searchQuery: string
 ): string[] {
   try {

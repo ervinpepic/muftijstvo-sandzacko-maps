@@ -1,4 +1,4 @@
-import { VakufMarkerDetails } from '../../interface/Marker';
+import { Marker } from '../../interface/Marker';
 import { createParagraphHTML, getParagraphDetails, linkSuccess } from './paragraph-blueprint';
 
 /**
@@ -12,11 +12,11 @@ import { createParagraphHTML, getParagraphDetails, linkSuccess } from './paragra
  * visibility of the vakuf image and another link to expand a message offering users the ability to submit their own 
  * images if they have a better one.
  *
- * @param {VakufMarkerDetails} marker - The marker object containing details about the vakuf, including its type, name, 
+ * @param {Marker} marker - The marker object containing details about the vakuf, including its type, name, 
  *                                image URL, and other relevant information used to populate the InfoWindow content.
  * @returns {string} The fully constructed HTML content for the InfoWindow, ready to be displayed to the user.
  */
-export function infoWindowStyle(marker: VakufMarkerDetails) {
+export function infoWindowStyle(marker: Marker) {
 
   const paragraphDetails = getParagraphDetails(marker);
   const paragraphsHtml = paragraphDetails.map(({ icon, title, content }) =>

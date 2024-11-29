@@ -1,4 +1,4 @@
-import { VakufMarkerDetails } from '../../interface/Marker';
+import { Marker } from '../../interface/Marker';
 /**
  * Class string defining the style for paragraph titles within the info window.
  * Includes text size, alignment, and font weight.
@@ -44,10 +44,10 @@ export const createParagraphHTML = (
  * Constructs an array of paragraph detail objects for a given marker.
  * Each object contains an icon, title, and content to be used in creating HTML paragraphs.
  *
- * @param {VakufMarkerDetails} marker - The marker data used to generate paragraph details.
+ * @param {Marker} marker - The marker data used to generate paragraph details.
  * @returns {Array<Object>} An array of objects where each object represents details for a paragraph.
  */
-export const getParagraphDetails = (marker: VakufMarkerDetails) => [
+export const getParagraphDetails = (marker: Marker) => [
   {
     icon: 'calendar_month',
     title: marker.vakufType === 'Džamija' ? 'Izgrađena: ' : 'Uvakufljeno: ',

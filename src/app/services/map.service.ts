@@ -3,9 +3,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { PolygonsBoundaries } from '../polygons/map-polygons';
-import { mapStyle } from '../styles/map/map-style';
 import { getInitialZoomLevel } from '../utils/dynamic-zoom';
-import { MarkerEventService } from './marker-event.service';
 import { MarkerService } from './marker.service';
 /**
  * Service responsible for creating instance of Google Maps.
@@ -17,7 +15,6 @@ import { MarkerService } from './marker.service';
 export class MapService {
   private _map: google.maps.Map | undefined;
   private _map$ = new BehaviorSubject<google.maps.Map | undefined>(undefined);
-  private polygons?: PolygonsBoundaries;
 
   readonly initialMapCenter = {
     lat: 42.99603931107363,
@@ -25,10 +22,10 @@ export class MapService {
   };
   private initialMapZoom: number = getInitialZoomLevel();
 
-  constructor(
-    private markerService: MarkerService,
-    private markerEventService: MarkerEventService
-  ) {}
+  private polygons?: PolygonsBoundaries;
+
+
+  constructor(private markerService: MarkerService) {}
 
   // Returns the current Google Map instance.
   get map(): google.maps.Map | undefined {
@@ -79,7 +76,7 @@ export class MapService {
     this.map = new google.maps.Map(mapContainer.nativeElement, {
       center: this.initialMapCenter,
       zoom: this.initialMapZoom,
-      styles: mapStyle,
+      mapId: environment.googleApi.GOOGLEMAPS_ID,
     });
 
     // Create markers on the map
@@ -88,8 +85,5 @@ export class MapService {
     // Draw polygons on the map
     this.polygons = new PolygonsBoundaries(this.map);
     this.polygons.drawPolygons();
-
-    // Handle map click event
-    this.markerEventService.handleMapClick(this.map);
   }
 }

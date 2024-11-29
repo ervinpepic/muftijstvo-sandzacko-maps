@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { debounceTime, take } from 'rxjs/operators';
-import { VakufMarkerDetails } from '../interface/Marker';
+import { Marker } from '../interface/Marker';
 import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
@@ -16,25 +16,26 @@ export class FilterService {
   constructor(
     private mapService: MapService,
     private markerService: MarkerService
-  ) {}
+  ) { }
 
+  map?: google.maps.Map;
   private searchTimeDelay: number = 800; // Delay for debouncing search input
 
   private _searchQuery: string = ''; // Search query string
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
   private _selectedVakufName: string | null = null; // Selected vakuf name filter
-  private _filteredMarkers: google.maps.Marker[] = [];
+  private _filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
   // Getter methods to expose values// In FilterService
 
-public get filteredMarkers(): google.maps.Marker[] {
-  return this._filteredMarkers;
-}
+  public get filteredMarkers(): google.maps.marker.AdvancedMarkerElement[] {
+    return this._filteredMarkers;
+  }
 
-private setFilteredMarkers(markers: google.maps.Marker[]): void {
-  this._filteredMarkers = markers;
-}
+  private setFilteredMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): void {
+    this._filteredMarkers = markers;
+  }
   get searchQuery(): string {
     return this._searchQuery;
   }
@@ -73,31 +74,31 @@ private setFilteredMarkers(markers: google.maps.Marker[]): void {
    * @param markers - An array of markers to filter.
    * @returns An array of CustomMarker objects representing the visible markers.
    */
-  filterMarkers(markers: google.maps.Marker[]): google.maps.Marker[] {
+  filterMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): google.maps.marker.AdvancedMarkerElement[] {
     // Normalize the search query
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
-    const visibleMarkers: google.maps.Marker[] = [];
-  
+    const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+
     markers.forEach((marker) => {
       // Retrieve the custom data for the marker
       const customData = this.markerService.markerDataMap.get(marker);
-  
+
       if (customData) {
         const isVisible = this.isVisibleMarker(customData, normalizedSearchTerm);
         this.setMarkerVisibility(marker, isVisible);
-  
+
         if (isVisible) {
-          bounds.extend(marker.getPosition()!);
+          bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
           visibleMarkers.push(marker); // Collect visible markers directly
         }
       }
     });
-  
+
     if (visibleMarkers.length > 0) {
       this.fitBoundsAfterDelay(bounds);
     }
-  
+
     if (this.markerService.markerCluster) {
       this.markerService.markerCluster.clearMarkers();
       this.markerService.markerCluster.addMarkers(visibleMarkers);
@@ -112,7 +113,7 @@ private setFilteredMarkers(markers: google.maps.Marker[]): void {
    * @param searchTerm - The normalized search term.
    * @returns A boolean indicating if the marker is visible.
    */
-  private isVisibleMarker(data: VakufMarkerDetails, searchTerm: string): boolean {
+  private isVisibleMarker(data: Marker, searchTerm: string): boolean {
     const { city, vakufType, vakufName, cadastralParcelNumber } = data;
     const normalizedVakufName = this.normalizeSearchTerm(vakufName); // Normalize vakufName here
 
@@ -147,8 +148,8 @@ private setFilteredMarkers(markers: google.maps.Marker[]): void {
    * @param marker - The marker to set visibility for.
    * @param isVisible - A boolean indicating whether the marker should be visible.
    */
-  private setMarkerVisibility(marker: google.maps.Marker, isVisible: boolean): void {
-    marker.setVisible(isVisible);
+  private setMarkerVisibility(marker: google.maps.marker.AdvancedMarkerElement, isVisible: boolean): void {
+    marker.map = isVisible ? this.map : null;
   }
 
   /**

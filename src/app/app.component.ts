@@ -52,7 +52,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     private mapService: MapService,
     private markerService: MarkerService
   ) {}
-  title = 'Muftijstvo Sandzacko mapa vakufa';
 
   @ViewChild('mapContainer', { static: true }) mapContainer?: ElementRef;
   @ViewChild('popoverButton') popoverButton!: ElementRef;
