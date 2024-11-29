@@ -6,7 +6,7 @@ const LIST_ITEM_HEIGHT = 41; // Height of each suggestion item in the list
  * Handles keyboard navigation (ArrowUp, ArrowDown, Enter) within a suggestions list.
  * Updates the search query to reflect the currently highlighted suggestion and ensures
  * that the suggestion is visible within the virtual scroll viewport.
- * 
+ *
  * @param keyboardEventKey The key associated with the keyboard event.
  * @param currentIndex The current index of the selected suggestion.
  * @param suggestionsList An array of suggestion strings.
@@ -34,7 +34,8 @@ export function handleSearchNavigationKeys(
       break;
     case 'ArrowUp':
       if (currentIndex <= 0) {
-        newIndex = currentIndex === - 1 ? currentListLength - 1 : currentListLength - 1;
+        newIndex =
+          currentIndex === -1 ? currentListLength - 1 : currentListLength - 1;
       } else {
         newIndex = currentIndex - 1;
       }
@@ -55,7 +56,7 @@ export function handleSearchNavigationKeys(
 /**
  * Scrolls the viewport to ensure the item at the specified index is visible.
  * Adjusts the scroll position to center the selected item in the viewport if possible.
- * 
+ *
  * @param viewport The virtual scroll viewport instance.
  * @param index The index of the item to scroll into view.
  * @param direction the way of the scrolling
@@ -67,14 +68,18 @@ function scrollToIndex(
 ): void {
   if (!viewport || index < 0) return;
 
-  const itemHeight = LIST_ITEM_HEIGHT; // Ensure this matches your actual item height
+  const itemHeight = LIST_ITEM_HEIGHT;
   const viewportSize = viewport.getViewportSize();
   const totalItemsHeight = viewport.getDataLength() * itemHeight;
-  const viewportScrollPosition = viewport.measureScrollOffset()
+  const viewportScrollPosition = viewport.measureScrollOffset();
 
   // When navigating down and we wrap to the first item or navigating up to the last item
-  if ((direction === 'down' && index === 0) || (direction === 'up' && index === viewport.getDataLength() - 1)) {
-    const targetScrollPosition = direction === 'down' ? 0 : totalItemsHeight - viewportSize;
+  if (
+    (direction === 'down' && index === 0) ||
+    (direction === 'up' && index === viewport.getDataLength() - 1)
+  ) {
+    const targetScrollPosition =
+      direction === 'down' ? 0 : totalItemsHeight - viewportSize;
     viewport.scrollToOffset(targetScrollPosition, 'smooth');
     return;
   }
@@ -84,7 +89,10 @@ function scrollToIndex(
 
   // Adjust viewport only if the item is out of view
   if (itemBottomPosition > viewportScrollPosition + viewportSize) {
-    viewport.scrollToOffset(itemTopPosition - viewportSize + itemHeight, 'smooth');
+    viewport.scrollToOffset(
+      itemTopPosition - viewportSize + itemHeight,
+      'smooth'
+    );
   } else if (itemTopPosition < viewportScrollPosition) {
     viewport.scrollToOffset(itemTopPosition, 'smooth');
   }

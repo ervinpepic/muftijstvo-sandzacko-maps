@@ -1,5 +1,5 @@
 import { Marker } from '../../interface/Marker';
-import { createParagraphHTML, getParagraphDetails, linkSuccess } from './paragraph-blueprint';
+import { createParagraphHTML, getParagraphDetails, linkSuccess } from './paragraph-base-style';
 
 /**
  * Generates HTML content for an InfoWindow associated with a given marker. This function constructs the content by 

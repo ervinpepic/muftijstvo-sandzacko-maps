@@ -1,7 +1,9 @@
 import { Marker } from '../../interface/Marker';
 import { infoWindowStyle } from './info-window-style';
 
-export function addMarkerHoverEffect(
+let infoWindow: google.maps.InfoWindow | undefined = undefined;
+
+export function markerHoverEffect(
   marker: google.maps.marker.AdvancedMarkerElement,
   svgImageElement: HTMLImageElement
 ) {
@@ -17,34 +19,25 @@ export function addMarkerHoverEffect(
   });
 }
 
-export function addMarkerClickListener(
+export function markerClickListener(
   marker: google.maps.marker.AdvancedMarkerElement,
   map: google.maps.Map,
   markerData: Marker,
-  infoWindow: google.maps.InfoWindow | undefined
 ) {
   marker.addListener('click', () => {
-    // Close the previous info window if needed
     if (infoWindow) {
       infoWindow.close();
     }
-
-    // Create and open the new info window
-    const newInfoWindow = new google.maps.InfoWindow({
+    infoWindow = new google.maps.InfoWindow({
       content: infoWindowStyle(markerData),
     });
 
-    newInfoWindow.open({
+    infoWindow.open({
       anchor: marker,
       map: map,
     });
-
-    // Optionally update the reference to the currently open info window
-    infoWindow = newInfoWindow;
-    // Add event listener for when the InfoWindow is closed
-    newInfoWindow.addListener('closeclick', () => {
-      // Slightly zoom out the map
-      const currentZoom = map.getZoom() || 15; // Default to 15 if no zoom level is available
+    infoWindow.addListener('closeclick', () => {
+      const currentZoom = map.getZoom() || 15;
       map.setZoom(currentZoom - 0.5);
     });
   });

@@ -79,7 +79,7 @@ export class FilterService {
   filterMarkers(
     markers: google.maps.marker.AdvancedMarkerElement[]
   ): google.maps.marker.AdvancedMarkerElement[] {
-    // Normalize the search query
+    
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
     const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
@@ -156,22 +156,6 @@ export class FilterService {
    */
   private normalizeSearchTerm(term: string | null): string {
     return term ? normalizeString(term.toLowerCase()) : '';
-  }
-
-  /**
-   * Sets the visibility of a marker.
-   * @param marker - The marker to set visibility for.
-   * @param isVisible - A boolean indicating whether the marker should be visible.
-   */
-  private setMarkerVisibility(
-    marker: google.maps.marker.AdvancedMarkerElement,
-    isVisible: boolean
-  ): void {
-    if (isVisible) {
-      this.mapService.addMarker(marker);
-    } else {
-      this.mapService.removeMarker(marker);
-    }
   }
 
   /**

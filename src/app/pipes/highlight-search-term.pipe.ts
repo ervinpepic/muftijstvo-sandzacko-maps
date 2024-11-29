@@ -1,6 +1,4 @@
-// Import Angular core dependencies.
 import { Pipe, PipeTransform } from '@angular/core';
-// Import utility functions from a custom utility file.
 import * as Utils from '../utils/input-validators';
 
 /**
@@ -22,7 +20,6 @@ export class HighlightSearchTermPipe implements PipeTransform {
    * @returns {string} The transformed text with the search term highlighted.
    */
   transform(value: string, searchTerm: string): string {
-    // Return the original value immediately if no search term or value is provided.
     if (!searchTerm || !value) {
       return value;
     }

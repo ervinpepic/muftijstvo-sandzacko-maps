@@ -1,25 +1,25 @@
-// Import the unorm library for Unicode normalization.
 import unorm from 'unorm';
 
 // Object mapping specific character sequences to their normalized forms.
 const charReplacements: { [key: string]: string } = {
-  'dj': 'đ',
-  'q': 'k',
-  'x': 'ks',
-  'w': 'v',
-  // Additional character replacements can be added here.
+  dj: 'đ',
+  q: 'k',
+  x: 'ks',
+  w: 'v',
 };
 
-// Object mapping characters to their search-friendly variants to improve search functionality.
+/**
+ * Object mapping characters to their search-friendly variants
+ * to improve search functionality.
+ **/
 export const searchCharMap: { [key: string]: string } = {
-  's': '[sš]',
-  'dj': '[đdj]',
-  'c': '[cćč]',
-  'z': '[zž]',
-  'w': 'v',
-  'q': 'k',
-  'x': '[ks]',
-  // Additional search character mappings can be added here.
+  s: '[sš]',
+  dj: '[đdj]',
+  c: '[cćč]',
+  z: '[zž]',
+  w: 'v',
+  q: 'k',
+  x: '[ks]',
 };
 
 /**
@@ -28,7 +28,10 @@ export const searchCharMap: { [key: string]: string } = {
  * @param {Object} charMap - The character mapping to use for replacements.
  * @returns {string} - The processed string with characters replaced.
  */
-export function substituteChars(input: string, charMap: { [key: string]: string }): string {
+export function substituteChars(
+  input: string,
+  charMap: { [key: string]: string }
+): string {
   return Object.keys(charMap).reduce(
     (acc, cur) => acc.replace(new RegExp(cur, 'g'), charMap[cur]),
     input
@@ -70,14 +73,15 @@ export function validateInputField(inputField: string): boolean {
  * @returns {string} - The normalized string.
  */
 export function normalizeString(inputValue: string): string {
-  // Generate a regex pattern based on the keys of the charReplacements object.
   const pattern = new RegExp(Object.keys(charReplacements).join('|'), 'g');
-  // Decompose the string to separate characters from their diacritical marks.
   let normalizedStr = unorm.nfd(inputValue);
-  // Replace specified characters using the generated regex pattern.
-  normalizedStr = normalizedStr.replace(pattern, match => charReplacements[match]);
-  // Remove diacritical marks and convert to lowercase.
-  const normalizedLowerCaseStr = normalizedStr.replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  normalizedStr = normalizedStr.replace(
+    pattern,
+    (match) => charReplacements[match]
+  );
+  const normalizedLowerCaseStr = normalizedStr
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
   return normalizedLowerCaseStr;
 }

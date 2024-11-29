@@ -46,7 +46,8 @@ export class SelectComponent implements OnInit {
     private filterService: FilterService
   ) { }
 
-  // Initializes the component by fetching and setting the lists of vakuf cities and object types.
+  // Initializes the component by fetching and 
+  // setting the lists of vakuf cities and object types.
   ngOnInit(): void {
     try {
       this.vakufCities = this.markerService.getVakufCities();
@@ -64,24 +65,22 @@ export class SelectComponent implements OnInit {
     try {
       this.filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
     } catch (error) {
-      console.error('Error filtering markers:', error);
+      console.warn('Error filtering markers:', error);
     }
   }
 
   /**
    * Filters marker names based on the selected vakuf type and city.
+   * Retrieve the custom data associated with the marker
+   * Return the vakufName if customData is found, otherwise return null
    * Resets the selected vakuf name to trigger overall marker filtering.
    */
   protected filterMarkersNames(): void {
     this.filterMarkers();
     this.filteredMarkerNames = this.filteredMarkers.map(marker => {
-      // Retrieve the custom data associated with the marker
       const customData = this.markerService.markerDataMap.get(marker);
-      // Return the vakufName if customData is found, otherwise return null
       return customData ? customData.vakufName : null;
-    })
-      .filter((name): name is string => name !== null); // Use a type guard to filter out null values
-
+    }).filter((name): name is string => name !== null); 
     this.selectedVakufName = null;
   }
 

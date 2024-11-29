@@ -5,25 +5,21 @@ import { collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
-import {
-  addMarkerClickListener,
-  addMarkerHoverEffect,
-} from '../styles/marker/marker-events';
+import { markerClickListener, markerHoverEffect } from '../styles/marker/marker-events';
 import { StorageUtil } from '../utils/local-storage-util';
-
+import { render } from '../styles/marker/cluster-icon';
+/**
+ * Service responsible for creating markers and clusters on Google Maps.
+ * Initialize markers on the map an clusters them when there a collision
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
   public map?: google.maps.Map;
   public markers: google.maps.marker.AdvancedMarkerElement[] = [];
+  public markerDataMap = new Map<google.maps.marker.AdvancedMarkerElement, Marker>(); // Maps markers to their custom data
   public markerCluster?: MarkerClusterer;
-  public markerDataMap = new Map<
-    google.maps.marker.AdvancedMarkerElement,
-    Marker
-  >(); // Maps markers to their custom data
-  private infoWindow?: google.maps.InfoWindow;
-
   private _markersNumber: number = 0;
 
   constructor(private firestore: Firestore) {}
@@ -127,15 +123,6 @@ export class MarkerService {
     }
   }
 
-  //create marker clusters and clear old markers if they exist
-  private createCluster(map: google.maps.Map) {
-    if (this.markerCluster) {
-      this.markerCluster.clearMarkers();
-    }
-
-    this.markerCluster = new MarkerClusterer({ map, markers: this.markers });
-  }
-
   /**
    * Creates a single marker and associates it with custom data.
    * @param {Marker} markerData - Custom data for the marker.
@@ -146,9 +133,8 @@ export class MarkerService {
     markerData: Marker,
     map: google.maps.Map
   ): Promise<google.maps.marker.AdvancedMarkerElement> {
-    // Dynamically import the marker library
-    const { AdvancedMarkerElement } =
-      (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
+  
+    const { AdvancedMarkerElement } = (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
     const svgImageElement = document.createElement('img');
     svgImageElement.src = '../assets/images/marker_main.svg';
     svgImageElement.width = 40;
@@ -163,13 +149,26 @@ export class MarkerService {
       gmpClickable: true,
     });
 
-    addMarkerHoverEffect(marker, svgImageElement);
-    addMarkerClickListener(marker, map, markerData, this.infoWindow);
+    markerHoverEffect(marker, svgImageElement);
+    markerClickListener(marker, map, markerData);
 
     // Store the marker and its data
     this.markerDataMap.set(marker, markerData);
 
     return marker;
+  }
+
+  // Create marker clusters and clear old markers if they exist
+  private createCluster(map: google.maps.Map) {
+    if (this.markerCluster) {
+      this.markerCluster.clearMarkers();
+    }
+
+    this.markerCluster = new MarkerClusterer({
+      map,
+      markers: this.markers,
+      renderer: render,
+    });
   }
 
   /**
