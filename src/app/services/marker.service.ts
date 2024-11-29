@@ -5,21 +5,26 @@ import { collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
-import { infoWindowStyle } from '../styles/marker/info-window-style';
+import {
+  addMarkerClickListener,
+  addMarkerHoverEffect,
+} from '../styles/marker/marker-events';
 import { StorageUtil } from '../utils/local-storage-util';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MarkerService {
+  public map?: google.maps.Map;
+  public markers: google.maps.marker.AdvancedMarkerElement[] = [];
+  public markerCluster?: MarkerClusterer;
+  public markerDataMap = new Map<
+    google.maps.marker.AdvancedMarkerElement,
+    Marker
+  >(); // Maps markers to their custom data
+  private infoWindow?: google.maps.InfoWindow;
 
-  map?: google.maps.Map;
-  markers: google.maps.marker.AdvancedMarkerElement[] = []; // Holds instances of map markers
-  markerCluster?: MarkerClusterer; // Optional variable for marker clustering functionality
-  markerDataMap = new Map<google.maps.marker.AdvancedMarkerElement, Marker>(); // Maps markers to their custom data
-  infoWindow: google.maps.InfoWindow | undefined;
-
-  private _markersNumber: number = 0; //this is for collection marker numbers on front page
+  private _markersNumber: number = 0;
 
   constructor(private firestore: Firestore) {}
 
@@ -102,10 +107,8 @@ export class MarkerService {
    * @returns {Promise<void>} Promise that resolves when markers are created.
    */
   async createMarkers(map: google.maps.Map): Promise<void> {
+    this.clearMarkers(); // Ensure any existing markers are cleared before adding new ones.
     try {
-      // Clear existing markers first
-      this.clearMarkers();
-
       // Get custom marker data asynchronously
       const markerAdditionalData = await this.getMarkers();
       this.markers = [];
@@ -113,25 +116,24 @@ export class MarkerService {
 
       // Create and add markers
       for (const markerData of markerAdditionalData) {
-        const marker = await this.createMarker(markerData, map); // Ensure the marker is created asynchronously
+        const marker = await this.createMarker(markerData, map);
         this.markers.push(marker);
         this.markerDataMap.set(marker, markerData);
       }
 
-      // Clear the marker cluster and recreate it with the new markers
-      if (this.markerCluster) {
-        this.markerCluster.clearMarkers();
-      }
-
-      // Create a new marker cluster
-      this.markerCluster = new MarkerClusterer({
-        map: map,
-        markers: this.markers,
-      });
+      this.createCluster(map);
     } catch (error) {
-      console.error('Error creating markers:', error);
-      // Handle error appropriately (e.g., show user notification)
+      console.warn('Error creating markers:', error);
     }
+  }
+
+  //create marker clusters and clear old markers if they exist
+  private createCluster(map: google.maps.Map) {
+    if (this.markerCluster) {
+      this.markerCluster.clearMarkers();
+    }
+
+    this.markerCluster = new MarkerClusterer({ map, markers: this.markers });
   }
 
   /**
@@ -140,36 +142,30 @@ export class MarkerService {
    * @param {google.maps.Map} map - The Google Maps instance to place the marker on.
    * @returns {google.maps.advancedMarkerElement} The created advanced marker instance.
    */
-  async createMarker(
+  private async createMarker(
     markerData: Marker,
     map: google.maps.Map
   ): Promise<google.maps.marker.AdvancedMarkerElement> {
-
     // Dynamically import the marker library
-    const { AdvancedMarkerElement } = (await google.maps.importLibrary(
-      'marker'
-    )) as google.maps.MarkerLibrary;
-
-    const { InfoWindow } = (await google.maps.importLibrary(
-      'maps'
-    )) as google.maps.MapsLibrary;
+    const { AdvancedMarkerElement } =
+      (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
+    const svgImageElement = document.createElement('img');
+    svgImageElement.src = '../assets/images/marker_main.svg';
+    svgImageElement.width = 40;
+    svgImageElement.height = 40;
 
     // Create the AdvancedMarkerElement
     const marker = new AdvancedMarkerElement({
       position: markerData.position,
       map: map,
+      content: svgImageElement,
       gmpDraggable: false,
       gmpClickable: true,
     });
-    this.infoWindow = new InfoWindow({
-      content: infoWindowStyle(markerData),
-    });
-    marker.addListener('click', () => {
-      this.infoWindow?.open({
-        anchor: marker,
-        map: this.map,
-      });
-    });
+
+    addMarkerHoverEffect(marker, svgImageElement);
+    addMarkerClickListener(marker, map, markerData, this.infoWindow);
+
     // Store the marker and its data
     this.markerDataMap.set(marker, markerData);
 

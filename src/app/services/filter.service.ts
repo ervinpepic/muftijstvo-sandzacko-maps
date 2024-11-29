@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { debounceTime, take } from 'rxjs/operators';
+import { debounceTime, take, tap } from 'rxjs/operators';
 import { Marker } from '../interface/Marker';
 import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
@@ -85,22 +85,15 @@ export class FilterService {
     const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
     markers.forEach((marker) => {
-      // Retrieve the custom data for the marker
       const customData = this.markerService.markerDataMap.get(marker);
-
-      if (customData) {
-        const isVisible = this.isVisibleMarker(
-          customData,
-          normalizedSearchTerm
+      if (
+        customData &&
+        this.isVisibleMarker(customData, normalizedSearchTerm)
+      ) {
+        bounds.extend(
+          marker.position as google.maps.LatLng | google.maps.LatLngLiteral
         );
-        this.setMarkerVisibility(marker, isVisible);
-
-        if (isVisible) {
-          bounds.extend(
-            marker.position as google.maps.LatLng | google.maps.LatLngLiteral
-          );
-          visibleMarkers.push(marker); // Collect visible markers directly
-        }
+        visibleMarkers.push(marker);
       }
     });
 
@@ -123,23 +116,36 @@ export class FilterService {
    * @returns A boolean indicating if the marker is visible.
    */
   private isVisibleMarker(data: Marker, searchTerm: string): boolean {
-    const { city, vakufType, vakufName, cadastralParcelNumber } = data;
-    const normalizedVakufName = this.normalizeSearchTerm(vakufName); // Normalize vakufName here
+    return (
+      this.matchesCity(data) &&
+      this.matchesVakufType(data) &&
+      this.matchesVakufName(data) &&
+      this.matchesSearchTerm(data, searchTerm)
+    );
+  }
 
-    // Check if the marker matches the filter criteria
-    const matchesCity = !this.selectedCity || city === this.selectedCity;
-    const matchesVakufType =
-      !this.selectedVakufType || vakufType === this.selectedVakufType;
-    const matchesVakufName =
+  private matchesCity(data: Marker): boolean {
+    return !this.selectedCity || data.city === this.selectedCity;
+  }
+
+  private matchesVakufType(data: Marker): boolean {
+    return !this.selectedVakufType || data.vakufType === this.selectedVakufType;
+  }
+
+  private matchesVakufName(data: Marker): boolean {
+    const normalizedVakufName = this.normalizeSearchTerm(data.vakufName);
+    return (
       !this.selectedVakufName ||
-      normalizedVakufName === this.normalizeSearchTerm(this.selectedVakufName); // Use normalizedVakufName here
-    const matchesSearchTerm =
+      normalizedVakufName === this.normalizeSearchTerm(this.selectedVakufName)
+    );
+  }
+
+  private matchesSearchTerm(data: Marker, searchTerm: string): boolean {
+    const normalizedVakufName = this.normalizeSearchTerm(data.vakufName);
+    return (
       !searchTerm ||
       normalizedVakufName.includes(searchTerm) ||
-      cadastralParcelNumber.toLowerCase().includes(searchTerm);
-
-    return (
-      matchesCity && matchesVakufType && matchesVakufName && matchesSearchTerm
+      data.cadastralParcelNumber.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -161,7 +167,11 @@ export class FilterService {
     marker: google.maps.marker.AdvancedMarkerElement,
     isVisible: boolean
   ): void {
-    marker.map = isVisible ? this.map : null;
+    if (isVisible) {
+      this.mapService.addMarker(marker);
+    } else {
+      this.mapService.removeMarker(marker);
+    }
   }
 
   /**
@@ -170,9 +180,12 @@ export class FilterService {
    */
   private fitBoundsAfterDelay(bounds: google.maps.LatLngBounds): void {
     this.mapService.map$
-      .pipe(debounceTime(this.searchTimeDelay), take(1))
+      .pipe(
+        debounceTime(this.searchTimeDelay),
+        take(1),
+        tap(() => this.mapService.map?.fitBounds(bounds))
+      )
       .subscribe({
-        next: () => this.mapService.map?.fitBounds(bounds),
         error: (err) => console.error('Error adjusting map bounds:', err),
       });
   }
