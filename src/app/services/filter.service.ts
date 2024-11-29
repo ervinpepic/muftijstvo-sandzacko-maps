@@ -16,7 +16,7 @@ export class FilterService {
   constructor(
     private mapService: MapService,
     private markerService: MarkerService
-  ) { }
+  ) {}
 
   map?: google.maps.Map;
   private searchTimeDelay: number = 800; // Delay for debouncing search input
@@ -33,7 +33,9 @@ export class FilterService {
     return this._filteredMarkers;
   }
 
-  private setFilteredMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): void {
+  private setFilteredMarkers(
+    markers: google.maps.marker.AdvancedMarkerElement[]
+  ): void {
     this._filteredMarkers = markers;
   }
   get searchQuery(): string {
@@ -74,7 +76,9 @@ export class FilterService {
    * @param markers - An array of markers to filter.
    * @returns An array of CustomMarker objects representing the visible markers.
    */
-  filterMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): google.maps.marker.AdvancedMarkerElement[] {
+  filterMarkers(
+    markers: google.maps.marker.AdvancedMarkerElement[]
+  ): google.maps.marker.AdvancedMarkerElement[] {
     // Normalize the search query
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
@@ -85,11 +89,16 @@ export class FilterService {
       const customData = this.markerService.markerDataMap.get(marker);
 
       if (customData) {
-        const isVisible = this.isVisibleMarker(customData, normalizedSearchTerm);
+        const isVisible = this.isVisibleMarker(
+          customData,
+          normalizedSearchTerm
+        );
         this.setMarkerVisibility(marker, isVisible);
 
         if (isVisible) {
-          bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
+          bounds.extend(
+            marker.position as google.maps.LatLng | google.maps.LatLngLiteral
+          );
           visibleMarkers.push(marker); // Collect visible markers directly
         }
       }
@@ -148,7 +157,10 @@ export class FilterService {
    * @param marker - The marker to set visibility for.
    * @param isVisible - A boolean indicating whether the marker should be visible.
    */
-  private setMarkerVisibility(marker: google.maps.marker.AdvancedMarkerElement, isVisible: boolean): void {
+  private setMarkerVisibility(
+    marker: google.maps.marker.AdvancedMarkerElement,
+    isVisible: boolean
+  ): void {
     marker.map = isVisible ? this.map : null;
   }
 

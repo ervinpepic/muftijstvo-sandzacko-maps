@@ -5,7 +5,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
-import { render } from '../styles/marker/cluster-icon-style';
 import { infoWindowStyle } from '../styles/marker/info-window-style';
 import { StorageUtil } from '../utils/local-storage-util';
 
@@ -105,7 +104,7 @@ export class MarkerService {
   async createMarkers(map: google.maps.Map): Promise<void> {
     try {
       // Clear existing markers first
-      await this.clearMarkers();
+      this.clearMarkers();
 
       // Get custom marker data asynchronously
       const markerAdditionalData = await this.getMarkers();
@@ -128,7 +127,6 @@ export class MarkerService {
       this.markerCluster = new MarkerClusterer({
         map: map,
         markers: this.markers,
-        renderer: render, // Ensure `render` is defined somewhere in your code
       });
     } catch (error) {
       console.error('Error creating markers:', error);
@@ -182,15 +180,10 @@ export class MarkerService {
    * Clears all markers from the map.
    * @returns {Promise<void>} Promise that resolves when all markers are cleared.
    */
-  private async clearMarkers(): Promise<void> {
-    this.markers.forEach((marker) => {
-      marker.map = null; // Remove the marker from the map
-    });
-
-    this.markers = [];
-
+  private clearMarkers(): void {
     if (this.markerCluster) {
-      this.markerCluster.clearMarkers(); // Clear marker clusters, if any
+      this.markerCluster.clearMarkers();
     }
+    this.markers = [];
   }
 }
