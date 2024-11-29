@@ -136,7 +136,7 @@ export class MarkerService {
   
     const { AdvancedMarkerElement } = (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
     const svgImageElement = document.createElement('img');
-    svgImageElement.src = '../assets/images/marker_main.svg';
+    svgImageElement.src = '../assets/marker_main.svg';
     svgImageElement.width = 40;
     svgImageElement.height = 40;
 
