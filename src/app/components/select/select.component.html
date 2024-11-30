@@ -39,7 +39,7 @@
     [(ngModel)]="selectedVakufName"
     (ngModelChange)="filterMarkers()"
   >
-    <ng-option *ngFor="let name of filteredMarkerNames" [value]="name">
+    <ng-option *ngFor="let name of filteredMarkersNames" [value]="name">
       {{ name | ellipsis : 30 }}
     </ng-option>
   </ng-select>

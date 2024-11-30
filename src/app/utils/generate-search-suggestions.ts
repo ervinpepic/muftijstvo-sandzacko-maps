@@ -25,17 +25,22 @@ export function generateSearchSuggestions(
   filteredMarkers: Marker[],
   searchQuery: string
 ): string[] {
+  if (!searchQuery.trim()) return []; // Return early for empty queries
+
   try {
     const suggestionsSet = new Set<string>();
-    const normalizedSearchQuery = normalizeString(searchQuery); // unorm searchQuery
+    const normalizedSearchQuery = normalizeString(searchQuery.trim());
 
     filteredMarkers.forEach((marker) => {
-      const normalizedVakufName = normalizeString(marker.vakufName); // Normalize vakufName here
-      const normalizedCadastralParcelNumber = normalizeString(
-        marker.cadastralParcelNumber
-      );
+      const normalizedVakufName = marker.vakufName
+        ? normalizeString(marker.vakufName)
+        : '';
+      const normalizedCadastralParcelNumber = marker.cadastralParcelNumber
+        ? normalizeString(marker.cadastralParcelNumber)
+        : '';
 
-      if (normalizedVakufName.includes(normalizedSearchQuery)) {
+       // Add suggestions based on matching vakuf name or cadastral parcel number
+       if (normalizedVakufName.includes(normalizedSearchQuery)) {
         suggestionsSet.add(marker.vakufName);
       }
 
@@ -63,15 +68,21 @@ export function generateSearchSuggestions(
  * @returns {number} A number indicating the relative relevance of `a` compared to `b`.
  */
 function calculateRelevance(a: string, b: string, inputValue: string): number {
-  const indexA = a.toLowerCase().indexOf(inputValue.toLowerCase());
-  const indexB = b.toLowerCase().indexOf(inputValue.toLowerCase());
+  const normalizedA = normalizeString(a);
+  const normalizedB = normalizeString(b);
 
-  // Prioritize strings where the inputValue appears earlier
+  // Exact match prioritization
+  if (normalizedA === inputValue) return -1;
+  if (normalizedB === inputValue) return 1;
+
+  // Partial match position prioritization
+  const indexA = normalizedA.indexOf(inputValue);
+  const indexB = normalizedB.indexOf(inputValue);
+
   if (indexA !== indexB) {
     return indexA - indexB;
   }
 
-  // If the position of inputValue is the same in both strings,
-  //or not present in either, sort alphabetically
-  return a.localeCompare(b);
+  // Alphabetical fallback
+  return normalizedA.localeCompare(normalizedB);
 }

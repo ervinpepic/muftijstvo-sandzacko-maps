@@ -14,14 +14,14 @@ import { MarkerService } from '../../services/marker.service';
   styleUrl: './select.component.css',
 })
 export class SelectComponent implements OnInit {
-  filteredMarkerNames: string[] = []; // An array to store the names of filtered markers.
-  filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; //An array to store filtered markers.
-  vakufObjectTypes?: string[]; // A list of object types received from the server.
-  vakufCities?: string[]; // A list of cities received from the server.
-
   //References the NgSelectComponent instance for vakuf names and cities.
   @ViewChild('openVakufNames') openVakufNames!: NgSelectComponent;
   @ViewChild('openCities') openCities!: NgSelectComponent;
+
+  protected filteredMarkersNames: string[] = []; // An array to store the names of filtered markers.
+  private filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; //An array to store filtered markers.
+  protected vakufObjectTypes?: string[]; // A list of object types received from the server.
+  protected vakufCities?: string[]; // A list of cities received from the server.
 
   // Setters to upodate these properties  in the filter service.
   set selectedVakufType(value: string) {
@@ -77,7 +77,7 @@ export class SelectComponent implements OnInit {
    */
   protected filterMarkersNames(): void {
     this.filterMarkers();
-    this.filteredMarkerNames = this.filteredMarkers.map(marker => {
+    this.filteredMarkersNames = this.filteredMarkers.map(marker => {
       const customData = this.markerService.markerDataMap.get(marker);
       return customData ? customData.vakufName : null;
     }).filter((name): name is string => name !== null); 

@@ -32,10 +32,9 @@ export function substituteChars(
   input: string,
   charMap: { [key: string]: string }
 ): string {
-  return Object.keys(charMap).reduce(
-    (acc, cur) => acc.replace(new RegExp(cur, 'g'), charMap[cur]),
-    input
-  );
+  if (!input) return ''; // Handle empty or null input gracefully
+  const regex = new RegExp(Object.keys(charMap).join('|'), 'g');
+  return input.replace(regex, (match) => charMap[match]);
 }
 
 /**
@@ -44,6 +43,7 @@ export function substituteChars(
  * @returns {string} - The escaped string, safe for use in a regex pattern.
  */
 export function escapeRegExp(string: string): string {
+  if (!string) return '';
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
@@ -53,6 +53,7 @@ export function escapeRegExp(string: string): string {
  * @returns {boolean} - True if the input is numeric or a fraction, false otherwise.
  */
 export function isNumericInput(input: string): boolean {
+  if (!input.trim()) return false;
   return /^\d+\/\d+$/.test(input) || /^\d+$/.test(input);
 }
 
@@ -64,7 +65,7 @@ export function isNumericInput(input: string): boolean {
  */
 export function validateInputField(inputField: string): boolean {
   const regex = /^(?=[A-Za-z0-9])[A-Za-z0-9\s.]*$/;
-  return regex.test(inputField);
+  return regex.test(inputField.trim());
 }
 
 /**
@@ -73,15 +74,12 @@ export function validateInputField(inputField: string): boolean {
  * @returns {string} - The normalized string.
  */
 export function normalizeString(inputValue: string): string {
+  if (!inputValue) return ''; // Handle null or undefined gracefully
   const pattern = new RegExp(Object.keys(charReplacements).join('|'), 'g');
   let normalizedStr = unorm.nfd(inputValue);
   normalizedStr = normalizedStr.replace(
     pattern,
     (match) => charReplacements[match]
   );
-  const normalizedLowerCaseStr = normalizedStr
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-
-  return normalizedLowerCaseStr;
+  return normalizedStr.replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }

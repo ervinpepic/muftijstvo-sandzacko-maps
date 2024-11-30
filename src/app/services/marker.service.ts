@@ -58,15 +58,8 @@ export class MarkerService {
    * @returns {Marker[] | null} Array of custom marker data or null if not found or expired.
    */
   private getMarkerDataFromLocalStorage(): Marker[] | null {
-    const item = StorageUtil.getFromLocalStorage('cachedMarkerData');
-    if (!item) return null;
-
-    if (!StorageUtil.isCacheValid(item.timestamp)) {
-      StorageUtil.removeFromLocalStorage('cachedMarkerData');
-      return null;
-    }
-
-    return item.data;
+    // Retrieve and validate marker data using StorageUtil
+    return StorageUtil.getFromLocalStorage<Marker[]>('cachedMarkerData');
   }
 
   /**

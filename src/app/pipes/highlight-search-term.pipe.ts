@@ -3,8 +3,8 @@ import * as Utils from '../utils/input-validators';
 
 /**
  * Angular pipe to highlight search terms within a string.
- * This pipe makes the search term stand out in the provided text by wrapping it in <strong> tags.
- * It is marked as standalone, meaning it can be used without declaring it in an Angular module.
+ * Wraps matching terms in <strong> tags for emphasis.
+ * This pipe is standalone and can be used independently of Angular modules.
  */
 @Pipe({
   name: 'highlightSearchTerm',
@@ -13,26 +13,31 @@ import * as Utils from '../utils/input-validators';
 export class HighlightSearchTermPipe implements PipeTransform {
 
   /**
-   * Transforms the input value by highlighting the search term.
+   * Highlights the search term within the provided text.
    * 
-   * @param {string} value - The original text in which to highlight the search term.
-   * @param {string} searchTerm - The term to highlight within the original text.
-   * @returns {string} The transformed text with the search term highlighted.
+   * @param {string} value - The original text to search within.
+   * @param {string} searchTerm - The term to highlight.
+   * @returns {string} The text with the search term highlighted, or the original text if no match is found.
    */
   transform(value: string, searchTerm: string): string {
-    if (!searchTerm || !value) {
-      return value;
+    if (!value || !searchTerm) {
+      return value; // Return original value if input or search term is empty/null
     }
 
-    // Escape any special regex characters in the search term to prevent regex errors.
-    const searchTermEscaped = Utils.escapeRegExp(searchTerm.toLowerCase());
-    // Substitute characters in the escaped search term based on predefined character mappings.
-    // This step enhances the flexibility of search term matching.
-    const normalizedInputValue = Utils.substituteChars(searchTermEscaped, Utils.searchCharMap);
-    // Create a regex pattern to match the normalized search term, ignoring case sensitivity.
-    const regex = new RegExp(`(${normalizedInputValue})`, 'gi');
-    // Replace matches of the search term in the original value with the same term wrapped in <strong> tags,
-    // effectively highlighting them.
-    return value.replace(regex, '<strong>$1</strong>');
+    // Escape special regex characters in the search term
+    const escapedSearchTerm = Utils.escapeRegExp(searchTerm);
+    // Normalize the search term for flexible matching
+    const normalizedSearchTerm = Utils.substituteChars(escapedSearchTerm, Utils.searchCharMap);
+    // Create a regex to match the normalized search term, ignoring case
+    const regex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
+
+    // Escape the original value to prevent HTML injection
+    const escapeHtml = (str: string): string =>
+      str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const escapedValue = escapeHtml(value);
+
+    // Replace matched terms with <strong>-wrapped highlights
+    return escapedValue.replace(regex, '<strong>$1</strong>');
   }
 }

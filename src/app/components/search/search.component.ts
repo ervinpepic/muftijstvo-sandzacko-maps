@@ -19,13 +19,14 @@ import { isNumericInput, validateInputField } from '../../utils/input-validators
   styleUrl: './search.component.css',
 })
 export class SearchComponent implements OnInit, OnDestroy {
-  suggestionsList: string[] = []; // Holds the list of search suggestions.
-  selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
-  isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
+  @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
+  
+  protected searchSuggestionsList: string[] = []; // Holds the list of search suggestions.
+  protected selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
+  protected isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
 
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
-  @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
 
   /**
    * Getter for searchQuery. Retrieves the current search query from the FilterService.
@@ -58,11 +59,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.generateSuggestions(inputValue);
         this.isSuggestionsVisible = true
       } else {
-        this.isSuggestionsVisible = false
-        this.suggestionsList = [];
-      }
-      if (inputValue === '') {
-        this.filterMarkers();
+        this.clearSuggestions();
       }
     });
   }
@@ -97,22 +94,26 @@ export class SearchComponent implements OnInit, OnDestroy {
     const filteredMarkerData = this.filterService.filteredMarkers
       .map((marker) => this.markerService.markerDataMap.get(marker))
       .filter((markerData) => markerData?.vakufName) as Marker[];
-    const suggestions = generateSearchSuggestions(filteredMarkerData, inputValue);
-    this.suggestionsList = suggestions;
+
+    this.searchSuggestionsList = generateSearchSuggestions(filteredMarkerData, inputValue) || [];
+    this.isSuggestionsVisible = this.searchSuggestionsList.length > 0;
   }
+
+  private clearSuggestions(): void {
+    this.searchSuggestionsList = [];
+    this.isSuggestionsVisible = false;
+  }
+
 
   /**
    * Updates the search query based on user input, splitting and analyzing the input value.
    * @param {string} inputValue - The input value from the search field.
    */
   private updateSearchQuery(inputValue: string): void {
-    const searchQueryParts = inputValue.split(' ');
-    const numberPart = searchQueryParts[0];
-    if (isNumericInput(numberPart)) {
-      this.filterService.searchQuery = numberPart;
-    } else {
-      this.filterService.searchQuery = inputValue;
-    }
+    const [numberPart] = inputValue.split(' ');
+    this.filterService.searchQuery = isNumericInput(numberPart)
+      ? numberPart
+      : inputValue;
   }
 
   /**
@@ -121,7 +122,7 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   protected selectSearchSuggestion(suggestion: string): void {
     this.updateSearchQuery(suggestion);
-    this.isSuggestionsVisible = false;
+    this.clearSuggestions();
     this.filterMarkers();
   }
 
@@ -134,19 +135,20 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   protected handleSearchNavigationKeys(event: KeyboardEvent, index?: number): void {
     try {
-      let currentIndex =
-        index !== undefined ? index : this.selectedSuggestionIndex;
-      currentIndex = handleSearchNavigationKeys(
+      if (!this.viewport) {
+        return;
+      }
+      const currentIndex = handleSearchNavigationKeys(
         event.key,
-        currentIndex,
-        this.suggestionsList,
-        (currentIndex) =>
-          this.selectSearchSuggestion(this.suggestionsList[currentIndex]),
-        this.viewport!
+        index ?? this.selectedSuggestionIndex,
+        this.searchSuggestionsList,
+        (selectedIndex) =>
+          this.selectSearchSuggestion(this.searchSuggestionsList[selectedIndex]),
+        this.viewport
       );
       this.selectedSuggestionIndex = currentIndex;
     } catch (error) {
-      console.error('Error handling arrow key navigation:', error);
+      console.error('Error handling navigation keys:', error);
     }
   }
 }

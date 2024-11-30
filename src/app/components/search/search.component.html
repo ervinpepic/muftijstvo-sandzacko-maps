@@ -12,7 +12,7 @@
       <span 
       title="Prikazuje broj pronađenih vakufa"
       class="input-group-text" id="searchCountNumber">
-        {{ suggestionsList.length }}
+        {{ searchSuggestionsList.length }}
       </span>
     </ng-template>
     <input
@@ -29,19 +29,19 @@
       autocomplete="off"
       [(ngModel)]="searchQuery"
       (ngModelChange)="searchQueryChanges.next(searchQuery)"
-      (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
+      (keyup)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
     >
   </div>
   <div
+  *ngIf="isSuggestionsVisible"
     class="input-group mt-1"
-    *ngIf="isSuggestionsVisible"
     role="listbox"
     aria-live="assertive"
     aria-atomic="true"
     id="suggestion-list"
   >
     <div
-      *ngIf="suggestionsList.length === 0"
+      *ngIf="searchSuggestionsList.length === 0"
       class="list-group search-suggestions"
     >
       <span class="list-group-item text-muted"
@@ -54,10 +54,10 @@
     >
       <div
         title="Lista sa pronađenim predlozima vakufa"
-        *cdkVirtualFor="let suggestion of suggestionsList; let i = index"
         class="list-group-item hover-effect"
-        [ngClass]="{ selected: i === selectedSuggestionIndex }"
         role="option"
+        *cdkVirtualFor="let suggestion of searchSuggestionsList; let i = index"
+        [ngClass]="{ selected: i === selectedSuggestionIndex }"
         [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'"
         (click)="selectSearchSuggestion(suggestion)"
         (keydown)="handleSearchNavigationKeys($event, i)"

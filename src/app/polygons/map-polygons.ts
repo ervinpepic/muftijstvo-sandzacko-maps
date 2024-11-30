@@ -1,4 +1,4 @@
-import { MapPolygonDetails } from '../interface/Polygon';
+import { MapPolygonKML } from '../interface/Polygon';
 import { adjustPolygonVisibilityOnZoom } from '../utils/dynamic-zoom';
 import { andrijevicaPolygonDelimiter } from './sandzak/andrijevica';
 import { beranePolygonDelimiter } from './sandzak/berane';
@@ -16,7 +16,7 @@ import { sjenicaPolygonDelimiter } from './sandzak/sjenica';
 import { tutinPolygonDelimiter } from './sandzak/tutin';
 
 export class PolygonsBoundaries {
-  private polygonData: MapPolygonDetails[] = [
+  private polygonData: MapPolygonKML[] = [
     { delimiter: noviPazarPolygonDelimiter, name: 'noviPazarPolygon' },
     { delimiter: tutinPolygonDelimiter, name: 'tutinPolygon' },
     { delimiter: sjenicaPolygonDelimiter, name: 'sjenicaPolygon' },
@@ -66,7 +66,7 @@ export class PolygonsBoundaries {
    * Draws a polygon on the map based on the provided polygon data.
    * @param polygonData - The data defining the polygon's vertices and name.
    */
-  private drawPolygon(polygonData: MapPolygonDetails) {
+  private drawPolygon(polygonData: MapPolygonKML) {
     const polygon = this.createPolygon(polygonData.delimiter);
     this.addPolygonToMap(polygon);
   }

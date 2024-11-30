@@ -1,6 +1,6 @@
 # Muftijstvo Sandzacko Mape
 
-This project was created with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.3.
+This project was created with [Angular CLI](https://github.com/angular/angular-cli) version 12. and then updated to 15 and then to the 17.1.3. Now it is on the latest version of Angular and always will be.
 
 ## Development server
 

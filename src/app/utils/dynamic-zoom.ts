@@ -22,14 +22,21 @@ export function getInitialZoomLevel(): number {
  */
 export function adjustPolygonVisibilityOnZoom(
   map: google.maps.Map,
-  polygon: google.maps.Polygon
+  polygon: google.maps.Polygon,
+  zoomThreshold: number = 11
 ): () => void {
+  let isPolygonVisible = true;
+
   const listener = map.addListener('zoom_changed', () => {
     const currentZoom = map.getZoom();
-    if (typeof currentZoom === 'number' && currentZoom > ZOOM_LEVEL_THRESHOLD) {
-      polygon.setMap(null);
-    } else {
-      polygon.setMap(map);
+    if (typeof currentZoom === 'number') {
+      if (currentZoom > zoomThreshold && isPolygonVisible) {
+        polygon.setMap(null);
+        isPolygonVisible = false;
+      } else if (currentZoom <= zoomThreshold && !isPolygonVisible) {
+        polygon.setMap(map);
+        isPolygonVisible = true;
+      }
     }
   });
 
