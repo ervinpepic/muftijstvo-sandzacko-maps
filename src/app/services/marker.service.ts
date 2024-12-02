@@ -112,7 +112,7 @@ export class MarkerService {
 
       this.createCluster(map);
     } catch (error) {
-      console.warn('Error creating markers:', error);
+      console.warn('Error while creating markers:', error);
     }
   }
 

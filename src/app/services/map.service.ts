@@ -63,7 +63,7 @@ export class MapService {
       await this.loadGoogleMapsAPI();
       this.createMap(mapContainer);
     } catch (error) {
-      console.error('Error loading Google Maps API:', error);
+      console.error('Error while loading Google Maps API:', error);
     }
   }
 
