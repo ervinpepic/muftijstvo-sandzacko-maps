@@ -19,7 +19,7 @@ export class SelectComponent implements OnInit {
   @ViewChild('openCities') openCities!: NgSelectComponent;
 
   protected filteredMarkersNames: string[] = []; // An array to store the names of filtered markers.
-  private filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; //An array to store filtered markers.
+  private filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; // An array to store filtered markers.
   protected vakufObjectTypes?: string[]; // A list of object types received from the server.
   protected vakufCities?: string[]; // A list of cities received from the server.
 
@@ -41,13 +41,8 @@ export class SelectComponent implements OnInit {
    * @param markerService - Provides marker related functionalities.
    * @param filterService - Provides filtering capabilities.
    */
-  constructor(
-    private markerService: MarkerService,
-    private filterService: FilterService
-  ) { }
+  constructor(private markerService: MarkerService, private filterService: FilterService) { }
 
-  // Initializes the component by fetching and 
-  // setting the lists of vakuf cities and object types.
   ngOnInit(): void {
     try {
       this.vakufCities = this.markerService.getVakufCities();

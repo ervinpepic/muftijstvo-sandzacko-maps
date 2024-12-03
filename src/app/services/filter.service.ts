@@ -19,14 +19,9 @@ const CENTER = {
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(
-    private mapService: MapService,
-    private markerService: MarkerService
-  ) {}
+  constructor(private mapService: MapService, private markerService: MarkerService) {}
 
   map?: google.maps.Map;
-  private searchTimeDelay: number = 800; // Delay for debouncing search input
-
   private _searchQuery: string = ''; // Search query string
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
@@ -170,7 +165,7 @@ export class FilterService {
   private fitBoundsAfterDelay(bounds: google.maps.LatLngBounds): void {
     this.mapService.map$
       .pipe(
-        debounceTime(this.searchTimeDelay),
+        debounceTime(300),
         take(1),
         tap(() => this.mapService.map?.fitBounds(bounds))
       )

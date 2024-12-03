@@ -29,31 +29,18 @@ export class SearchComponent implements OnInit, OnDestroy {
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
 
-  /**
-   * Getter for searchQuery. Retrieves the current search query from the FilterService.
-   * @returns {string} The current search query.
-   */
   get searchQuery(): string {
     return this.filterService.searchQuery;
   }
 
-  /**
-   * Setter for searchQuery. Updates the search query in the FilterService.
-   * @param {string} value - The new value for the search query.
-   */
   set searchQuery(value: string) {
     this.filterService.searchQuery = value;
   }
 
-  constructor(
-    private markerService: MarkerService,
-    private filterService: FilterService
-  ) {}
+  constructor(private markerService: MarkerService, private filterService: FilterService) {}
 
   ngOnInit(): void {
-    this.searchQueryChanges
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
-      .subscribe((inputValue) => {
+    this.searchQueryChanges.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe((inputValue) => {
         if (validateInputField(inputValue)) {
           this.filterMarkers();
           this.generateSuggestions(inputValue);
@@ -64,9 +51,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Cleans up resources and subscriptions when the component is destroyed.
-   */
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -117,7 +101,6 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   private updateSearchQuery(inputValue: string): void {
     if (!inputValue.trim()) {
-      console.warn('Empty search query, skipping update');
       return;
     }
     const [numberPart] = inputValue.split(' ');
@@ -125,6 +108,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       ? numberPart
       : inputValue;
   }
+  
   // Empties and hide suggestion list.
   private resetSuggestions(): void {
     this.searchSuggestionsList = [];

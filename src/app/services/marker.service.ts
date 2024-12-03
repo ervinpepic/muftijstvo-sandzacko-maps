@@ -58,7 +58,6 @@ export class MarkerService {
    * @returns {Marker[] | null} Array of custom marker data or null if not found or expired.
    */
   private getMarkerDataFromLocalStorage(): Marker[] | null {
-    // Retrieve and validate marker data using StorageUtil
     return StorageUtil.getFromLocalStorage<Marker[]>('cachedMarkerData');
   }
 
@@ -96,20 +95,17 @@ export class MarkerService {
    * @returns {Promise<void>} Promise that resolves when markers are created.
    */
   async createMarkers(map: google.maps.Map): Promise<void> {
-    this.clearMarkers(); // Ensure any existing markers are cleared before adding new ones.
+    this.clearMarkers();
     try {
-      // Get custom marker data asynchronously
       const markerAdditionalData = await this.getMarkers();
       this.markers = [];
       this.markerDataMap.clear();
 
-      // Create and add markers
       for (const markerData of markerAdditionalData) {
         const marker = await this.createMarker(markerData, map);
         this.markers.push(marker);
         this.markerDataMap.set(marker, markerData);
       }
-
       this.createCluster(map);
     } catch (error) {
       console.warn('Error while creating markers:', error);
@@ -133,7 +129,6 @@ export class MarkerService {
     svgImageElement.width = 40;
     svgImageElement.height = 40;
 
-    // Create the AdvancedMarkerElement
     const marker = new AdvancedMarkerElement({
       position: markerData.position,
       map: map,
@@ -145,7 +140,6 @@ export class MarkerService {
     markerHoverEffect(marker, svgImageElement);
     markerClickListener(marker, map, markerData);
 
-    // Store the marker and its data
     this.markerDataMap.set(marker, markerData);
 
     return marker;
