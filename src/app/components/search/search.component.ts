@@ -1,7 +1,4 @@
-import {
-  CdkVirtualScrollViewport,
-  ScrollingModule,
-} from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule} from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -12,20 +9,12 @@ import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
-import {
-  isNumericInput,
-  validateInputField,
-} from '../../utils/input-validators';
+import { isNumericInput, validateInputField} from '../../utils/input-validators';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [
-    HighlightSearchTermPipe,
-    CommonModule,
-    FormsModule,
-    ScrollingModule,
-  ],
+  imports: [HighlightSearchTermPipe, CommonModule, FormsModule, ScrollingModule],
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
@@ -35,7 +24,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   protected searchSuggestionsList: string[] = []; // Holds the list of search suggestions.
   protected selectedSuggestionIndex: number = -1; // The index of the currently selected search suggestion.
   protected isSuggestionsVisible: boolean = false; // Indicates the visibility of search suggestions.
-  protected selectedNumberOfMarkers?: number;
+  protected selectedNumberOfMarkers?: number; //Holds the number of selected suggestions.
 
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
