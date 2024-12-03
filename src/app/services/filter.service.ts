@@ -4,6 +4,12 @@ import { Marker } from '../interface/Marker';
 import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
+import { getInitialZoomLevel } from '../utils/dynamic-zoom';
+
+const CENTER = {
+  lat: 42.99603931107363,
+  lng: 19.863259815559704,
+};
 
 /**
  * Service responsible for filtering either cached or fetched markers on Google Maps
@@ -79,7 +85,6 @@ export class FilterService {
   filterMarkers(
     markers: google.maps.marker.AdvancedMarkerElement[]
   ): google.maps.marker.AdvancedMarkerElement[] {
-    
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
     const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
@@ -172,5 +177,34 @@ export class FilterService {
       .subscribe({
         error: (err) => console.error('Error adjusting map bounds:', err),
       });
+  }
+
+  /**
+   * Resets the visibility and clustering of the provided markers on the map.
+   * Clears the existing marker cluster, re-adds the markers to the cluster
+   *
+   * @param markers An array of markers to be reset. If the array is empty or null, the method exits early.
+   *
+   * Functionality:
+   * 1. Clears and updates the marker cluster.
+   * 2. Applies a predefined zoom level and map center after a short delay.
+   * 5. Updates the internal filtered markers list.
+   */
+  resetMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): void {
+    if (!markers || markers.length === 0) {
+      return;
+    }
+    if (this.markerService.markerCluster) {
+      this.markerService.markerCluster.clearMarkers();
+      this.markerService.markerCluster.addMarkers(markers);
+    } else {
+      console.error('Marker cluster is not initialized');
+    }
+    setTimeout(() => {
+      const initialZoomLevel = getInitialZoomLevel();
+      this.mapService.map!.setZoom(initialZoomLevel);
+      this.mapService.map?.setCenter(CENTER);
+    }, 300);
+    this.setFilteredMarkers(markers);
   }
 }
