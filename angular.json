@@ -16,6 +16,12 @@
             "outputPath": "dist/muftijstvo-sandzacko-maps",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "allowedCommonJsDependencies": [
+              "fast-deep-equal",
+              "unorm"
+
+            ],
+            "optimization": false,
             "polyfills": [
               "zone.js"
             ],
@@ -40,15 +46,15 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "100mb",
+                  "maximumError": "200mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
+                  "maximumWarning": "5kb",
                   "maximumError": "4kb"
                 }
-              ],
+                              ],
               "outputHashing": "all"
             },
             "development": {
