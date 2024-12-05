@@ -19,9 +19,12 @@ const CENTER = {
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(private mapService: MapService, private markerService: MarkerService) {}
+  constructor(
+    private mapService: MapService,
+    private markerService: MarkerService
+  ) {}
 
-  map?: google.maps.Map;
+  protected map?: google.maps.Map;
   private _searchQuery: string = ''; // Search query string
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
@@ -77,35 +80,30 @@ export class FilterService {
    * @param markers - An array of markers to filter.
    * @returns An array of CustomMarker objects representing the visible markers.
    */
-  filterMarkers(
-    markers: google.maps.marker.AdvancedMarkerElement[]
-  ): google.maps.marker.AdvancedMarkerElement[] {
+  filterMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): google.maps.marker.AdvancedMarkerElement[] {
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
     const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
     markers.forEach((marker) => {
       const customData = this.markerService.markerDataMap.get(marker);
-      if (
-        customData &&
-        this.isVisibleMarker(customData, normalizedSearchTerm)
-      ) {
-        bounds.extend(
-          marker.position as google.maps.LatLng | google.maps.LatLngLiteral
-        );
+      if (customData && this.isVisibleMarker(customData, normalizedSearchTerm)) {
+        bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
+        if (!marker.map) {
+          marker.map = this.map;
+        }
         visibleMarkers.push(marker);
+      } else {
+        if (marker.map) {
+          marker.map = null;
+        }
       }
     });
-
     if (visibleMarkers.length > 0) {
       this.fitBoundsAfterDelay(bounds);
     }
-
-    if (this.markerService.markerCluster) {
-      this.markerService.markerCluster.clearMarkers();
-      this.markerService.markerCluster.addMarkers(visibleMarkers);
-    }
     this.setFilteredMarkers(visibleMarkers);
+
     return visibleMarkers;
   }
 
@@ -175,13 +173,12 @@ export class FilterService {
   }
 
   /**
-   * Resets the visibility and clustering of the provided markers on the map.
-   * Clears the existing marker cluster, re-adds the markers to the cluster
+   * Resets the visibility of the markers to the initial state.
    *
    * @param markers An array of markers to be reset. If the array is empty or null, the method exits early.
    *
    * Functionality:
-   * 1. Clears and updates the marker cluster.
+   * 1. Clears and updates the markers.
    * 2. Applies a predefined zoom level and map center after a short delay.
    * 5. Updates the internal filtered markers list.
    */
@@ -189,17 +186,19 @@ export class FilterService {
     if (!markers || markers.length === 0) {
       return;
     }
-    if (this.markerService.markerCluster) {
-      this.markerService.markerCluster.clearMarkers();
-      this.markerService.markerCluster.addMarkers(markers);
-    } else {
-      console.error('Marker cluster is not initialized');
-    }
+
+    markers.forEach((marker) => {
+      if (!marker.map) {
+        marker.map = this.mapService.map;
+      }
+    });
+
     setTimeout(() => {
       const initialZoomLevel = getInitialZoomLevel();
       this.mapService.map!.setZoom(initialZoomLevel);
-      this.mapService.map?.setCenter(CENTER);
+      this.mapService.map!.setCenter(CENTER);
     }, 300);
+  
     this.setFilteredMarkers(markers);
   }
 }

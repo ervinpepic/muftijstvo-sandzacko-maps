@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
-import { markerClickListener, markerHoverEffect } from '../styles/marker/marker-events';
+import {
+  markerClickListener,
+  markerHoverEffect,
+} from '../styles/marker/marker-events';
 import { StorageUtil } from '../utils/local-storage-util';
-import { render } from '../styles/marker/cluster-icon';
 /**
  * Service responsible for creating markers and clusters on Google Maps.
  * Initialize markers on the map an clusters them when there a collision
@@ -18,8 +19,8 @@ import { render } from '../styles/marker/cluster-icon';
 export class MarkerService {
   public map?: google.maps.Map;
   public markers: google.maps.marker.AdvancedMarkerElement[] = [];
-  public markerDataMap = new Map<google.maps.marker.AdvancedMarkerElement, Marker>(); // Maps markers to their custom data
-  public markerCluster?: MarkerClusterer;
+  // Maps markers to their custom data
+  public markerDataMap = new Map<google.maps.marker.AdvancedMarkerElement, Marker >(); 
   private _markersNumber: number = 0;
 
   constructor(private firestore: Firestore) {}
@@ -68,10 +69,10 @@ export class MarkerService {
   async getMarkers(): Promise<Marker[]> {
     const cachedData = this.getMarkerDataFromLocalStorage();
     if (cachedData) {
-      // console.log('Calling filter service');
-      this._markersNumber = cachedData.length; // Update marker count
+      this._markersNumber = cachedData.length;
       return cachedData;
     }
+
     try {
       const markersCollection = collection(this.firestore, 'markers');
       const querySnapshot = await getDocs(markersCollection);
@@ -80,11 +81,12 @@ export class MarkerService {
       );
 
       this.saveMarkerDataToLocalStorage(fetchedMarkersData);
-      this._markersNumber = fetchedMarkersData.length; // Update marker count
+      this._markersNumber = fetchedMarkersData.length;
       return fetchedMarkersData;
     } catch (error) {
       console.error('Error while fetching markers => ', error);
-      this._markersNumber = 0; // Reset marker count on error
+      this._markersNumber = 0;
+
       return [];
     }
   }
@@ -95,18 +97,18 @@ export class MarkerService {
    * @returns {Promise<void>} Promise that resolves when markers are created.
    */
   async createMarkers(map: google.maps.Map): Promise<void> {
-    this.clearMarkers();
+    this.markers.forEach((marker) => (marker.map = null));
+    this.markers = [];
+    this.markerDataMap.clear();
+
     try {
       const markerAdditionalData = await this.getMarkers();
-      this.markers = [];
-      this.markerDataMap.clear();
 
       for (const markerData of markerAdditionalData) {
         const marker = await this.createMarker(markerData, map);
         this.markers.push(marker);
         this.markerDataMap.set(marker, markerData);
       }
-      this.createCluster(map);
     } catch (error) {
       console.warn('Error while creating markers:', error);
     }
@@ -122,17 +124,20 @@ export class MarkerService {
     markerData: Marker,
     map: google.maps.Map
   ): Promise<google.maps.marker.AdvancedMarkerElement> {
-  
     const { AdvancedMarkerElement } = (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
+  
     const svgImageElement = document.createElement('img');
     svgImageElement.src = '../assets/marker_main.svg';
     svgImageElement.width = 40;
     svgImageElement.height = 40;
+    svgImageElement.style.transform = 'scale(1.3)';
+    svgImageElement.title = markerData.vakufName;
 
     const marker = new AdvancedMarkerElement({
       position: markerData.position,
       map: map,
       content: svgImageElement,
+      collisionBehavior: google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
       gmpDraggable: false,
       gmpClickable: true,
     });
@@ -140,32 +145,6 @@ export class MarkerService {
     markerHoverEffect(marker, svgImageElement);
     markerClickListener(marker, map, markerData);
 
-    this.markerDataMap.set(marker, markerData);
-
     return marker;
-  }
-
-  // Create marker clusters and clear old markers if they exist
-  private createCluster(map: google.maps.Map) {
-    if (this.markerCluster) {
-      this.markerCluster.clearMarkers();
-    }
-
-    this.markerCluster = new MarkerClusterer({
-      map,
-      markers: this.markers,
-      renderer: render,
-    });
-  }
-
-  /**
-   * Clears all markers from the map.
-   * @returns {Promise<void>} Promise that resolves when all markers are cleared.
-   */
-  private clearMarkers(): void {
-    if (this.markerCluster) {
-      this.markerCluster.clearMarkers();
-    }
-    this.markers = [];
   }
 }

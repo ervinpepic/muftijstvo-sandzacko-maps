@@ -15,7 +15,7 @@ export function markerHoverEffect(
 
   marker.content?.addEventListener('mouseout', () => {
     svgImageElement.src = '../assets/marker_main.svg';
-    svgImageElement.style.transform = 'scale(1)';
+    svgImageElement.style.transform = 'scale(1.3)';
   });
 }
 

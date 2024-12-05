@@ -62,6 +62,10 @@ export class MapService {
     try {
       await this.loadGoogleMapsAPI();
       this.createMap(mapContainer);
+      if (this.map) {
+        this.markerService.map = this.map;
+        return;
+      }
     } catch (error) {
       console.error('Error while loading Google Maps API:', error);
     }
@@ -90,11 +94,11 @@ export class MapService {
       this.polygons.drawPolygons();
     }
   }
-  
+
   addMarker(marker: google.maps.marker.AdvancedMarkerElement): void {
     marker.map = this.map;
   }
-  
+
   removeMarker(marker: google.maps.marker.AdvancedMarkerElement): void {
     marker.map = null;
   }
