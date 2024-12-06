@@ -5,6 +5,7 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { EllipsisPipe } from '../../pipes/ellipsis.pipe';
 import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';
+import { MapService } from '../../services/map.service';
 
 @Component({
   selector: 'app-select',
@@ -41,7 +42,11 @@ export class SelectComponent implements OnInit {
    * @param markerService - Provides marker related functionalities.
    * @param filterService - Provides filtering capabilities.
    */
-  constructor(private markerService: MarkerService, private filterService: FilterService) { }
+  constructor(
+    private markerService: MarkerService, 
+    private filterService: FilterService, 
+    private mapService: MapService
+  ) { }
 
   ngOnInit(): void {
     try {
@@ -71,18 +76,62 @@ export class SelectComponent implements OnInit {
    * Resets the selected vakuf name to trigger overall marker filtering.
    */
   protected filterMarkersNames(): void {
+    if (
+      this.selectedVakufType === '' 
+      && this.selectedCity === '' 
+      && this.selectedVakufName === ''
+    ) {
+      this.filterService.resetMarkers(this.markerService.markers);
+      this.filteredMarkersNames = [];
+      this.selectedVakufName = null;
+      return;
+    }
+    
+    if (
+      this.selectedVakufType === ''
+      || this.selectedCity === '' 
+      || this.selectedVakufName === ''
+    ) {
+      this.filterService.resetMarkers(this.markerService.markers);
+    }
+
     this.filterMarkers();
+  
     this.filteredMarkersNames = this.filteredMarkers.map(marker => {
       const customData = this.markerService.markerDataMap.get(marker);
       return customData ? customData.vakufName : null;
-    }).filter((name): name is string => name !== null); 
+    }).filter((name): name is string => name !== null);
+  
     this.selectedVakufName = null;
+
+    this.updateMapMarkers();
   }
+  
+  protected updateMapMarkers(): void {
+    try {
+      const filteredSet = new Set(this.filteredMarkers);
+      this.markerService.markers.forEach(marker => {
+        if (!filteredSet.has(marker)) {
+          marker.map = null;
+        }
+      });
+  
+      this.filteredMarkers.forEach(marker => {
+        marker.map = this.mapService.map;
+      });
+    } catch (error) {
+      console.warn('Error updating markers on map:', error);
+    }
+  }
+  
 
   /**
    * Opens the city dropdown when a vakuf type is selected.
    */
   protected handleVakufTypeChange(): void {
+    if (this.openVakufNames.isOpen) {
+      this.openVakufNames.close();
+    }
     this.openCities.open();
   }
 
@@ -90,7 +139,9 @@ export class SelectComponent implements OnInit {
    * Closes the city dropdown and opens the vakuf names dropdown when a city is selected.
    */
   protected handleCityChange(): void {
-    this.openCities.close();
+    if (this.openCities.isOpen) {
+      this.openCities.close();
+    }
     this.openVakufNames.open();
   }
 }
