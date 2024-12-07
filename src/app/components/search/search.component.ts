@@ -10,6 +10,7 @@ import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
 import { isNumericInput, validateInputField} from '../../utils/input-validators';
+import { MapService } from '../../services/map.service';
 
 @Component({
   selector: 'app-search',
@@ -28,7 +29,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
-
+  
   get searchQuery(): string {
     return this.filterService.searchQuery;
   }
@@ -49,7 +50,8 @@ export class SearchComponent implements OnInit, OnDestroy {
           this.clearSuggestions();
         }
       });
-  }
+      
+    }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -59,13 +61,15 @@ export class SearchComponent implements OnInit, OnDestroy {
   /**
    * Filters markers at the component level using the FilterService.
    * Retrieves, filters based on search criteria and filters, and returns an array of filtered markers.
-   * @returns {Marker[]} An array of CustomMarker objects representing the filtered markers.
    * @throws {Error} When an error occurs during the filtering process.
    */
   private filterMarkers(): void {
     try {
-      this.filterService.filterMarkers(this.markerService.markers);
-      this.selectedNumberOfMarkers = this.filterService.filteredMarkers.length;
+      const filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
+      filteredMarkers.forEach(marker => {
+        marker.map = this.markerService.map;
+      });
+      this.selectedNumberOfMarkers = filteredMarkers.length;
     } catch (error) {
       console.error('Error filtering markers:', error);
     }
@@ -151,4 +155,5 @@ export class SearchComponent implements OnInit, OnDestroy {
       console.error('Error handling navigation keys:', error);
     }
   }
+
 }

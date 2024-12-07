@@ -29,7 +29,7 @@
       autocomplete="off"
       [(ngModel)]="searchQuery"
       (ngModelChange)="searchQueryChanges.next(searchQuery)"
-      (keyup)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
+      (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
     >
   </div>
   <div

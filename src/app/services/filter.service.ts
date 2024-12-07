@@ -6,6 +6,7 @@ import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
 import { getInitialZoomLevel } from '../utils/dynamic-zoom';
 
+// Map center when app initialy load
 const CENTER = {
   lat: 42.99603931107363,
   lng: 19.863259815559704,
@@ -24,14 +25,14 @@ export class FilterService {
     private markerService: MarkerService
   ) {}
 
-  protected map?: google.maps.Map;
+  protected map?: google.maps.Map; // Foogle map instance
   private _searchQuery: string = ''; // Search query string
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
   private _selectedVakufName: string | null = null; // Selected vakuf name filter
   private _filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
-  // Getter methods to expose values// In FilterService
+  // Getter methods to expose values In FilterService
 
   public get filteredMarkers(): google.maps.marker.AdvancedMarkerElement[] {
     return this._filteredMarkers;
