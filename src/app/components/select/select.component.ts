@@ -77,22 +77,14 @@ export class SelectComponent implements OnInit {
    */
   protected filterMarkersNames(): void {
     if (
-      this.selectedVakufType === '' 
-      && this.selectedCity === '' 
-      && this.selectedVakufName === ''
+      this.selectedVakufType === '' && 
+      this.selectedCity === '' &&
+      this.selectedVakufName === ''
     ) {
       this.filterService.resetMarkers(this.markerService.markers);
       this.filteredMarkersNames = [];
       this.selectedVakufName = null;
       return;
-    }
-    
-    if (
-      this.selectedVakufType === ''
-      || this.selectedCity === '' 
-      || this.selectedVakufName === ''
-    ) {
-      this.filterService.resetMarkers(this.markerService.markers);
     }
 
     this.filterMarkers();

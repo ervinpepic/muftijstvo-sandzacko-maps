@@ -108,6 +108,15 @@ export class FilterService {
     return visibleMarkers;
   }
 
+  public hasActiveFilters(): boolean {
+    return (
+      this.selectedVakufType !== '' || 
+      this.selectedCity !== '' || 
+      this.selectedVakufName !== '' || 
+      this.searchQuery !== ''
+    );
+  }
+
   /**
    * Checks if a marker is visible based on the filter criteria.
    * @param data - The marker to check visibility for.
@@ -184,22 +193,20 @@ export class FilterService {
    * 5. Updates the internal filtered markers list.
    */
   resetMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): void {
-    if (!markers || markers.length === 0) {
-      return;
-    }
-
-    markers.forEach((marker) => {
-      if (!marker.map) {
-        marker.map = this.mapService.map;
-      }
-    });
-
-    setTimeout(() => {
-      const initialZoomLevel = getInitialZoomLevel();
-      this.mapService.map!.setZoom(initialZoomLevel);
-      this.mapService.map!.setCenter(CENTER);
-    }, 300);
+    if (!this.hasActiveFilters()) {
+      markers.forEach((marker) => {
+        if (!marker.map) {
+          marker.map = this.mapService.map;
+        }
+      });
   
-    this.setFilteredMarkers(markers);
-  }
+      setTimeout(() => {
+        const initialZoomLevel = getInitialZoomLevel();
+        this.mapService.map!.setZoom(initialZoomLevel);
+        this.mapService.map!.setCenter(CENTER);
+      }, 300);
+  
+      this.setFilteredMarkers(markers);
+    }
+  }  
 }
