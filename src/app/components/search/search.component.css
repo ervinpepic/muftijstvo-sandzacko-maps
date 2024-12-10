@@ -25,7 +25,7 @@ input {
   background-color: var(--hover-background-color);
   color: var(--text-color-base);
   border-color: var(--border-color-hover);
-  box-shadow: var(--box-shadow-hover)
+  box-shadow: var(--box-shadow-hover);
 }
 
 .search-icon {

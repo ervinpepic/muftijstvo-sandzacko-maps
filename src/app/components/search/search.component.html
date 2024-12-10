@@ -2,16 +2,21 @@
   <div class="input-group mt-2 mt-lg-0">
     <span
       title="Započnite pretragu vakfua klikom u polje."
-      *ngIf="searchQuery === '' || searchQuery.startsWith(' '); else showCountNumber"
+      *ngIf="
+        searchQuery === '' || searchQuery.startsWith(' ');
+        else showCountNumber
+      "
       id="searchIcon"
       class="input-group-text"
     >
       <i class="fas fa-search-location fa-lg search-icon"></i>
     </span>
     <ng-template #showCountNumber>
-      <span 
-      title="Prikazuje broj pronađenih vakufa"
-      class="input-group-text" id="searchCountNumber">
+      <span
+        title="Prikazuje broj pronađenih vakufa"
+        class="input-group-text"
+        id="searchCountNumber"
+      >
         {{ selectedNumberOfMarkers }}
       </span>
     </ng-template>
@@ -30,10 +35,10 @@
       [(ngModel)]="searchQuery"
       (ngModelChange)="searchQueryChanges.next(searchQuery)"
       (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
-    >
+    />
   </div>
   <div
-  *ngIf="isSuggestionsVisible"
+    *ngIf="isSuggestionsVisible"
     class="input-group mt-1"
     role="listbox"
     aria-live="assertive"

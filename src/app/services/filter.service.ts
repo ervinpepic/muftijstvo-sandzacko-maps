@@ -4,7 +4,12 @@ import { Marker } from '../interface/Marker';
 import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
-// import { getInitialZoomLevel } from '../utils/dynamic-zoom';
+import { getInitialZoomLevel } from '../utils/dynamic-zoom';
+// Map center when app initialy load
+const CENTER = {
+  lat: 42.99603931107363,
+  lng: 19.863259815559704,
+};
 /**
  * Service responsible for filtering either cached or fetched markers on Google Maps
  * Returns the visible or invisible state of the markers based on certain criteria
@@ -13,7 +18,10 @@ import { MarkerService } from './marker.service';
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(private mapService: MapService, private markerService: MarkerService) { }
+  constructor(
+    private mapService: MapService,
+    private markerService: MarkerService
+  ) {}
 
   protected map?: google.maps.Map; // Foogle map instance
 
@@ -69,19 +77,26 @@ export class FilterService {
    * @param markers - An array of markers to filter.
    * @returns An array of CustomMarker objects representing the visible markers.
    */
-  filterMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): google.maps.marker.AdvancedMarkerElement[] {
+  filterMarkers(
+    markers: google.maps.marker.AdvancedMarkerElement[]
+  ): google.maps.marker.AdvancedMarkerElement[] {
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
     const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
     markers.forEach((marker) => {
       const customData = this.markerService.markerDataMap.get(marker);
-      if (customData && this.isVisibleMarker(customData, normalizedSearchTerm)) {
+      if (
+        customData &&
+        this.isVisibleMarker(customData, normalizedSearchTerm)
+      ) {
         if (!marker.map) {
           marker.map = this.map;
         }
         visibleMarkers.push(marker);
-        bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
+        bounds.extend(
+          marker.position as google.maps.LatLng | google.maps.LatLngLiteral
+        );
       } else {
         if (marker.map) {
           marker.map = null;
@@ -150,7 +165,50 @@ export class FilterService {
    * @param bounds - The bounds to fit.
    */
   private fitBoundsAfterDelay(bounds: google.maps.LatLngBounds): void {
-    this.mapService.map$.pipe(debounceTime(300),take(1),tap(() => this.mapService.map?.fitBounds(bounds)))
-      .subscribe({ error: (err) => console.error('Error adjusting map bounds:', err) });
+    this.mapService.map$
+      .pipe(
+        debounceTime(300),
+        take(1),
+        tap(() => this.mapService.map?.fitBounds(bounds))
+      )
+      .subscribe({
+        error: (err) => console.error('Error adjusting map bounds:', err),
+      });
+  }
+
+  public hasActiveFilters(): boolean {
+    const active =
+      !!this.searchQuery ||
+      !!this.selectedVakufType ||
+      !!this.selectedCity ||
+      !!this.selectedVakufName;
+    console.log('Active Filters:', {
+      searchQuery: this.searchQuery,
+      vakufType: this.selectedVakufType,
+      city: this.selectedCity,
+      vakufName: this.selectedVakufName,
+      hasActiveFilters: active,
+    });
+    return active;
+  }
+
+  public resetMapToInitialState(): void {
+    console.log('Checking reset conditions...');
+    if (!this.hasActiveFilters()) {
+      console.log('Resetting map to initial state');
+      this.markerService.markers.forEach((marker) => {
+        marker.map = this.mapService.map; // Re-attach all markers to the map
+      });
+
+      setTimeout(() => {
+        const initialZoomLevel = getInitialZoomLevel(); // Ensure this function returns a valid zoom level
+        this.mapService.map!.setZoom(initialZoomLevel); // Apply initial zoom
+        this.mapService.map!.setCenter(CENTER); // Apply initial center (make sure CENTER is defined)
+      }, 300);
+
+      this.filteredMarkers = this.markerService.markers; // Update the filtered markers
+    } else {
+      console.log('Filters are still active; no reset performed.');
+    }
   }
 }

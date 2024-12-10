@@ -1,6 +1,7 @@
 <div class="navbar-nav">
   <ng-select
     title="Padajući meni za odabir tipa vakufa"
+    #openVakufTypes
     class="custom m-1"
     id="vakufType"
     name="vakufType"
@@ -37,7 +38,7 @@
     name="filteredVakufNames"
     placeholder="Naziv vakufa"
     [(ngModel)]="selectedVakufName"
-    (ngModelChange)="filterMarkersNames();"
+    (ngModelChange)="filterMarkersNames(); handleMarkersNamesChange()"
   >
     <ng-option *ngFor="let name of filteredMarkersNames" [value]="name">
       {{ name | ellipsis : 30 }}

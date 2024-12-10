@@ -18,6 +18,7 @@ export class SelectComponent implements OnInit {
   //References the NgSelectComponent instance for vakuf names and cities.
   @ViewChild('openVakufNames') openVakufNames!: NgSelectComponent;
   @ViewChild('openCities') openCities!: NgSelectComponent;
+  @ViewChild('openVakufTypes') openVakufTypes!: NgSelectComponent;
 
   protected filteredMarkersNames: string[] = []; // An array to store the names of filtered markers.
   private filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = []; // An array to store filtered markers.
@@ -43,10 +44,10 @@ export class SelectComponent implements OnInit {
    * @param filterService - Provides filtering capabilities.
    */
   constructor(
-    private markerService: MarkerService, 
-    private filterService: FilterService, 
+    private markerService: MarkerService,
+    private filterService: FilterService,
     private mapService: MapService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     try {
@@ -63,7 +64,9 @@ export class SelectComponent implements OnInit {
    */
   protected filterMarkers(): void {
     try {
-      this.filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
+      this.filteredMarkers = this.filterService.filterMarkers(
+        this.markerService.markers
+      );
     } catch (error) {
       console.warn('Error filtering markers:', error);
     }
@@ -77,37 +80,46 @@ export class SelectComponent implements OnInit {
    */
   protected filterMarkersNames(): void {
     this.filterMarkers();
-    this.filteredMarkersNames = this.filteredMarkers.map(marker => {
-      const customData = this.markerService.markerDataMap.get(marker);
-      return customData ? customData.vakufName : null;
-    }).filter((name): name is string => name !== null);
+
+    if (
+      !this.selectedVakufType &&
+      !this.selectedCity &&
+      !this.selectedVakufName
+    ) {
+      this.filterService.resetMapToInitialState();
+    }
+    this.filteredMarkersNames = this.filteredMarkers
+      .map((marker) => {
+        const customData = this.markerService.markerDataMap.get(marker);
+        return customData ? customData.vakufName : null;
+      })
+      .filter((name): name is string => name !== null);
 
     this.updateMapMarkers();
   }
-  
+
   protected updateMapMarkers(): void {
     try {
       const filteredSet = new Set(this.filteredMarkers);
-      this.markerService.markers.forEach(marker => {
+      this.markerService.markers.forEach((marker) => {
         if (!filteredSet.has(marker)) {
           marker.map = null;
         }
       });
-  
-      this.filteredMarkers.forEach(marker => { marker.map = this.mapService.map });
+
+      this.filteredMarkers.forEach((marker) => {
+        marker.map = this.mapService.map;
+      });
     } catch (error) {
       console.warn('Error updating markers on map:', error);
     }
   }
-  
 
   /**
    * Opens the city dropdown when a vakuf type is selected.
    */
   protected handleVakufTypeChange(): void {
-    if (this.openVakufNames.isOpen) {
-      this.openVakufNames.close();
-    }
+    this.closeAllDropdowns();
     this.openCities.open();
   }
 
@@ -115,9 +127,23 @@ export class SelectComponent implements OnInit {
    * Closes the city dropdown and opens the vakuf names dropdown when a city is selected.
    */
   protected handleCityChange(): void {
-    if (this.openCities.isOpen) {
-      this.openCities.close();
-    }
+    this.closeAllDropdowns();
     this.openVakufNames.open();
+  }
+
+  /**
+   * Handles changes in marker names dropdown.
+   */
+  protected handleMarkersNamesChange(): void {
+    this.closeAllDropdowns();
+  }
+
+  /**
+   * Closes all dropdowns to avoid multiple being open at the same time.
+   */
+  private closeAllDropdowns(): void {
+    if (this.openVakufTypes.isOpen) this.openVakufTypes.close();
+    if (this.openCities.isOpen) this.openCities.close();
+    if (this.openVakufNames.isOpen) this.openVakufNames.close();
   }
 }

@@ -20,7 +20,10 @@ export class MarkerService {
   public map?: google.maps.Map;
   public markers: google.maps.marker.AdvancedMarkerElement[] = [];
   // Maps markers to their custom data
-  public markerDataMap = new Map<google.maps.marker.AdvancedMarkerElement, Marker >(); 
+  public markerDataMap = new Map<
+    google.maps.marker.AdvancedMarkerElement,
+    Marker
+  >();
   private _markersNumber: number = 0;
 
   constructor(private firestore: Firestore) {}
@@ -124,8 +127,10 @@ export class MarkerService {
     markerData: Marker,
     map: google.maps.Map
   ): Promise<google.maps.marker.AdvancedMarkerElement> {
-    const { AdvancedMarkerElement } = (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
-  
+    const { AdvancedMarkerElement } = (await google.maps.importLibrary(
+      'marker'
+    )) as google.maps.MarkerLibrary;
+
     const svgImageElement = document.createElement('img');
     svgImageElement.src = '../assets/marker_main.svg';
     svgImageElement.width = 40;
@@ -137,7 +142,8 @@ export class MarkerService {
       position: markerData.position,
       map: map,
       content: svgImageElement,
-      collisionBehavior: google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
+      collisionBehavior:
+        google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
       gmpDraggable: false,
       gmpClickable: true,
     });

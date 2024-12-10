@@ -9,5 +9,4 @@ import { SearchComponent } from '../search/search.component';
   styleUrl: './navbar.component.css',
   imports: [SelectComponent, SearchComponent],
 })
-export class NavbarComponent {
-}
+export class NavbarComponent {}

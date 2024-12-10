@@ -1,4 +1,7 @@
-import { CdkVirtualScrollViewport, ScrollingModule} from '@angular/cdk/scrolling';
+import {
+  CdkVirtualScrollViewport,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -9,12 +12,20 @@ import { FilterService } from '../../services/filter.service';
 import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
-import { isNumericInput, validateInputField} from '../../utils/input-validators';
+import {
+  isNumericInput,
+  validateInputField,
+} from '../../utils/input-validators';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [HighlightSearchTermPipe, CommonModule, FormsModule, ScrollingModule],
+  imports: [
+    HighlightSearchTermPipe,
+    CommonModule,
+    FormsModule,
+    ScrollingModule,
+  ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.css',
 })
@@ -37,7 +48,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.filterService.searchQuery = value;
   }
 
-  constructor(private markerService: MarkerService, private filterService: FilterService) {}
+  constructor(
+    private markerService: MarkerService,
+    private filterService: FilterService
+  ) {}
 
   ngOnInit(): void {
     this.searchQueryChanges
@@ -49,6 +63,7 @@ export class SearchComponent implements OnInit, OnDestroy {
           this.isSuggestionsVisible = true;
         } else if (!inputValue.trim()) {
           this.resetSuggestions();
+          this.filterService.resetMapToInitialState();
         }
       });
   }
@@ -65,8 +80,12 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   private filterMarkers(): void {
     try {
-      const filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
-      filteredMarkers.forEach((marker) => { marker.map = this.markerService.map; });
+      const filteredMarkers = this.filterService.filterMarkers(
+        this.markerService.markers
+      );
+      filteredMarkers.forEach((marker) => {
+        marker.map = this.markerService.map;
+      });
       this.selectedNumberOfMarkers = filteredMarkers.length;
     } catch (error) {
       console.error('Error filtering markers:', error);
@@ -82,7 +101,8 @@ export class SearchComponent implements OnInit, OnDestroy {
       .map((marker) => this.markerService.markerDataMap.get(marker))
       .filter((markerData) => markerData?.vakufName) as Marker[];
 
-    this.searchSuggestionsList = generateSearchSuggestions(filteredMarkerData, inputValue) || [];
+    this.searchSuggestionsList =
+      generateSearchSuggestions(filteredMarkerData, inputValue) || [];
     this.isSuggestionsVisible = this.searchSuggestionsList.length > 0;
   }
 

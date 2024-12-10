@@ -1,9 +1,12 @@
 /* Background color and border radius for the navbar */
 .navbar-color-override {
   background-color: var(--color-primary); /* Navbar background color */
-  border-top-left-radius: var(--border-radius-base); /* Border radius for the top-left corner */
-  border-top-right-radius: var(--border-radius-base); /* Border radius for the top-right corner */
-  
+  border-top-left-radius: var(
+    --border-radius-base
+  ); /* Border radius for the top-left corner */
+  border-top-right-radius: var(
+    --border-radius-base
+  ); /* Border radius for the top-right corner */
 }
 
 /* Base styles for the navbar toggler */
@@ -17,19 +20,14 @@
   display: inline-block;
   width: 30px;
   height: 30px;
-  background-image: url(
-    "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(182, 163, 124)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"
-  );
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(182, 163, 124)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 /* When expanded: rotate the icon and change color */
 .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   transform: rotate(180deg);
-  background-image: url(
-    "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(54, 120, 71)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"
-    
-  ); /* Change color to a new one */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(54, 120, 71)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* Change color to a new one */
 }
 
 /* Optional: Add some rotation feedback to the button itself */
