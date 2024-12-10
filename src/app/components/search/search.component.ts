@@ -10,7 +10,6 @@ import { MarkerService } from '../../services/marker.service';
 import { handleSearchNavigationKeys } from '../../utils/arrow-key-handler';
 import { generateSearchSuggestions } from '../../utils/generate-search-suggestions';
 import { isNumericInput, validateInputField} from '../../utils/input-validators';
-import { MapService } from '../../services/map.service';
 
 @Component({
   selector: 'app-search',
@@ -29,7 +28,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   protected searchQueryChanges = new Subject<string>(); // Search debouncing container
   private destroy$ = new Subject<void>(); // Subscription remover
-  
+
   get searchQuery(): string {
     return this.filterService.searchQuery;
   }
@@ -41,17 +40,18 @@ export class SearchComponent implements OnInit, OnDestroy {
   constructor(private markerService: MarkerService, private filterService: FilterService) {}
 
   ngOnInit(): void {
-    this.searchQueryChanges.pipe(debounceTime(300), takeUntil(this.destroy$)).subscribe((inputValue) => {
+    this.searchQueryChanges
+      .pipe(debounceTime(300), takeUntil(this.destroy$))
+      .subscribe((inputValue) => {
         if (validateInputField(inputValue)) {
           this.filterMarkers();
           this.generateSuggestions(inputValue);
           this.isSuggestionsVisible = true;
-        } else if (inputValue.trim() === '') {
-          this.clearSuggestions();
+        } else if (!inputValue.trim()) {
+          this.resetSuggestions();
         }
       });
-      
-    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -66,9 +66,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private filterMarkers(): void {
     try {
       const filteredMarkers = this.filterService.filterMarkers(this.markerService.markers);
-      filteredMarkers.forEach(marker => {
-        marker.map = this.markerService.map;
-      });
+      filteredMarkers.forEach((marker) => { marker.map = this.markerService.map; });
       this.selectedNumberOfMarkers = filteredMarkers.length;
     } catch (error) {
       console.error('Error filtering markers:', error);
@@ -84,8 +82,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       .map((marker) => this.markerService.markerDataMap.get(marker))
       .filter((markerData) => markerData?.vakufName) as Marker[];
 
-    this.searchSuggestionsList =
-      generateSearchSuggestions(filteredMarkerData, inputValue) || [];
+    this.searchSuggestionsList = generateSearchSuggestions(filteredMarkerData, inputValue) || [];
     this.isSuggestionsVisible = this.searchSuggestionsList.length > 0;
   }
 
@@ -112,17 +109,11 @@ export class SearchComponent implements OnInit, OnDestroy {
       ? numberPart
       : inputValue;
   }
-  
+
   // Empties and hide suggestion list.
   private resetSuggestions(): void {
     this.searchSuggestionsList = [];
     this.isSuggestionsVisible = false;
-  }
-
-  // Reset markers on the map.
-  private clearSuggestions(): void {
-    this.resetSuggestions();
-    this.filterService.resetMarkers(this.markerService.markers);
   }
 
   /**
@@ -155,5 +146,4 @@ export class SearchComponent implements OnInit, OnDestroy {
       console.error('Error handling navigation keys:', error);
     }
   }
-
 }

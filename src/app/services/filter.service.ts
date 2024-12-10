@@ -4,14 +4,7 @@ import { Marker } from '../interface/Marker';
 import { normalizeString } from '../utils/input-validators';
 import { MapService } from './map.service';
 import { MarkerService } from './marker.service';
-import { getInitialZoomLevel } from '../utils/dynamic-zoom';
-
-// Map center when app initialy load
-const CENTER = {
-  lat: 42.99603931107363,
-  lng: 19.863259815559704,
-};
-
+// import { getInitialZoomLevel } from '../utils/dynamic-zoom';
 /**
  * Service responsible for filtering either cached or fetched markers on Google Maps
  * Returns the visible or invisible state of the markers based on certain criteria
@@ -20,12 +13,10 @@ const CENTER = {
   providedIn: 'root',
 })
 export class FilterService {
-  constructor(
-    private mapService: MapService,
-    private markerService: MarkerService
-  ) {}
+  constructor(private mapService: MapService, private markerService: MarkerService) { }
 
   protected map?: google.maps.Map; // Foogle map instance
+
   private _searchQuery: string = ''; // Search query string
   private _selectedCity: string | null = null; // Selected city filter
   private _selectedVakufType: string | null = null; // Selected vakuf type filter
@@ -33,16 +24,10 @@ export class FilterService {
   private _filteredMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
   // Getter methods to expose values In FilterService
-
-  public get filteredMarkers(): google.maps.marker.AdvancedMarkerElement[] {
+  get filteredMarkers(): google.maps.marker.AdvancedMarkerElement[] {
     return this._filteredMarkers;
   }
 
-  private setFilteredMarkers(
-    markers: google.maps.marker.AdvancedMarkerElement[]
-  ): void {
-    this._filteredMarkers = markers;
-  }
   get searchQuery(): string {
     return this._searchQuery;
   }
@@ -60,6 +45,9 @@ export class FilterService {
   }
 
   // Setter methods to update values
+  set filteredMarkers(markers: google.maps.marker.AdvancedMarkerElement[]) {
+    this._filteredMarkers = markers;
+  }
   set searchQuery(value: string) {
     this._searchQuery = value;
   }
@@ -89,11 +77,11 @@ export class FilterService {
     markers.forEach((marker) => {
       const customData = this.markerService.markerDataMap.get(marker);
       if (customData && this.isVisibleMarker(customData, normalizedSearchTerm)) {
-        bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
         if (!marker.map) {
           marker.map = this.map;
         }
         visibleMarkers.push(marker);
+        bounds.extend(marker.position as google.maps.LatLng | google.maps.LatLngLiteral);
       } else {
         if (marker.map) {
           marker.map = null;
@@ -103,18 +91,9 @@ export class FilterService {
     if (visibleMarkers.length > 0) {
       this.fitBoundsAfterDelay(bounds);
     }
-    this.setFilteredMarkers(visibleMarkers);
+    this.filteredMarkers = visibleMarkers;
 
     return visibleMarkers;
-  }
-
-  public hasActiveFilters(): boolean {
-    return (
-      this.selectedVakufType !== '' || 
-      this.selectedCity !== '' || 
-      this.selectedVakufName !== '' || 
-      this.searchQuery !== ''
-    );
   }
 
   /**
@@ -171,42 +150,7 @@ export class FilterService {
    * @param bounds - The bounds to fit.
    */
   private fitBoundsAfterDelay(bounds: google.maps.LatLngBounds): void {
-    this.mapService.map$
-      .pipe(
-        debounceTime(300),
-        take(1),
-        tap(() => this.mapService.map?.fitBounds(bounds))
-      )
-      .subscribe({
-        error: (err) => console.error('Error adjusting map bounds:', err),
-      });
+    this.mapService.map$.pipe(debounceTime(300),take(1),tap(() => this.mapService.map?.fitBounds(bounds)))
+      .subscribe({ error: (err) => console.error('Error adjusting map bounds:', err) });
   }
-
-  /**
-   * Resets the visibility of the markers to the initial state.
-   *
-   * @param markers An array of markers to be reset. If the array is empty or null, the method exits early.
-   *
-   * Functionality:
-   * 1. Clears and updates the markers.
-   * 2. Applies a predefined zoom level and map center after a short delay.
-   * 5. Updates the internal filtered markers list.
-   */
-  resetMarkers(markers: google.maps.marker.AdvancedMarkerElement[]): void {
-    if (!this.hasActiveFilters()) {
-      markers.forEach((marker) => {
-        if (!marker.map) {
-          marker.map = this.mapService.map;
-        }
-      });
-  
-      setTimeout(() => {
-        const initialZoomLevel = getInitialZoomLevel();
-        this.mapService.map!.setZoom(initialZoomLevel);
-        this.mapService.map!.setCenter(CENTER);
-      }, 300);
-  
-      this.setFilteredMarkers(markers);
-    }
-  }  
 }

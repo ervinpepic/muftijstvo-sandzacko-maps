@@ -76,25 +76,11 @@ export class SelectComponent implements OnInit {
    * Resets the selected vakuf name to trigger overall marker filtering.
    */
   protected filterMarkersNames(): void {
-    if (
-      this.selectedVakufType === '' && 
-      this.selectedCity === '' &&
-      this.selectedVakufName === ''
-    ) {
-      this.filterService.resetMarkers(this.markerService.markers);
-      this.filteredMarkersNames = [];
-      this.selectedVakufName = null;
-      return;
-    }
-
     this.filterMarkers();
-  
     this.filteredMarkersNames = this.filteredMarkers.map(marker => {
       const customData = this.markerService.markerDataMap.get(marker);
       return customData ? customData.vakufName : null;
     }).filter((name): name is string => name !== null);
-  
-    this.selectedVakufName = null;
 
     this.updateMapMarkers();
   }
@@ -108,9 +94,7 @@ export class SelectComponent implements OnInit {
         }
       });
   
-      this.filteredMarkers.forEach(marker => {
-        marker.map = this.mapService.map;
-      });
+      this.filteredMarkers.forEach(marker => { marker.map = this.mapService.map });
     } catch (error) {
       console.warn('Error updating markers on map:', error);
     }
