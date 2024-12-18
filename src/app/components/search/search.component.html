@@ -31,7 +31,7 @@
       aria-controls="suggestion-list"
       aria-describedby="searchIcon searchCountNumber"
       placeholder="Naziv vakufa | broj parcele"
-      autocomplete="off"
+      autocomplete="on"
       [(ngModel)]="searchQuery"
       (ngModelChange)="searchQueryChanges.next(searchQuery)"
       (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
