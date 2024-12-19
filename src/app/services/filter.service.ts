@@ -82,32 +82,26 @@ export class FilterService {
   ): google.maps.marker.AdvancedMarkerElement[] {
     const normalizedSearchTerm = this.normalizeSearchTerm(this.searchQuery);
     const bounds = new google.maps.LatLngBounds();
-    const visibleMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
-    markers.forEach((marker) => {
+    const visibleMarkers = markers.filter((marker) => {
       const customData = this.markerService.markerDataMap.get(marker);
-      if (
-        customData &&
-        this.isVisibleMarker(customData, normalizedSearchTerm)
-      ) {
-        if (!marker.map) {
-          marker.map = this.map;
-        }
-        visibleMarkers.push(marker);
+      const isVisible = customData && this.isVisibleMarker(customData, normalizedSearchTerm);
+
+      marker.map = isVisible ? this.map : null;
+
+      if (isVisible) {
         bounds.extend(
           marker.position as google.maps.LatLng | google.maps.LatLngLiteral
         );
-      } else {
-        if (marker.map) {
-          marker.map = null;
-        }
       }
+      return isVisible;
     });
+
     if (visibleMarkers.length > 0) {
       this.fitBoundsAfterDelay(bounds);
     }
-    this.filteredMarkers = visibleMarkers;
 
+    this.filteredMarkers = visibleMarkers;
     return visibleMarkers;
   }
 
