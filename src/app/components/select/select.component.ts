@@ -142,8 +142,8 @@ export class SelectComponent implements OnInit {
    * Closes all dropdowns to avoid multiple being open at the same time.
    */
   private closeAllDropdowns(): void {
-    if (this.openVakufTypes.isOpen) this.openVakufTypes.close();
-    if (this.openCities.isOpen) this.openCities.close();
-    if (this.openVakufNames.isOpen) this.openVakufNames.close();
+    if (this.openVakufTypes.isOpen()) this.openVakufTypes.close();
+    if (this.openCities.isOpen()) this.openCities.close();
+    if (this.openVakufNames.isOpen()) this.openVakufNames.close();
   }
 }

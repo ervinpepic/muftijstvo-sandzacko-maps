@@ -1,5 +1,5 @@
 import { ElementRef, Injectable } from '@angular/core';
-import { Loader } from '@googlemaps/js-api-loader';
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { PolygonsBoundaries } from '../polygons/map-polygons';
@@ -47,11 +47,8 @@ export class MapService {
 
   // Initialize googleMapsAPI
   private async loadGoogleMapsAPI(): Promise<void> {
-    const googleApiAsyncLoader = new Loader({
-      apiKey: environment.googleApi.GOOGLEAPIKEY,
-      version: 'weekly',
-    });
-    await googleApiAsyncLoader.importLibrary('maps');
+    setOptions({key: environment.googleApi.GOOGLEAPIKEY});
+    await importLibrary('maps');
   }
 
   /**

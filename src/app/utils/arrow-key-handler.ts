@@ -1,4 +1,4 @@
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport } from '@angular/cdk/types/scrolling';
 
 const LIST_ITEM_HEIGHT = 41; // Height of each suggestion item in the list
 
