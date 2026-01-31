@@ -1,78 +1,77 @@
 <div class="m-1">
   <div class="input-group mt-2 mt-lg-0">
-    <span
-      title="Započnite pretragu vakfua klikom u polje."
-      *ngIf="
-        searchQuery === '' || searchQuery.startsWith(' ');
-        else showCountNumber
-      "
-      id="searchIcon"
+
+    @if(searchQuery === '' || searchQuery.startsWith(' ')) {
+    <span 
+      id="searchIcon" 
       class="input-group-text"
+      title="Započnite pretragu vakfua klikom u polje." 
     >
       <i class="fas fa-search-location fa-lg search-icon"></i>
     </span>
-    <ng-template #showCountNumber>
-      <span
-        title="Prikazuje broj pronađenih vakufa"
-        class="input-group-text"
-        id="searchCountNumber"
-      >
-        {{ selectedNumberOfMarkers }}
-      </span>
-    </ng-template>
-    <input
-      title="Polje za pretragu vakufa po nazivu ili broju parcele"
-      class="form-control"
-      type="search"
+    } @else {
+    <span 
+      id="searchCountNumber" 
+      class="input-group-text"
+      title="Prikazuje broj pronađenih vakufa" 
+    >
+      {{ selectedNumberOfMarkers ?? 0 }}
+    </span>
+    }
+    <input 
       id="searchQuery"
+      class="form-control" 
+      type="search"
       name="searchQuery"
+      title="Polje za pretragu vakufa po nazivu ili broju parcele" 
       aria-label="Search"
       aria-haspopup="listbox"
       aria-controls="suggestion-list"
-      aria-describedby="searchIcon searchCountNumber"
+      aria-describedby="searchIcon searchCountNumber" 
       placeholder="Naziv vakufa | broj parcele"
-      autocomplete="searchQuery"
-      [(ngModel)]="searchQuery"
+      autocomplete="searchQuery" 
+      [(ngModel)]="searchQuery" 
       (ngModelChange)="searchQueryChanges.next(searchQuery)"
-      (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)"
+      (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)" 
     />
   </div>
-  <div
-    *ngIf="isSuggestionsVisible"
-    class="input-group mt-1"
-    role="listbox"
-    aria-live="assertive"
-    aria-atomic="true"
-    id="suggestion-list"
-  >
-    <div
-      *ngIf="searchSuggestionsList.length === 0"
-      class="list-group search-suggestions"
+
+  @if (isSuggestionsVisible) {
+    <div 
+      id="suggestion-list"
+      class="input-group mt-1" 
+      role="listbox" 
+      aria-live="assertive" 
+      aria-atomic="true" 
     >
-      <span class="list-group-item text-muted"
-        >Nema vakufa za unijeti kriterijum</span
-      >
+
+    @if (searchSuggestionsList.length === 0) {
+    <div class="list-group search-suggestions">
+      <span class="list-group-item text-muted">
+        Nema vakufa za unijeti kriterijum
+      </span>
     </div>
-    <cdk-virtual-scroll-viewport
-      class="list-group search-suggestions"
+    } @else {
+    <cdk-virtual-scroll-viewport 
+      class="list-group search-suggestions" 
       itemSize="41"
     >
-      <div
-        title="Lista sa pronađenim predlozima vakufa"
+      <div 
         class="list-group-item hover-effect"
         role="option"
+        title="Lista sa pronađenim predlozima vakufa" 
         *cdkVirtualFor="let suggestion of searchSuggestionsList; let i = index"
         [ngClass]="{ selected: i === selectedSuggestionIndex }"
-        [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'"
-        (click)="selectSearchSuggestion(suggestion)"
+        [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'" (click)="selectSearchSuggestion(suggestion)"
         (keydown)="handleSearchNavigationKeys($event, i)"
       >
-        <span
-          [innerHTML]="
-            suggestion | highlightSearchTerm : searchQuery || 'Učitavanje'
-          "
-        ></span>
+        <span 
+          [innerHTML]="suggestion | highlightSearchTerm : searchQuery || 'Učitavanje'"
+        >
+        </span>
       </div>
     </cdk-virtual-scroll-viewport>
+  }
   </div>
+  }
 </div>

@@ -8,13 +8,13 @@ export function markerHoverEffect(
   svgImageElement: HTMLImageElement
 ) {
   marker.content?.addEventListener('mouseover', () => {
-    svgImageElement.src = '../assets/marker_hover.svg';
+    svgImageElement.src = '../assets/icons/marker_hover.svg';
     svgImageElement.style.transform = 'scale(1.5)';
     svgImageElement.style.transition = 'transform 0.3s ease';
   });
 
   marker.content?.addEventListener('mouseout', () => {
-    svgImageElement.src = '../assets/marker_main.svg';
+    svgImageElement.src = '../assets/icons/marker_main.svg';
     svgImageElement.style.transform = 'scale(1.3)';
   });
 }

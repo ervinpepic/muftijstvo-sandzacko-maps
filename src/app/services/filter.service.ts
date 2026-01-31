@@ -176,20 +176,11 @@ export class FilterService {
       !!this.selectedVakufType ||
       !!this.selectedCity ||
       !!this.selectedVakufName;
-    console.log('Active Filters:', {
-      searchQuery: this.searchQuery,
-      vakufType: this.selectedVakufType,
-      city: this.selectedCity,
-      vakufName: this.selectedVakufName,
-      hasActiveFilters: active,
-    });
     return active;
   }
 
   public resetMapToInitialState(): void {
-    console.log('Checking reset conditions...');
     if (!this.hasActiveFilters()) {
-      console.log('Resetting map to initial state');
       this.markerService.markers.forEach((marker) => {
         marker.map = this.mapService.map; // Re-attach all markers to the map
       });
@@ -202,7 +193,7 @@ export class FilterService {
 
       this.filteredMarkers = this.markerService.markers; // Update the filtered markers
     } else {
-      console.log('Filters are still active; no reset performed.');
+      console.warn('Cannot reset map: Active filters are present.');
     }
   }
 }

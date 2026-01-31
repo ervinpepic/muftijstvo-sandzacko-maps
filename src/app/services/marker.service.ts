@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
@@ -9,6 +9,7 @@ import {
   markerHoverEffect,
 } from '../styles/marker/marker-events';
 import { StorageUtil } from '../utils/local-storage-util';
+import {vakufMarkerData} from '../database/database-seed';
 /**
  * Service responsible for creating markers and clusters on Google Maps.
  * Initialize markers on the map an clusters them when there a collision
@@ -25,6 +26,7 @@ export class MarkerService {
     Marker
   >();
   private _markersNumber: number = 0;
+  private vakufMarkerData: Marker[] = vakufMarkerData;
 
   constructor(private firestore: Firestore) {}
 
@@ -132,7 +134,7 @@ export class MarkerService {
     )) as google.maps.MarkerLibrary;
 
     const svgImageElement = document.createElement('img');
-    svgImageElement.src = '../assets/marker_main.svg';
+    svgImageElement.src = '../assets/icons/marker_main.svg';
     svgImageElement.width = 40;
     svgImageElement.height = 40;
     svgImageElement.style.transform = 'scale(1.3)';
@@ -153,4 +155,5 @@ export class MarkerService {
 
     return marker;
   }
+
 }

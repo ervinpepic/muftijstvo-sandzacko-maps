@@ -1,47 +1,53 @@
 <div class="navbar-nav">
   <ng-select
+    id="vakufType"
+    class="custom m-1"
+    name="vakufType"
     title="Padajući meni za odabir tipa vakufa"
     #openVakufTypes
-    class="custom m-1"
-    id="vakufType"
-    name="vakufType"
     placeholder="Tip vakufa"
     [(ngModel)]="selectedVakufType"
     (ngModelChange)="filterMarkersNames(); handleVakufTypeChange()"
   >
-    <ng-option *ngFor="let vakufType of vakufObjectTypes" [value]="vakufType">
+  @for(vakufType of vakufObjectTypes; track vakufType) {
+    <ng-option [value]="vakufType">
       {{ vakufType }}
     </ng-option>
+  }
   </ng-select>
 
   <ng-select
+    id="selectedCity"
+    class="custom m-1"
+    name="selectedCity"
     title="Padajući meni za odabir grada"
     #openCities
-    class="custom m-1"
-    id="selectedCity"
-    name="selectedCity"
     placeholder="Grad"
     [(ngModel)]="selectedCity"
     (ngModelChange)="filterMarkersNames(); handleCityChange()"
   >
-    <ng-option *ngFor="let cityName of vakufCities" [value]="cityName">
-      {{ cityName }}
-    </ng-option>
+    @for (cityName of vakufCities; track cityName) {
+      <ng-option [value]="cityName">
+        {{ cityName }}
+      </ng-option>
+    }
   </ng-select>
 
   <ng-select
+    id="filteredVakufNames"
+    class="custom m-1"
+    name="filteredVakufNames"
     title="Padajući meni za odabir naziva vakufa"
     #openVakufNames
-    class="custom m-1"
     style="min-width: 250px"
-    id="filteredVakufNames"
-    name="filteredVakufNames"
     placeholder="Naziv vakufa"
     [(ngModel)]="selectedVakufName"
     (ngModelChange)="filterMarkersNames(); handleMarkersNamesChange()"
   >
-    <ng-option *ngFor="let name of filteredMarkersNames" [value]="name">
+  @for (name of filteredMarkersNames; track name) {
+    <ng-option [value]="name">
       {{ name | ellipsis : 30 }}
     </ng-option>
+  }
   </ng-select>
 </div>

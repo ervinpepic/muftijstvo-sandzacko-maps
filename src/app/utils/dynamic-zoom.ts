@@ -1,7 +1,6 @@
 const MOBILE_SCREEN_WIDTH_THRESHOLD = 600;
 const ZOOM_LEVEL_MOBILE = 8.1;
 const ZOOM_LEVEL_DEFAULT = 9;
-const ZOOM_LEVEL_THRESHOLD = 11;
 
 /**
  * Determines the initial zoom level based on the screen width.
