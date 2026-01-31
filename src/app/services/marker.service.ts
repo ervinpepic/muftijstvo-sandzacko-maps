@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Firestore } from '@angular/fire/firestore';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { SandzakCity } from '../database/sandzak-cities';
 import { VakufObjectType } from '../database/vakuf-types';
 import { Marker } from '../interface/Marker';
