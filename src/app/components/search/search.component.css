@@ -31,3 +31,9 @@ input {
 .search-icon {
   color: var(--logo-color);
 }
+
+#searchQuery:focus {
+  outline: none !important;     /* Removes the browser's default outline */
+  box-shadow: none !important; 
+  border-color: #dee2e6;
+}
