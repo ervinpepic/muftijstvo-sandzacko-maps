@@ -50,20 +50,31 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   constructor(
     private markerService: MarkerService,
-    private filterService: FilterService
+    private filterService: FilterService,
   ) {}
 
   ngOnInit(): void {
+    // Immediate filtering on input change
+    this.searchQueryChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((inputValue) => {
+        if (inputValue.trim()) {
+          this.filterMarkers(); 
+        } else {
+          this.selectedNumberOfMarkers = undefined;
+          this.filterService.resetMapToInitialState();
+        }
+      });
+
+    // Debounced suggestions generation
     this.searchQueryChanges
       .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe((inputValue) => {
         if (validateInputField(inputValue)) {
-          this.filterMarkers();
           this.generateSuggestions(inputValue);
           this.isSuggestionsVisible = true;
         } else if (!inputValue.trim()) {
           this.resetSuggestions();
-          this.filterService.resetMapToInitialState();
         }
       });
   }
@@ -81,7 +92,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private filterMarkers(): void {
     try {
       const filteredMarkers = this.filterService.filterMarkers(
-        this.markerService.markers
+        this.markerService.markers,
       );
       filteredMarkers.forEach((marker) => {
         marker.map = this.markerService.map;
@@ -145,7 +156,7 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   protected handleSearchNavigationKeys(
     event: KeyboardEvent,
-    index?: number
+    index?: number,
   ): void {
     try {
       if (!this.viewport) {
@@ -157,9 +168,9 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.searchSuggestionsList,
         (selectedIndex) =>
           this.selectSearchSuggestion(
-            this.searchSuggestionsList[selectedIndex]
+            this.searchSuggestionsList[selectedIndex],
           ),
-        this.viewport
+        this.viewport,
       );
       this.selectedSuggestionIndex = currentIndex;
     } catch (error) {

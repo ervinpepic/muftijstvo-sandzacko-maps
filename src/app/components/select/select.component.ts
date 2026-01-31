@@ -46,7 +46,7 @@ export class SelectComponent implements OnInit {
   constructor(
     private markerService: MarkerService,
     private filterService: FilterService,
-    private mapService: MapService
+    private mapService: MapService,
   ) {}
 
   ngOnInit(): void {
@@ -65,7 +65,7 @@ export class SelectComponent implements OnInit {
   protected filterMarkers(): void {
     try {
       this.filteredMarkers = this.filterService.filterMarkers(
-        this.markerService.markers
+        this.markerService.markers,
       );
     } catch (error) {
       console.warn('Error filtering markers:', error);

@@ -30,8 +30,8 @@
       aria-describedby="searchIcon searchCountNumber" 
       placeholder="Naziv vakufa | broj parcele"
       autocomplete="searchQuery" 
-      [(ngModel)]="searchQuery" 
-      (ngModelChange)="searchQueryChanges.next(searchQuery)"
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="searchQueryChanges.next($event)"
       (keydown)="handleSearchNavigationKeys($event, selectedSuggestionIndex)" 
     />
   </div>
@@ -62,7 +62,8 @@
         title="Lista sa pronađenim predlozima vakufa" 
         *cdkVirtualFor="let suggestion of searchSuggestionsList; let i = index"
         [ngClass]="{ selected: i === selectedSuggestionIndex }"
-        [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'" (click)="selectSearchSuggestion(suggestion)"
+        [attr.tabindex]="i === selectedSuggestionIndex ? '0' : '-1'" 
+        (click)="selectSearchSuggestion(suggestion)"
         (keydown)="handleSearchNavigationKeys($event, i)"
       >
         <span 
